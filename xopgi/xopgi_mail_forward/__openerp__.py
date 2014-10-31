@@ -21,17 +21,11 @@
     'category': 'Social Network',
     'application': False,
     'installable': True,
-    'summary': 'Add option to forward messages',
+    'summary': 'Allow to forward messages including the text of the original',
     'depends': ['mail', 'web'],
-    'description': '''
-Message Forwarding for OpenERP email.
-=====================================
-
-Implements message forwarding to other contacts and to database objects.
-
-    ''',
-    'data': [
-        'mail_forward_wizard.xml',
+    'description': '',
+    'update_xml': [
+        'views/mail_forward_wizard.xml',
     ],
     'css': [
         'static/src/css/mail_forward.css',

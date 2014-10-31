@@ -22,9 +22,9 @@
     'installable': True,
     'summary': 'Add an option to open the mail in a big window.',
     'depends': ['mail', 'web'],
-    'description': '''''',
-    'data': [
-        'mail_full_expand_view.xml',
+    'description': '',
+    'update_xml': [
+        'views/mail_full_expand_view.xml',
     ],
     'css': [
         'static/src/css/mail_full_expand.css',
