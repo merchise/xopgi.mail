@@ -24,11 +24,11 @@ msgstr "Mensaje"
 #. module: xopgi_mail_full_expand
 #: model:ir.actions.act_window,name:mail_full_expand.act_window
 msgid "Read Full Email"
-msgstr "Leer correo completo"
+msgstr "Ampliar"
 
 #. module: xopgi_mail_full_expand
 #. openerp-web
 #: code:xopgi_mail_full_expand/static/src/xml/mail_full_expand.xml:25
 #, python-format
 msgid "Fully expand"
-msgstr "Expandir completamente"
+msgstr "Expandir"

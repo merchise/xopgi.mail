@@ -27,10 +27,12 @@ from xoutil.iterators import first_non_null as first
 class MailComposeForward(orm.TransientModel):
     """Allow forwarding a message.
 
-    It duplicates the message and optionally attaches it to another object
-    of the database and sends it to another recipients than the original one.
+    It duplicates the message and optionally attaches it to another object of
+    the database and sends it to another recipients than the original one.
+
     """
 
+    # TODO:  Use xouef's get_modelname
     _name = str('mail.compose.forward')
     _inherit = str('mail.compose.message')
 
@@ -52,7 +54,9 @@ class MailComposeForward(orm.TransientModel):
 
         It searches for the models on the database, so if modules are not
         installed, models will not be shown.
+
         """
+        # TODO: Find modules that inherit from message
         context = context or dict()
         model_pool = self.pool.get('ir.model')
         model_ids = model_pool.search(
@@ -100,7 +104,7 @@ class MailComposeForward(orm.TransientModel):
         model = res_id = res_name = False
 
         if destination_object_id:
-            model, res_id = destination_object_id.split(',')
+            model, res_id = destination_object_id.split(str(','))
             res_id = int(res_id)
 
             context['model_list'] = context.get('model_list', [model])
