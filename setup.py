@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
-import os,
+import os
 import sys
 from setuptools import setup, find_packages
 from setuptools.command.develop import develop as _develop
@@ -28,14 +28,10 @@ def safe_read(*paths):
         return ''
 
 
-class develop(_develop):
-    pass
-
 setup(name=project_name,
       version=version,
       description="Extensions to `OpenERP` kernel for all dependant XOPGI components",
       long_description=safe_read('README.rst'),
-      cmdclass={'develop': develop},
       classifiers=[
           # Get from http://pypi.python.org/pypi?%3Aaction=list_classifiers
           dev_classifier,
