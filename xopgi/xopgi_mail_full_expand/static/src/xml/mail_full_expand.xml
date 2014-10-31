@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<template>
+  <t t-extend="mail.thread.message">
+    <t t-jquery=".oe_msg_icons" t-operation="append">
+      <span class="oe_full_expand">
+        <a title="Fully expand" class="oe_e">Ñ</a>
+      </span>
+    </t>
+  </t>
+</template>
