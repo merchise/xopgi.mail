@@ -57,6 +57,7 @@ setup(name=project_name,
       ],
       entry_points="""
       [xoeuf.addons]
-      xopgi_base = xopgi.xopgi_mail
+      xopgi_mail_forward = xopgi.xopgi_mail_forward
+      xopgi_mail_full_expand = xopgi.xopgi_mail_full_expand
       """,
       )
