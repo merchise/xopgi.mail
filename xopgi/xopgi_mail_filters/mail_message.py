@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 # --------------------------------------------------------------------------
-# xopgi_mail_forward.mail_forward
+# xopgi.mail.xopgi_mail_filters.mail_message
 # --------------------------------------------------------------------------
 # Copyright (c) 2014 Merchise Autrement and Contributors
 # All rights reserved.
@@ -28,6 +28,10 @@ from openerp.addons.mail.mail_message import mail_message as mail_msg
 from xoeuf.osv.improve import integrate_extensions
 from xoeuf.osv.orm import get_modelname
 
+
+# WARNING: Don't do this in production code.  This is only meant to be used in
+# shells.  Until shown that it does not do anything bad it's banned.  You must
+# import the functions and provide all params.
 integrate_extensions()
 
 
