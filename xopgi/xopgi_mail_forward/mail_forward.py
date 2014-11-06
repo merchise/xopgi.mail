@@ -24,7 +24,7 @@ from openerp.osv import fields, orm
 from xoutil.iterators import first_non_null as first
 
 
-class MailComposeForward(orm.TransientModel):
+class mail_compose_forward(orm.TransientModel):
     """Allow forwarding a message.
 
     It duplicates the message and optionally attaches it to another object of
@@ -125,7 +125,6 @@ class MailComposeForward(orm.TransientModel):
 
     def send_mail(self, cr, uid, ids, context=None):
         """Send mail, execute the attachment relocation if needed."""
-        result = super(MailComposeForward, self).send_mail(
             cr, uid, ids, context=context
         )
 
