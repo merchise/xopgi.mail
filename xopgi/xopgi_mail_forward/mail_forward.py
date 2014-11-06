@@ -21,7 +21,6 @@ from __future__ import (absolute_import as _py3_abs_imports,
 
 
 from openerp.osv import fields, orm
-from xoutil.iterators import first_non_null as first
 
 
 class mail_compose_forward(orm.TransientModel):
@@ -97,34 +96,9 @@ class mail_compose_forward(orm.TransientModel):
         ),
     }
 
-    def onchange_destination_object_id(self, cr, uid, ids,
-                                       destination_object_id, context=None):
-        """Update some fields for the new message."""
-        context = context or dict()
-        model = res_id = res_name = False
-
-        if destination_object_id:
-            model, res_id = destination_object_id.split(str(','))
-            res_id = int(res_id)
-
-            context['model_list'] = context.get('model_list', [model])
-            model_name = dict(self.models(cr, uid, context=context)).get(model)
-            _, res_name = first(
-                self.pool.get(model).name_get(cr, uid, res_id, context=context)
-            )
-            if model_name:
-                res_name = "%s %s" % (model_name, res_name)
-
-        return {
-            'value': {
-                'model': model,
-                'res_id': res_id,
-                'record_name': res_name
-            },
-        }
-
     def send_mail(self, cr, uid, ids, context=None):
         """Send mail, execute the attachment relocation if needed."""
+        result = super(mail_compose_forward, self).send_mail(
             cr, uid, ids, context=context
         )
 
