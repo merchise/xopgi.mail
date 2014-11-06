@@ -107,7 +107,7 @@ class mail_message(osv.Model):
         lang_domain = domain + [('lang', '=', lang)] if lang else domain
 
         ids = ir_translation.cascade_search(
-            cr, uid, source_domain, lang_domain, domain
+            cr, uid, lang_domain, source_domain, domain
         )
         translations = ir_translation.read(cr, uid, ids, fields=['src'])
         model_names = list(set(trans['src'] for trans in translations))
