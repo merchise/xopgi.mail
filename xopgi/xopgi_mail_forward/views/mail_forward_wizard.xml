@@ -9,8 +9,9 @@
   <field name="arch" type="xml">
     <xpath expr="//label[@for='partner_ids']" position="before">
       <field
-          name="destination_object_id"
-          on_change="onchange_destination_object_id(destination_object_id, context)"/>
+        name="destination_object_id"
+        attrs="{'invisible': [('destination_object_id', '!=', 'a')]}"
+      />
       <field
         name="move_attachments"
         attrs="{'invisible':
