@@ -25,10 +25,10 @@ from xoutil.functools import lru_cache
 
 from openerp.osv import fields, osv
 from openerp.addons.mail.mail_message import mail_message as mail_msg
-from xoeuf.osv.improve import integrate_extensions
 from xoeuf.osv.orm import get_modelname
-
-integrate_extensions()
+from xoeuf.osv.model_extensions import (
+    search_value, field_value, cascade_search
+)
 
 
 @lru_cache()
@@ -47,7 +47,7 @@ def translate(pool, cr, uid, text, lang_codes=(), name=None, context=None):
     lang_codes = (
         lang_codes or
         [context.get('lang')] or
-        res_lang.search_value(cr, uid, [], 'code').values()
+        search_value(res_lang, cr, uid, [], 'code').values()
     )
     translations = {code: text for code in lang_codes}
     for lang_code in lang_codes:
@@ -57,8 +57,8 @@ def translate(pool, cr, uid, text, lang_codes=(), name=None, context=None):
             ('state', '=', 'translated'),
         ]
         name_domain = domain + [('name', '=', name)] if name else domain
-        ids = ir_translation.cascade_search(cr, uid, name_domain, domain)
-        translation = ir_translation.field_value(cr, uid, ids, 'value')
+        ids = cascade_search(ir_translation, cr, uid, name_domain, domain)
+        translation = field_value(ir_translation, cr, uid, ids, 'value')
         translation = (
             first(translation.values())
             if isinstance(translation, dict)
@@ -84,7 +84,8 @@ class mail_message(osv.Model):
         for message in messages:
             names = ''
             if message['model']:
-                model_name = ir_model.search_value(
+                model_name = search_value(
+                    ir_model,
                     cr, uid, [('model', '=', message['model'])], 'name',
                     context=context,
                 )
@@ -106,13 +107,15 @@ class mail_message(osv.Model):
         domain = [('value', operator, value), model_domain]
         lang_domain = domain + [('lang', '=', lang)] if lang else domain
 
-        ids = ir_translation.cascade_search(
+        ids = cascade_search(
+            ir_translation,
             cr, uid, lang_domain, source_domain, domain
         )
         translations = ir_translation.read(cr, uid, ids, fields=['src'])
         model_names = list(set(trans['src'] for trans in translations))
 
-        models = self.pool.get('ir.model').search_value(
+        models = search_value(
+            self.pool.get('ir.model'),
             cr, uid, [('name', 'in', model_names)], 'model'
         )
         models = models.values() if isinstance(models, dict) else [models]
