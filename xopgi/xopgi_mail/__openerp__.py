@@ -16,7 +16,7 @@
 
 {
     'name': 'Mail Extensions',
-    'version': '1.0',
+    'version': '1.1',
     'author': 'Merchise Autrement',
     'category': 'Social Network',
     'application': False,
@@ -24,12 +24,4 @@
     'summary': 'Several extensions to OpenERP Messaging System',
     'depends': ['mail', 'web'],
     'description': '',
-    'update_xml': [
-    ],
-    'css': [
-    ],
-    'js': [
-    ],
-    'qweb': [
-    ],
 }
