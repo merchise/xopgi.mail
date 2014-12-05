@@ -12,16 +12,6 @@
         name="destination_object_id"
         attrs="{'invisible': [('destination_object_id', '!=', 'a')]}"
       />
-      <field
-        name="move_attachments"
-        attrs="{'invisible':
-          [
-            '|',
-            ('destination_object_id', '=', False),
-            ('attachment_ids', '=', [])
-          ]
-        }"
-      />
     </xpath>
   </field>
 </record>

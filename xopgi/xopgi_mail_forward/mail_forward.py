@@ -75,15 +75,6 @@ class mail_compose_forward(orm.TransientModel):
             help='Object where the forwarded message will be attached'
         ),
 
-        'move_attachments': fields.boolean(
-            'Move attachments',
-            help='Attachments will be assigned to the chosen destination '
-                 'object and you will be able to pick them from its '
-                 '"Attachments" button, but they will not be there for '
-                 'the current object if any. In any case you can always '
-                 'open it from the message itself.'
-        ),
-
         # Override static relation table names in mail.compose.message
         'partner_ids': fields.many2many(
             'res.partner',
@@ -95,25 +86,3 @@ class mail_compose_forward(orm.TransientModel):
             string='Attachments'
         ),
     }
-
-    def send_mail(self, cr, uid, ids, context=None):
-        """Send mail, execute the attachment relocation if needed."""
-        result = super(mail_compose_forward, self).send_mail(
-            cr, uid, ids, context=context
-        )
-
-        # Attachment relocation if needed.
-        ir_attachment = self.pool.get('ir.attachment')
-        for wz in self.browse(cr, uid, ids, context=context):
-            if (wz.move_attachments and
-                    wz.model and
-                    wz.res_id and
-                    wz.attachment_ids):
-                ir_attachment.write(
-                    cr,
-                    uid,
-                    [att.id for att in wz.attachment_ids],
-                    {'res_model': wz.model, 'res_id': wz.res_id},
-                    context=context
-                )
-        return result
