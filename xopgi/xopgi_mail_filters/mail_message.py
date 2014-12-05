@@ -128,7 +128,7 @@ class mail_message(osv.Model):
             string='Associated to',
             type='char',
             readonly=True,
-            stored=True,
+            store=True,
             selectable=True,
         ),
     }
