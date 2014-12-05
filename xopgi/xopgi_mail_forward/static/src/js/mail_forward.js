@@ -21,7 +21,7 @@ openerp.xopgi_mail_forward = function (instance) {
                        (this.show_record_name || this.parent_id)) {
                 subject.push(this.record_name);
             } else {
-                subject.push(_t("(No subject)"));
+                subject = []
             }
 
             body = (
