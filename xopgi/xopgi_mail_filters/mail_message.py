@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 # --------------------------------------------------------------------------
-# xopgi_mail_forward.mail_forward
+# xopgi.mail.xopgi_mail_filters.mail_message
 # --------------------------------------------------------------------------
 # Copyright (c) 2014 Merchise Autrement and Contributors
 # All rights reserved.
