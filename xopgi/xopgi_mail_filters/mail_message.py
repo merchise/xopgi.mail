@@ -20,53 +20,45 @@ from __future__ import (absolute_import as _py3_abs_imports,
                         unicode_literals as _py3_unicode)
 
 
-from xoutil.iterators import first_non_null as first
-from xoutil.functools import lru_cache
-
 from openerp.osv import fields, osv
 from openerp.addons.mail.mail_message import mail_message as mail_msg
 from xoeuf.osv.orm import get_modelname
-from xoeuf.osv.model_extensions import (
-    search_value, field_value, cascade_search
-)
+from xoeuf.osv.model_extensions import search_value, search_read
 
 
-@lru_cache()
-def translate(pool, cr, uid, text, lang_codes=(), name=None, context=None):
+def translate_model_name(pool, cr, uid, model, context=None):
     """Translate the `text` into language codes.
 
-    :param text: The text to translate.
-    :param lang_codes: An iterable with the list of langauges to translate to.
-    :param name: translation name
+    :param model: Model name like 'crm.partner'
 
-    :return: A dictionary {'lang_code': 'translation'}.
+    :return: A list of different possible translations of `model` name.
 
     """
-    res_lang = pool.get('res.lang')
-    ir_translation = pool.get('ir.translation')
-    lang_codes = (
-        lang_codes or
-        [context.get('lang')] or
-        search_value(res_lang, cr, uid, [], 'code').values()
+    model_names = search_value(
+        pool.get('ir.model'), cr, uid,
+        [('model', '=', model)],
+        'name'
     )
-    translations = {code: text for code in lang_codes}
-    for lang_code in lang_codes:
-        domain = [
-            ('lang', '=', lang_code),
-            ('src', '=', text),
-            ('state', '=', 'translated'),
-        ]
-        name_domain = domain + [('name', '=', name)] if name else domain
-        ids = cascade_search(ir_translation, cr, uid, name_domain, domain)
-        translation = field_value(ir_translation, cr, uid, ids, 'value')
-        translation = (
-            first(translation.values())
-            if isinstance(translation, dict)
-            else translation
-        )
-        if translation:
-            translations[lang_code] = translation
-    return translations
+    model_names = (
+        model_names.values() if isinstance(model_names, dict) else [model_names]
+    )
+    ir_translation = pool.get('ir.translation')
+    translations = search_value(
+        ir_translation, cr, uid,
+        [
+            ('name', '=', 'ir.model,name'),     # Search in model names only
+            ('src', 'in', model_names),         # Search for model name
+            ('state', '=', 'translated'),       # Search a translated name
+        ],
+        'value',
+        context=context
+    )
+    translations = set(
+        translations.values()
+        if isinstance(translations, dict)
+        else [translations]
+    )
+    return list(translations.union(set(model_names)))
 
 
 class mail_message(osv.Model):
@@ -77,43 +69,37 @@ class mail_message(osv.Model):
 
     def _get_model_names(self, cr, uid, ids, name, args=None, context=None):
         result = {}
-        ir_model = self.pool.get('ir.model')
         messages = self.read(
             cr, uid, ids=ids, fields=['model'], context=context
         )
         for message in messages:
             names = ''
             if message['model']:
-                model_name = search_value(
-                    ir_model,
-                    cr, uid, [('model', '=', message['model'])], 'name',
-                    context=context,
+                translations = translate_model_name(
+                    self.pool, cr, uid,
+                    message['model'],
+                    context=context
                 )
-                names = translate(
-                    self.pool, cr, uid, model_name, model=message['model'],
-                    context=context,
-                )
-                names = ' | '.join(names.values())
+                names = ' | '.join(translations)
             result[message['id']] = names
         return result
 
     def _search_model_names(self, cr, uid, obj, name, args, context=None):
         field, operator, value = args[0]
         ir_translation = self.pool.get('ir.translation')
-        lang = context.get('lang')
 
-        model_domain = ('name', '=', 'ir.model,name')
-        source_domain = [('src', operator, value), model_domain]
-        domain = [('value', operator, value), model_domain]
-        lang_domain = domain + [('lang', '=', lang)] if lang else domain
-
-        ids = cascade_search(
-            ir_translation,
-            cr, uid, lang_domain, source_domain, domain
+        translations = search_read(
+            ir_translation, cr, uid,
+            [
+                ('name', '=', 'ir.model,name'),     # Search in model names
+                '|',                                # If any of:
+                ('src', operator, value),           # source matches value
+                ('value', operator, value),         # translation matches value
+            ],
+            fields=['src', 'value'],
+            context=context
         )
-        translations = ir_translation.read(cr, uid, ids, fields=['src'])
         model_names = list(set(trans['src'] for trans in translations))
-
         models = search_value(
             self.pool.get('ir.model'),
             cr, uid, [('name', 'in', model_names)], 'model'
@@ -127,8 +113,5 @@ class mail_message(osv.Model):
             fnct_search=_search_model_names,
             string='Associated to',
             type='char',
-            readonly=True,
-            store=True,
-            selectable=True,
         ),
     }
