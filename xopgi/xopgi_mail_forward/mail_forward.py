@@ -68,22 +68,6 @@ class mail_compose_forward(orm.TransientModel):
         model_objs = model_pool.browse(cr, uid, model_ids, context=context)
         return [(m.model, m.name) for m in model_objs]
 
-    def default_get(self, cr, uid, fields, context=None):
-        result = super(mail_compose_forward, self).default_get(
-            cr, uid, fields, context=context
-        )
-
-        if 'destination_object_id' in result:
-            model, id = result['destination_object_id'].split(',')
-            name = self.pool.get(model).name_get(
-                cr, uid, int(id), context=context
-            )[0][1]
-
-            result['record_name'] = name
-            if not result['subject']:
-                result['subject'] = _('FWD') + ': ' + name
-        return result
-
     _columns = {
         'destination_object_id': fields.reference(
             'Destination object',
@@ -103,3 +87,19 @@ class mail_compose_forward(orm.TransientModel):
             string='Attachments'
         ),
     }
+
+    def default_get(self, cr, uid, fields, context=None):
+        result = super(mail_compose_forward, self).default_get(
+            cr, uid, fields, context=context
+        )
+
+        if 'destination_object_id' in result:
+            model, id = result['destination_object_id'].split(',')
+            name = self.pool.get(model).name_get(
+                cr, uid, int(id), context=context
+            )[0][1]
+
+            result['record_name'] = name
+            if not result['subject']:
+                result['subject'] = _('FWD') + ': ' + name
+        return result
