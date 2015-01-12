@@ -93,6 +93,10 @@ class mail_compose_forward(orm.TransientModel):
             cr, uid, fields, context=context
         )
 
+        result['subject'] = (
+            result.get('subject') or context.get('default_subject')
+        )
+
         if 'destination_object_id' in result:
             model, id = result['destination_object_id'].split(',')
             name = self.pool.get(model).name_get(
