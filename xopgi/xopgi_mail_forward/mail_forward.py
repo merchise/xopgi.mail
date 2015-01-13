@@ -32,7 +32,7 @@ class mail_compose_forward(orm.TransientModel):
     """
 
     # TODO:  Use xouef's get_modelname
-    _name = str('mail.compose.message')
+    _name = 'mail.compose.message'
     _inherit = _name
 
     _models = [
