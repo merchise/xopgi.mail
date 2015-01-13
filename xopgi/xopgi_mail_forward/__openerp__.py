@@ -26,11 +26,12 @@
     'description': '',
     'update_xml': [
         'views/mail_forward_wizard.xml',
-    ] + (
-        [] if ODOO_VERSION_INFO < (8, 0) else [  # noqa
-            'views/assets.xml',
-        ]
-    ),
+        (
+            'views/assets.xml'
+            if ODOO_VERSION_INFO >= (8, 0)  # noqa
+            else 'views/dummy.xml'
+        ),
+    ],
     'css': [
         'static/src/css/mail_forward.css',
     ],
