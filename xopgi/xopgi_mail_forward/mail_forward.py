@@ -16,8 +16,7 @@
 
 from __future__ import (absolute_import as _py3_abs_imports,
                         division as _py3_division,
-                        print_function as _py3_print,
-                        unicode_literals as _py3_unicode)
+                        print_function as _py3_print)
 
 
 from openerp.osv import fields, orm
@@ -33,8 +32,8 @@ class mail_compose_forward(orm.TransientModel):
     """
 
     # TODO:  Use xouef's get_modelname
-    _name = str('mail.compose.forward')
-    _inherit = str('mail.compose.message')
+    _name = str('mail.compose.message')
+    _inherit = _name
 
     _models = [
         'crm.lead',
