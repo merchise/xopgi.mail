@@ -74,17 +74,6 @@ class mail_compose_forward(orm.TransientModel):
             size=128,
             help='Object where the forwarded message will be attached'
         ),
-
-        # Override static relation table names in mail.compose.message
-        'partner_ids': fields.many2many(
-            'res.partner',
-            string='Additional contacts'
-        ),
-
-        'attachment_ids': fields.many2many(
-            'ir.attachment',
-            string='Attachments'
-        ),
     }
 
     def default_get(self, cr, uid, fields, context=None):
