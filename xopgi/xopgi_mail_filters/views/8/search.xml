@@ -2,13 +2,12 @@
 <openerp>
   <data>
 
-    <record id="message_model_name_search_filter" model="ir.ui.view">
+    <record id="message_model_name_search_filter8" model="ir.ui.view">
       <field name="name">mail.message.search</field>
       <field name="model">mail.message</field>
       <field name="inherit_id" ref="mail.view_message_search" />
       <field name="arch" type="xml">
-        <xpath expr="//field[@name='author_id']" position="after">
-          <field name="model_names" />
+        <xpath expr="//field[@name='model']" position="replace">
         </xpath>
       </field>
     </record>
