@@ -10,6 +10,8 @@
     <xpath expr="//field[@name='author_id']" position="after">
       <field name="model_names" />
     </xpath>
+    <xpath expr="//field[@name='model']" position="replace">
+    </xpath>
   </field>
 </record>
 
