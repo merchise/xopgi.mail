@@ -18,6 +18,7 @@ from __future__ import (absolute_import as _py3_abs_imports,
                         division as _py3_division,
                         print_function as _py3_print)
 
+from lxml import html
 
 from openerp.osv import fields, orm
 from openerp.tools.translate import _
@@ -83,6 +84,11 @@ class mail_compose_forward(orm.TransientModel):
 
         result['subject'] = (
             result.get('subject') or context.get('default_subject')
+        )
+
+        # Fix unclosed HTML tags.
+        result['body'] = (
+            html.tostring(html.document_fromstring(result.get('body', '')))
         )
 
         if 'destination_object_id' in result:

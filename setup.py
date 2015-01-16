@@ -49,6 +49,7 @@ setup(name=project_name,
       install_requires=[
           'xoeuf',
           'xoutil',
+          'lxml',
       ],
       entry_points="""
       [xoeuf.addons]
