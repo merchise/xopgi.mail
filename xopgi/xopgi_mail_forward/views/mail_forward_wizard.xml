@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-<data>
+  <data>
 
-<record id="compose_action" model="ir.actions.act_window">
-  <field name="name">Forward Email</field>
-  <field name="res_model">mail.compose.message</field>
-  <field name="src_model">mail.message</field>
-  <field name="type">ir.actions.act_window</field>
-  <field name="view_type">form</field>
-  <field name="view_mode">form</field>
-  <field name="target">new</field>
-</record>
+    <record id="compose_action" model="ir.actions.act_window">
+      <field name="name">Forward Email</field>
+      <field name="res_model">mail.compose.message</field>
+      <field name="src_model">mail.message</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">form</field>
+      <field name="target">new</field>
+    </record>
 
-</data>
+  </data>
 </openerp>
