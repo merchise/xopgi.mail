@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_mail_forward.mail_forward
 # --------------------------------------------------------------------------
-# Copyright (c) 2014 Merchise Autrement and Contributors
+# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # Author: Eddy Ernesto del Valle Pino <eddy@merchise.org>
@@ -87,9 +87,9 @@ class mail_compose_forward(orm.TransientModel):
         )
 
         # Fix unclosed HTML tags.
-        result['body'] = (
-            html.tostring(html.document_fromstring(result.get('body', '')))
-        )
+        body = result.get('body', '')
+        if body:
+            result['body'] = html.tostring(html.document_fromstring(body))
 
         if 'destination_object_id' in result:
             model, id = result['destination_object_id'].split(',')
