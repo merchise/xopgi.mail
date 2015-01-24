@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_mail.__openerp__
 # --------------------------------------------------------------------------
-# Copyright (c) 2014 Merchise Autrement and Contributors
+# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # Author: Eddy Ernesto del Valle Pino <eddy@merchise.org>
@@ -18,10 +18,14 @@
     'name': 'Mail Extensions',
     'version': '1.1',
     'author': 'Merchise Autrement',
-    'category': 'Social Network',
+    'category': 'Hidden',
     'application': False,
     'installable': True,
     'summary': 'Several extensions to OpenERP Messaging System',
     'depends': ['mail', 'web'],
+    'data': [
+        'views/config.xml',
+    ],
     'description': '',
+    'auto_install': True,
 }

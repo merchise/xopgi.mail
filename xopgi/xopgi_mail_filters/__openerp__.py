@@ -18,7 +18,7 @@
     'name': 'XOPGI Mail Filters',
     'version': '1.0',
     'author': 'Merchise Autrement',
-    'category': 'Social Network',
+    'category': 'Hidden',
     'application': False,
     'installable': True,
     'summary': 'Add default filters for messages.',
@@ -31,4 +31,5 @@
             else 'dummy.xml'
         ),
     ],
+    'auto_install': True,
 }
