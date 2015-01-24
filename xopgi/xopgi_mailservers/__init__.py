@@ -57,7 +57,7 @@ class MailServer(Model):
     _inherit = 'ir.mail_server'
 
     _columns = {
-        'delivered':
+        'delivered_address':
             fields.char(
                 'Delivered to',
                 required=False,
@@ -74,7 +74,7 @@ class SameOriginTransport(MailTransportRouter):
     def servers(cls, obj, cr, uid):
         from xoeuf.osv.model_extensions import search_browse
         servers = obj.pool['ir.mail_server']
-        query = [('delivered', '!=', None)]
+        query = [('delivered_address', '!=', None)]
         found = search_browse(servers, cr, uid, query)
         return found
 
@@ -96,6 +96,13 @@ class SameOriginTransport(MailTransportRouter):
             if server:
                 _logger.debug('Chose SMTP outgoing server %s', server.name)
                 connection_data.update(mail_server_id=server.id)
+                address = server.delivered_address
+                # Ensure the Return-Path is used for the envelop and matches
+                # the Sender (not necessarily the From).  The Reply-To also
+                # changes, it is assumed you'll have a matching POP/IMAP
+                # incoming fetchmail server for the same account.
+                message['Return-Path'] = message['Sender'] = address
+                message['Reply-To'] = address
         return TransportRouteData(message, connection_data)
 
     def origin_server(self, obj, cr, uid, message):
@@ -108,6 +115,6 @@ class SameOriginTransport(MailTransportRouter):
         ])
         addresses = tuple({address for _, address in recipients if address})
         servers = obj.pool['ir.mail_server']
-        query = [('delivered', 'in', addresses)]
+        query = [('delivered_address', 'in', addresses)]
         found = search_browse(servers, cr, uid, query, ensure_list=True)
         return found[0] if found else None

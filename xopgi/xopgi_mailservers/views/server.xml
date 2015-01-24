@@ -11,7 +11,7 @@
       <field name="arch" type="xml">
         <xpath expr="//group[position()=last()]" position="after">
           <group col="4" string="Origin server detection">
-            <field name="delivered"/>
+            <field name="delivered_address"/>
           </group>
         </xpath>
       </field>
