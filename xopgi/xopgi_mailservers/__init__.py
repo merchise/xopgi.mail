@@ -13,7 +13,7 @@
 # Created on 2015-01-22
 
 '''A transport that tries to send a message using an SMTP server that
-"matches" the original receiver of the message.
+"matches" the original receiver of the first message in the thread.
 
 This works like this:
 
@@ -33,9 +33,6 @@ This works like this:
   Also the From address of the message will be set to that of the outgoing
   SMTP server.
 
-
-.. note:: This will only choose SMTP server with authentication for which the
-   user is a full email address.
 
 '''
 
@@ -65,7 +62,7 @@ class MailServer(Model):
                       'recipient of this server.  This way we can match this '
                       'server for outgoing messages in response to emails '
                       'delivered to this address.'),
-            )
+            ),
     }
 
 
@@ -93,8 +90,12 @@ class SameOriginTransport(MailTransportRouter):
             parent = refs[0]
             mail = email.message_from_string(parent.raw_email)
             server = self.origin_server(obj, cr, uid, mail)
-            if server:
-                _logger.debug('Chose SMTP outgoing server %s', server.name)
+            originators = self.get_authors(mail)
+            recipients = self.get_recipients(message)
+            # Only use this server for messages going to the originators, i.e
+            # the authors of the parent email.
+            if server and (set(recipients) & set(originators)):
+                _logger.debug('Choosing SMTP outgoing server %s', server.name)
                 connection_data.update(mail_server_id=server.id)
                 address = server.delivered_address
                 # Ensure the Return-Path is used for the envelop and matches
@@ -105,16 +106,25 @@ class SameOriginTransport(MailTransportRouter):
                 message['Reply-To'] = address
         return TransportRouteData(message, connection_data)
 
-    def origin_server(self, obj, cr, uid, message):
-        '''Get the "origin" server for a message.'''
-        from xoeuf.osv.model_extensions import search_browse
+    def get_authors(self, message):
+        from email.utils import getaddresses
+        authors = getaddresses([message['From']])
+        return tuple(address for _, address in authors if address)
+
+    def get_recipients(self, message):
         from email.utils import getaddresses
         recipients = getaddresses([
             message[header] or ''
             for header in ('To', 'Cc', 'Delivered-To')
         ])
         addresses = tuple({address for _, address in recipients if address})
-        servers = obj.pool['ir.mail_server']
+        return addresses
+
+    def origin_server(self, obj, cr, uid, message):
+        '''Get the "origin" server for a message.'''
+        from xoeuf.osv.model_extensions import search_browse
+        addresses = self.get_recipients(message)
         query = [('delivered_address', 'in', addresses)]
+        servers = obj.pool['ir.mail_server']
         found = search_browse(servers, cr, uid, query, ensure_list=True)
         return found[0] if found else None
