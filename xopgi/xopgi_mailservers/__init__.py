@@ -69,10 +69,11 @@ class MailServer(Model):
 class SameOriginTransport(MailTransportRouter):
     @classmethod
     def servers(cls, obj, cr, uid):
+        from openerp import SUPERUSER_ID
         from xoeuf.osv.model_extensions import search_browse
         servers = obj.pool['ir.mail_server']
         query = [('delivered_address', '!=', None)]
-        found = search_browse(servers, cr, uid, query)
+        found = search_browse(servers, cr, SUPERUSER_ID, query)
         return found
 
     @classmethod
@@ -122,9 +123,11 @@ class SameOriginTransport(MailTransportRouter):
 
     def origin_server(self, obj, cr, uid, message):
         '''Get the "origin" server for a message.'''
+        from openerp import SUPERUSER_ID
         from xoeuf.osv.model_extensions import search_browse
         addresses = self.get_recipients(message)
         query = [('delivered_address', 'in', addresses)]
         servers = obj.pool['ir.mail_server']
-        found = search_browse(servers, cr, uid, query, ensure_list=True)
+        found = search_browse(servers, cr, SUPERUSER_ID, query,
+                              ensure_list=True)
         return found[0] if found else None
