@@ -45,8 +45,8 @@ from xoutil import logger as _logger
 from openerp.osv.orm import Model
 from openerp.osv import fields
 
-from openerp.addons.xopgi_mail_threads.transports import MailTransportRouter
-from openerp.addons.xopgi_mail_threads.transports import TransportRouteData
+from openerp.addons.xopgi_mail_threads import MailTransportRouter
+from openerp.addons.xopgi_mail_threads import TransportRouteData
 
 
 class MailServer(Model):
