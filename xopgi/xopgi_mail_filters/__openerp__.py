@@ -16,7 +16,7 @@
 
 {
     'name': 'XOPGI Mail Filters',
-    'version': '1.0',
+    'version': '1.2',
     'author': 'Merchise Autrement',
     'category': 'Hidden',
     'application': False,
