@@ -43,11 +43,6 @@ openerp.xopgi_mail_forward = function (instance) {
                 default_subject: subject.join(": "),
             };
 
-            if (this.model && this.res_id) {
-                context.default_destination_object_id =
-                    [this.model, this.res_id].join();
-            }
-
             // Get the action data and execute it to open the composer wizard
             var do_action = this.do_action;
             this.rpc(

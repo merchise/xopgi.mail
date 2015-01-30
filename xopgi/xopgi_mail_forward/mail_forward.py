@@ -20,7 +20,7 @@ from __future__ import (absolute_import as _py3_abs_imports,
 
 from lxml import html
 
-from openerp.osv import fields, orm
+from openerp.osv import orm
 from openerp.tools.translate import _
 
 
@@ -36,65 +36,22 @@ class mail_compose_forward(orm.TransientModel):
     _name = 'mail.compose.message'
     _inherit = _name
 
-    _models = [
-        'crm.lead',
-        'crm.meeting',
-        'crm.phonecall',
-        'mail.group',
-        'note.note',
-        'product.product',
-        'project.project',
-        'project.task',
-        'res.partner',
-        'sale.order',
-    ]
-
-    def models(self, cr, uid, context=None):
-        """Get allowed models and their names.
-
-        It searches for the models on the database, so if modules are not
-        installed, models will not be shown.
-
-        """
-        # TODO: Find modules that inherit from message
-        context = context or dict()
-        model_pool = self.pool.get('ir.model')
-        model_ids = model_pool.search(
-            cr, uid,
-            [('model', 'in', context.get("model_list", self._models))],
-            order="name",
-            context=context
-        )
-        model_objs = model_pool.browse(cr, uid, model_ids, context=context)
-        return [(m.model, m.name) for m in model_objs]
-
-    _columns = {
-        'destination_object_id': fields.reference(
-            'Destination object',
-            selection=models,
-            size=128,
-            help='Object where the forwarded message will be attached'
-        ),
-    }
-
     def default_get(self, cr, uid, fields, context=None):
         result = super(mail_compose_forward, self).default_get(
             cr, uid, fields, context=context
         )
-
         result['subject'] = (
             result.get('subject') or context.get('default_subject')
         )
-
         # Fix unclosed HTML tags.
         body = result.get('body', '')
         if body:
             result['body'] = html.tostring(html.document_fromstring(body))
-
-        if 'destination_object_id' in result:
-            model, id = result['destination_object_id'].split(',')
-            name = self.pool.get(model).name_get(
-                cr, uid, int(id), context=context
+        model = context.get('default_model', None)
+        if model:
+            res_id = int(context.get('default_res_id'))
+            name = self.pool[model].name_get(
+                cr, uid, res_id, context=context
             )[0][1]
 
             result['record_name'] = name
