@@ -9,7 +9,7 @@ openerp.xopgi_mail_forward = function (instance) {
 
         on_message_forward: function () {
             // Generate email subject as possible from record_name and subject
-            foward_header = _t('FWD');
+            foward_header = _t('Fwd:');
             subject = [foward_header];
             if (_.string.startsWith(this.subject, foward_header)) {
                 subject.pop();

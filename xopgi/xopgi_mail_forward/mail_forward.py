@@ -19,6 +19,7 @@ from __future__ import (absolute_import as _py3_abs_imports,
                         print_function as _py3_print)
 
 from lxml import html
+from xoutil.string import cut_prefixes
 
 from openerp.osv import orm
 from openerp.tools.translate import _
@@ -53,8 +54,9 @@ class mail_compose_forward(orm.TransientModel):
             name = self.pool[model].name_get(
                 cr, uid, res_id, context=context
             )[0][1]
-
             result['record_name'] = name
             if not result['subject']:
-                result['subject'] = _('FWD') + ': ' + name
+                result['subject'] = _('Fwd:') + cut_prefixes(
+                    name, _('Re:'), _('Fwd:')
+                )
         return result
