@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_mail_expand
 # --------------------------------------------------------------------------
-# Copyright (c) 2014 Merchise Autrement and Contributors
+# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # Author: Eddy Ernesto del Valle Pino <eddy@merchise.org>
@@ -15,11 +15,12 @@
 
 {
     'name': 'XOPGI Mail Full Expand',
-    'version': '1.0',
+    'version': '1.2',
     "author": 'Merchise Autrement',
     'category': 'Social Network',
     'application': False,
     'installable': True,
+    'auto_install': True,
     'summary': 'Add an option to open the mail in a big window.',
     'depends': ['mail', 'web'],
     'description': '',

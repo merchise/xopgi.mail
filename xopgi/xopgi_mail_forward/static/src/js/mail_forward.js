@@ -9,7 +9,7 @@ openerp.xopgi_mail_forward = function (instance) {
 
         on_message_forward: function () {
             // Generate email subject as possible from record_name and subject
-            foward_header = _t('FWD');
+            foward_header = _t('Fwd:');
             subject = [foward_header];
             if (_.string.startsWith(this.subject, foward_header)) {
                 subject.pop();
@@ -21,7 +21,7 @@ openerp.xopgi_mail_forward = function (instance) {
                        (this.show_record_name || this.parent_id)) {
                 subject.push(this.record_name);
             } else {
-                subject.push(_t("(No subject)"));
+                subject = []
             }
 
             body = (
@@ -42,11 +42,6 @@ openerp.xopgi_mail_forward = function (instance) {
                 default_res_id: this.res_id,
                 default_subject: subject.join(": "),
             };
-
-            if (this.model && this.res_id) {
-                context.default_destination_object_id =
-                    [this.model, this.res_id].join();
-            }
 
             // Get the action data and execute it to open the composer wizard
             var do_action = this.do_action;

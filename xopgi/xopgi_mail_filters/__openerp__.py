@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_mail_forward.__openerp__
 # --------------------------------------------------------------------------
-# Copyright (c) 2014 Merchise Autrement and Contributors
+# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # Author: Eddy Ernesto del Valle Pino <eddy@merchise.org>
@@ -16,14 +16,20 @@
 
 {
     'name': 'XOPGI Mail Filters',
-    'version': '1.0',
+    'version': '1.2',
     'author': 'Merchise Autrement',
-    'category': 'Social Network',
+    'category': 'Hidden',
     'application': False,
     'installable': True,
     'summary': 'Add default filters for messages.',
     'depends': ['base', 'mail'],
-    'update_xml': [
+    'data': [
         'views/mail_message_search.xml',
+        (
+            'views/8/search.xml'
+            if ODOO_VERSION_INFO >= (8, )
+            else 'dummy.xml'
+        ),
     ],
+    'auto_install': True,
 }

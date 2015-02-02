@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_mail_forward.__openerp__
 # --------------------------------------------------------------------------
-# Copyright (c) 2014 Merchise Autrement and Contributors
+# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # Author: Eddy Ernesto del Valle Pino <eddy@merchise.org>
@@ -16,16 +16,21 @@
 
 {
     'name': 'XOPGI Mail Forward',
-    'version': '1.0',
+    'version': '1.2',
     'author': 'Merchise Autrement',
-    'category': 'Social Network',
+    'category': 'Hidden',
     'application': False,
     'installable': True,
     'summary': 'Allow to forward messages including the text of the original',
     'depends': ['mail', 'web'],
     'description': '',
-    'update_xml': [
+    'data': [
         'views/mail_forward_wizard.xml',
+        (
+            'views/assets.xml'
+            if ODOO_VERSION_INFO >= (8, 0)  # noqa
+            else 'views/dummy.xml'
+        ),
     ],
     'css': [
         'static/src/css/mail_forward.css',

@@ -49,7 +49,7 @@ setup(name=project_name,
       install_requires=[
           'xoeuf',
           'xoutil',
-          'openerp',
+          'lxml',
       ],
       entry_points="""
       [xoeuf.addons]

@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_mail_forward.mail_forward
 # --------------------------------------------------------------------------
-# Copyright (c) 2014 Merchise Autrement and Contributors
+# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # Author: Eddy Ernesto del Valle Pino <eddy@merchise.org>
@@ -16,11 +16,13 @@
 
 from __future__ import (absolute_import as _py3_abs_imports,
                         division as _py3_division,
-                        print_function as _py3_print,
-                        unicode_literals as _py3_unicode)
+                        print_function as _py3_print)
 
+from lxml import html
+from xoutil.string import cut_prefixes
 
-from openerp.osv import fields, orm
+from openerp.osv import orm
+from openerp.tools.translate import _
 
 
 class mail_compose_forward(orm.TransientModel):
@@ -32,88 +34,29 @@ class mail_compose_forward(orm.TransientModel):
     """
 
     # TODO:  Use xouef's get_modelname
-    _name = str('mail.compose.forward')
-    _inherit = str('mail.compose.message')
+    _name = 'mail.compose.message'
+    _inherit = _name
 
-    _models = [
-        'crm.lead',
-        'crm.meeting',
-        'crm.phonecall',
-        'mail.group',
-        'note.note',
-        'product.product',
-        'project.project',
-        'project.task',
-        'res.partner',
-        'sale.order',
-    ]
-
-    def models(self, cr, uid, context=None):
-        """Get allowed models and their names.
-
-        It searches for the models on the database, so if modules are not
-        installed, models will not be shown.
-
-        """
-        # TODO: Find modules that inherit from message
-        context = context or dict()
-        model_pool = self.pool.get('ir.model')
-        model_ids = model_pool.search(
-            cr, uid,
-            [('model', 'in', context.get("model_list", self._models))],
-            order="name",
-            context=context
+    def default_get(self, cr, uid, fields, context=None):
+        result = super(mail_compose_forward, self).default_get(
+            cr, uid, fields, context=context
         )
-        model_objs = model_pool.browse(cr, uid, model_ids, context=context)
-        return [(m.model, m.name) for m in model_objs]
-
-    _columns = {
-        'destination_object_id': fields.reference(
-            'Destination object',
-            selection=models,
-            size=128,
-            help='Object where the forwarded message will be attached'
-        ),
-
-        'move_attachments': fields.boolean(
-            'Move attachments',
-            help='Attachments will be assigned to the chosen destination '
-                 'object and you will be able to pick them from its '
-                 '"Attachments" button, but they will not be there for '
-                 'the current object if any. In any case you can always '
-                 'open it from the message itself.'
-        ),
-
-        # Override static relation table names in mail.compose.message
-        'partner_ids': fields.many2many(
-            'res.partner',
-            string='Additional contacts'
-        ),
-
-        'attachment_ids': fields.many2many(
-            'ir.attachment',
-            string='Attachments'
-        ),
-    }
-
-    def send_mail(self, cr, uid, ids, context=None):
-        """Send mail, execute the attachment relocation if needed."""
-        result = super(mail_compose_forward, self).send_mail(
-            cr, uid, ids, context=context
+        result['subject'] = (
+            result.get('subject') or context.get('default_subject')
         )
-
-        # Attachment relocation if needed.
-        ir_attachment = self.pool.get('ir.attachment')
-        for wz in self.browse(cr, uid, ids, context=context):
-            if (wz.move_attachments and
-                    wz.model and
-                    wz.res_id and
-                    wz.attachment_ids):
-                ir_attachment.write(
-                    cr,
-                    uid,
-                    [att.id for att in wz.attachment_ids],
-                    {'res_model': wz.model, 'res_id': wz.res_id},
-                    context=context
+        # Fix unclosed HTML tags.
+        body = result.get('body', '')
+        if body:
+            result['body'] = html.tostring(html.document_fromstring(body))
+        model = context.get('default_model', None)
+        if model:
+            res_id = int(context.get('default_res_id'))
+            name = self.pool[model].name_get(
+                cr, uid, res_id, context=context
+            )[0][1]
+            result['record_name'] = name
+            if not result['subject']:
+                result['subject'] = _('Fwd:') + cut_prefixes(
+                    name, _('Re:'), _('Fwd:')
                 )
         return result

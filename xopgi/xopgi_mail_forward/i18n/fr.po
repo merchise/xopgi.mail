@@ -1,53 +1,49 @@
 # Translation of OpenERP Server.
 # This file contains the translation of the following modules:
-# 	* xopgi_mail_forward
+#	* xopgi_mail_forward
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenERP Server 7.0-20141201-113829-13d0934\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-04 03:31+0000\n"
-"PO-Revision-Date: 2014-12-04 09:59-0500\n"
-"Last-Translator: Eddy Ernesto del Valle Pino <xigurat@gmail.com>\n"
+"POT-Creation-Date: 2014-12-04 03:32+0000\n"
+"PO-Revision-Date: 2014-12-04 03:32+0000\n"
+"Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
-"X-Generator: Poedit 1.5.4\n"
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,notified_partner_ids:0
-msgid ""
-"Partners that have a notification pushing this message in their mailboxes"
-msgstr "Contactos que tendran una notificación en sus buzones de correo."
+msgid "Partners that have a notification pushing this message in their mailboxes"
+msgstr "Partners that have a notification pushing this message in their mailboxes"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,vote_user_ids:0
 msgid "Votes"
-msgstr "Votos"
+msgstr "Votes"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,email_from:0
 msgid "From"
-msgstr "De"
+msgstr "From"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,template_id:0
 msgid "Template"
-msgstr "Plantilla"
+msgstr "Template"
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,starred:0
 msgid "Current user has a starred notification linked to this message"
-msgstr ""
-"El usuario actual tiene una notificación por realizar vinculada a este "
-"mensaje"
+msgstr "Current user has a starred notification linked to this message"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,author_id:0
 msgid "Author"
-msgstr "Autor"
+msgstr "Author"
 
 #. module: xopgi_mail_forward
 #. openerp-web
@@ -66,58 +62,50 @@ msgstr "Date:"
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,type:0
-msgid ""
-"Message type: email for email message, notification for system message, "
-"comment for other messages such as user replies"
-msgstr ""
-"Tipo de mensake: correo para mensajes de correo, notificación para mensajes "
-"del sistema, comentario para otros mensajes tales como respuestas de usuarios"
+msgid "Message type: email for email message, notification for system message, comment for other messages such as user replies"
+msgstr "Message type: email for email message, notification for system message, comment for other messages such as user replies"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,notified_partner_ids:0
 msgid "Notified partners"
-msgstr "Empresas notificadas"
+msgstr "Notified partners"
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,body:0
 msgid "Automatically sanitized HTML contents"
-msgstr "Contenidos HTML automáticamente desinfectados"
+msgstr "Automatically sanitized HTML contents"
 
 #. module: xopgi_mail_forward
 #. openerp-web
 #: code:addons/xopgi_mail_forward/static/src/xml/mail_forward.xml:25
 #, python-format
 msgid "Forward"
-msgstr "Reenvío "
+msgstr "Forward"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,type:0
 msgid "Type"
-msgstr "Tipo"
+msgstr "Type"
 
 #. module: xopgi_mail_forward
 #: selection:mail.compose.forward,type:0
 msgid "Email"
-msgstr "Correo electrónico"
+msgstr "Email"
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,email_from:0
-msgid ""
-"Email address of the sender. This field is set when no matching partner is "
-"found for incoming emails."
-msgstr ""
-"Dirección de correo electrónico del autor. Este campo se establece cuando no "
-"se puede encontrar una empresa correspondiente para los correos entrantes."
+msgid "Email address of the sender. This field is set when no matching partner is found for incoming emails."
+msgstr "Email address of the sender. This field is set when no matching partner is found for incoming emails."
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,record_name:0
 msgid "Name get of the related document."
-msgstr "Obtener nombre del documento relacionado."
+msgstr "Name get of the related document."
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,notification_ids:0
 msgid "Notifications"
-msgstr "Notificaciones"
+msgstr "Notifications"
 
 #. module: xopgi_mail_forward
 #. openerp-web
@@ -129,155 +117,147 @@ msgstr "Forwarded message"
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,parent_id:0
 msgid "Parent Message"
-msgstr "Mensaje padre"
+msgstr "Parent Message"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,res_id:0
 msgid "Related Document ID"
-msgstr "ID del documento relacionado"
+msgstr "Related Document ID"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,date:0
 msgid "Date"
-msgstr "Fecha"
+msgstr "Date"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,message_id:0
 msgid "Message-Id"
-msgstr "ID del mensaje"
+msgstr "Message-Id"
 
 #. module: xopgi_mail_forward
 #. openerp-web
 #: code:addons/xopgi_mail_forward/static/src/js/mail_forward.js:32
 #, python-format
 msgid "From:"
-msgstr "De:"
+msgstr "From:"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,to_read:0
 msgid "To read"
-msgstr "Para leer"
+msgstr "To read"
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,message_id:0
 msgid "Message unique identifier"
-msgstr "Identificador único del mensaje"
+msgstr "Message unique identifier"
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,author_id:0
-msgid ""
-"Author of the message. If not set, email_from may hold an email address that "
-"did not match any partner."
-msgstr ""
-"Autor del mensaje. Si no está establecido, puede que encuentres una "
-"dirección que no coincide con ninguna empresa en \"email_from\"."
+msgid "Author of the message. If not set, email_from may hold an email address that did not match any partner."
+msgstr "Author of the message. If not set, email_from may hold an email address that did not match any partner."
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,vote_user_ids:0
 msgid "Users that voted for this message"
-msgstr "Usuarios que han votado por este mensaje"
+msgstr "Users that voted for this message"
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,to_read:0
 msgid "Current user has an unread notification linked to this message"
-msgstr ""
-"El usuario actual tiene una notificación sin leer vinculada a este mensaje"
+msgstr "Current user has an unread notification linked to this message"
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,destination_object_id:0
 msgid "Object where the forwarded message will be attached"
-msgstr "Objeto al que se enganchará el mensaje reenviado"
+msgstr "Object where the forwarded message will be attached"
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,notification_ids:0
-msgid ""
-"Technical field holding the message notifications. Use notified_partner_ids "
-"to access notified partners."
-msgstr ""
-"Campo técnico que contiene las notificaciones del mensaje. Use "
-"\"notified_partner_ids\" para acceder a las empresas notificadas."
+msgid "Technical field holding the message notifications. Use notified_partner_ids to access notified partners."
+msgstr "Technical field holding the message notifications. Use notified_partner_ids to access notified partners."
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,starred:0
 msgid "Starred"
-msgstr "Por realizar"
+msgstr "Starred"
 
 #. module: xopgi_mail_forward
 #: model:ir.model,name:xopgi_mail_forward.model_mail_compose_forward
 msgid "Email composition wizard"
-msgstr "Asistente de composición de e-mail"
+msgstr "Assistant de composition de courriel"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,composition_mode:0
 msgid "Composition mode"
-msgstr "Modo de composición"
+msgstr "Composition mode"
 
 #. module: xopgi_mail_forward
 #: selection:mail.compose.forward,type:0
 msgid "Comment"
-msgstr "Comentario"
+msgstr "Comment"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,model:0
 msgid "Related Document Model"
-msgstr "Modelo del documento relacionado"
+msgstr "Related Document Model"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,attachment_ids:0
 msgid "Attachments"
-msgstr "Adjuntos"
+msgstr "Attachments"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,record_name:0
 msgid "Message Record Name"
-msgstr "Nombre del registro del mensaje"
+msgstr "Message Record Name"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,subtype_id:0
 msgid "Subtype"
-msgstr "Subtipo"
+msgstr "Subtype"
 
 #. module: xopgi_mail_forward
 #: model:ir.actions.act_window,name:xopgi_mail_forward.compose_action
 msgid "Forward Email"
-msgstr "Reenviar correo electrónico"
+msgstr "Forward Email"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,partner_ids:0
 msgid "Additional contacts"
-msgstr "Contactos adicionales"
+msgstr "Additional contacts"
 
 #. module: xopgi_mail_forward
 #: help:mail.compose.forward,parent_id:0
 msgid "Initial thread message."
-msgstr "Mensaje inicial del hilo."
+msgstr "Initial thread message."
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,child_ids:0
 msgid "Child Messages"
-msgstr "Mensajes hijos"
+msgstr "Child Messages"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,filter_id:0
 msgid "Filters"
-msgstr "Filtros"
+msgstr "Filters"
 
 #. module: xopgi_mail_forward
 #: selection:mail.compose.forward,type:0
 msgid "System notification"
-msgstr "Notificación del sistema"
+msgstr "System notification"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,subject:0
 msgid "Subject"
-msgstr "Asunto"
+msgstr "Subject"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,body:0
 msgid "Contents"
-msgstr "Contenidos"
+msgstr "Contents"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,destination_object_id:0
 msgid "Destination object"
-msgstr "Objeto de destino"
+msgstr "Destination object"
+
