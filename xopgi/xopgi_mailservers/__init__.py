@@ -109,8 +109,14 @@ class SameOriginTransport(MailTransportRouter):
 
     def get_authors(self, message):
         from email.utils import getaddresses
-        authors = getaddresses([message['From']])
-        return tuple(address for _, address in authors if address)
+        if message['From']:
+            authors = getaddresses([message['From']])
+            return tuple(address for _, address in authors if address)
+        else:
+            _logger.warn(
+                'No From address for message %s', message['Message-Id']
+            )
+            return tuple()
 
     def get_recipients(self, message):
         from email.utils import getaddresses
