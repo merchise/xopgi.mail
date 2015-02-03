@@ -82,6 +82,7 @@ class SameOriginTransport(MailTransportRouter):
 
     def prepare_message(self, obj, cr, uid, message, context=None):
         import email
+        from xoutil.string import safe_encode
         _, refs = self.get_message_objects(obj, cr, uid, message,
                                            context=None)
         connection_data = {}
@@ -89,29 +90,23 @@ class SameOriginTransport(MailTransportRouter):
             # It seems OpenERP always uses the "original" message-id in the
             # references.  At least, for outgoing messages.
             parent = refs[0]
-            try:
-                mail = email.message_from_string(parent.raw_email)
-                server = self.origin_server(obj, cr, uid, mail)
-                originators = self.get_authors(mail)
-                recipients = self.get_recipients(message)
-                # Only use this server for messages going to the originators,
-                # i.e the authors of the parent email.
-                if server and (set(recipients) & set(originators)):
-                    _logger.debug('Choosing SMTP outgoing server %s', server.name)
-                    connection_data.update(mail_server_id=server.id)
-                    address = server.delivered_address
-                    # Ensure the Return-Path is used for the envelop and
-                    # matches the Sender (not necessarily the From).  The
-                    # Reply-To also changes, it is assumed you'll have a
-                    # matching POP/IMAP incoming fetchmail server for the same
-                    # account.
-                    message['Return-Path'] = message['Sender'] = address
-                    message['Reply-To'] = address
-            except:
-                _logger.exception(
-                    'Error processing parent message of %s',
-                    message['Message-Id']
-                )
+            mail = email.message_from_string(safe_encode(parent.raw_email))
+            server = self.origin_server(obj, cr, uid, mail)
+            originators = self.get_authors(mail)
+            recipients = self.get_recipients(message)
+            # Only use this server for messages going to the originators,
+            # i.e the authors of the parent email.
+            if server and (set(recipients) & set(originators)):
+                _logger.debug('Choosing SMTP outgoing server %s', server.name)
+                connection_data.update(mail_server_id=server.id)
+                address = server.delivered_address
+                # Ensure the Return-Path is used for the envelop and
+                # matches the Sender (not necessarily the From).  The
+                # Reply-To also changes, it is assumed you'll have a
+                # matching POP/IMAP incoming fetchmail server for the same
+                # account.
+                message['Return-Path'] = message['Sender'] = address
+                message['Reply-To'] = address
         return TransportRouteData(message, connection_data)
 
     def get_authors(self, message):
