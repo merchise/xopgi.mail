@@ -105,6 +105,7 @@ class SameOriginTransport(MailTransportRouter):
                 # Reply-To also changes, it is assumed you'll have a
                 # matching POP/IMAP incoming fetchmail server for the same
                 # account.
+                del message['Reply-To'], message['Sender']
                 message['Return-Path'] = message['Sender'] = address
                 message['Reply-To'] = address
         return TransportRouteData(message, connection_data)

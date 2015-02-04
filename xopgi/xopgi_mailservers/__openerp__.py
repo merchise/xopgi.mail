@@ -14,7 +14,7 @@
 
 dict(
     name="Same server policy",
-    version="1.1",
+    version="1.2",
     author="Merchise Autrement",
     category="Hidden",
     depends=["xopgi_mail_threads"],
