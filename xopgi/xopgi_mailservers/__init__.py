@@ -92,7 +92,7 @@ class SameOriginTransport(MailTransportRouter):
             parent = refs[0]
             mail = email.message_from_string(safe_encode(parent.raw_email))
             server = self.origin_server(obj, cr, uid, mail)
-            originators = self.get_authors(mail)
+            originators = self.get_authors(mail, msg=parent)
             recipients = self.get_recipients(message)
             # Only use this server for messages going to the originators,
             # i.e the authors of the parent email.
@@ -110,16 +110,18 @@ class SameOriginTransport(MailTransportRouter):
                 message['Reply-To'] = address
         return TransportRouteData(message, connection_data)
 
-    def get_authors(self, message):
+    def get_authors(self, message, msg=None):
         from email.utils import getaddresses
-        if message['From']:
+        if msg and msg.email_from:
+            authors = getaddresses([msg.email_from])
+        elif message['From']:
             authors = getaddresses([message['From']])
-            return tuple(address for _, address in authors if address)
         else:
             _logger.warn(
                 'No From address for message %s', message['Message-Id']
             )
-            return tuple()
+            authors = []
+        return tuple(address for _, address in authors if address)
 
     def get_recipients(self, message):
         from email.utils import getaddresses
