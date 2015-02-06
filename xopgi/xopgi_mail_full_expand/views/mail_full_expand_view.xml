@@ -19,10 +19,21 @@
                 widget="many2many_tags"
                 readonly="1"
                 />
+            <field name="parent_id" readonly="1"/>
           </group>
-          <h1><field name="subject" readonly="1"/></h1>
-          <field name="body" readonly="1"/>
-          <field name="attachment_ids" widget="many2many_binary" readonly="1"/>
+          <notebook colspan="4">
+            <page string="Message">
+              <h1>
+                <field name="subject" readonly="1"/>
+              </h1>
+              <field name="body" readonly="1"/>
+              <field name="attachment_ids" widget="many2many_binary"
+                     readonly="1"/>
+            </page>
+            <page string="Raw email">
+              <field name="raw_email" readonly="1"/>
+            </page>
+          </notebook>
         </form>
       </field>
     </record>

@@ -32,3 +32,9 @@ msgstr "Ampliar"
 #, python-format
 msgid "Fully expand"
 msgstr "Expandir"
+
+#. module: xopgi_mail_full_expand
+#: view:mail.massage:0
+#: field:mail.massage,raw_email:0
+msgid "Raw email"
+msgstr "Correo original"

@@ -22,7 +22,7 @@
     'installable': True,
     'auto_install': True,
     'summary': 'Add an option to open the mail in a big window.',
-    'depends': ['mail', 'web'],
+    'depends': ['mail', 'web', 'xopgi_mail_threads'],
     'description': '',
     'update_xml': [
         'views/mail_full_expand_view.xml',
