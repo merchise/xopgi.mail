@@ -92,12 +92,16 @@ class SameOriginTransport(MailTransportRouter):
             parent = refs[0]
             mail = email.message_from_string(safe_encode(parent.raw_email))
             server = self.origin_server(obj, cr, uid, mail)
-            originators = self.get_authors(mail)
+            originators = self.get_authors(mail, msg=parent)
             recipients = self.get_recipients(message)
             # Only use this server for messages going to the originators,
             # i.e the authors of the parent email.
             if server and (set(recipients) & set(originators)):
-                _logger.debug('Choosing SMTP outgoing server %s', server.name)
+                _logger.info(
+                    'SMTP outgoing server %s will send message %s',
+                    server.name,
+                    message['Message-Id'],
+                )
                 connection_data.update(mail_server_id=server.id)
                 address = server.delivered_address
                 # Ensure the Return-Path is used for the envelop and
@@ -108,18 +112,26 @@ class SameOriginTransport(MailTransportRouter):
                 del message['Reply-To'], message['Sender']
                 message['Return-Path'] = message['Sender'] = address
                 message['Reply-To'] = address
+            else:
+                _logger.info(
+                    'Default SMTP server for message %s, going to %s',
+                    message['Message-Id'],
+                    recipients,
+                )
         return TransportRouteData(message, connection_data)
 
-    def get_authors(self, message):
+    def get_authors(self, message, msg=None):
         from email.utils import getaddresses
-        if message['From']:
+        if msg and msg.email_from:
+            authors = getaddresses([msg.email_from])
+        elif message['From']:
             authors = getaddresses([message['From']])
-            return tuple(address for _, address in authors if address)
         else:
             _logger.warn(
                 'No From address for message %s', message['Message-Id']
             )
-            return tuple()
+            authors = []
+        return tuple(address for _, address in authors if address)
 
     def get_recipients(self, message):
         from email.utils import getaddresses
