@@ -87,8 +87,8 @@ msgstr "Contenidos HTML automáticamente desinfectados"
 #. openerp-web
 #: code:addons/xopgi_mail_forward/static/src/xml/mail_forward.xml:25
 #, python-format
-msgid "Forward"
-msgstr "Reenvío "
+msgid "Copy Reply"
+msgstr "Responder con copia"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,type:0
@@ -123,8 +123,8 @@ msgstr "Notificaciones"
 #. openerp-web
 #: code:addons/xopgi_mail_forward/static/src/js/mail_forward.js:30
 #, python-format
-msgid "Forwarded message"
-msgstr "Forwarded message"
+msgid "Original message"
+msgstr "Mensaje original"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,parent_id:0
