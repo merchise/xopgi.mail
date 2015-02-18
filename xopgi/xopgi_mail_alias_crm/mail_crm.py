@@ -124,10 +124,7 @@ class crm_case_section(Model):
                 temp = _check_one(section_id, a.id, a.alias_defaults)
                 if temp:
                     value.append(temp)
-            if value:
-                return value
-            alias = self.browse(cr, uid, section_id, context=context).alias_id
-            return [alias.id] if alias else []
+            return value
         return {i: _check_all(i) for i in ids}
 
 
@@ -150,6 +147,10 @@ class crm_case_section(Model):
         DELETE_RELATED = 2
 
         def _parse_fields(alias_id, vals):
+            '''The fields not present on mail.alias model are include on
+            alias_defaults dictionary.
+
+            '''
             fields = []
             other_fields = []
             for field in vals.keys():
@@ -213,32 +214,30 @@ class crm_case_section(Model):
     def create(self, cr, uid, values, context=None):
         """Check if at lees one mail alias is defined, create a temporal
         alias to avoid create the default one, replace
-        the temporal alias by user defined ones and remove de temporal alias.
+        the temporal alias by user defined ones and remove de temporal
+        alias. Else if not mail alias are defined let create de default one.
 
         """
         if context is None:
             context = {}
-        if not values.get('alias_ids', False):
-            raise osv.except_osv(
-                _('Error!'),
-                _("A sale team most have at lees one mail alias defined")
-            )
-        def _create_temp_alias():
+        temp_alias = False
+        if values.get('alias_ids', False):
             alias_obj = self.pool.get("mail.alias")
-            return alias_obj.create_unique_alias(cr, uid,
-                                                 {'alias_name': 'temp-alias'},
-                                                 model_name="crm.lead",
-                                                 context=context)
-
-        values['alias_id'] = to_remove = _create_temp_alias()
-        values.pop('alias_name', None)
+            temp_alias = alias_obj.create_unique_alias(cr, uid,
+                                                       {'alias_name':
+                                                            'crm+temp-alias'},
+                                                       model_name="crm.lead",
+                                                       context=context)
+            values['alias_id'] = temp_alias
+            values.pop('alias_name', None)
         res = super(crm_case_section, self).create(cr, uid, values,
                                                    context=context)
-        alias_ids = self._get_alias(cr, uid, [res], context=context)[res]
-        if to_remove in alias_ids:
-            alias_ids.remove(to_remove)
-        self.write(cr, uid, res, {'alias_id': alias_ids[0]}, context=context)
-        self.pool['mail.alias'].unlink(cr, uid, to_remove, context=context)
+        if temp_alias:
+            alias_ids = self._get_alias(cr, uid, [res], context=context)[res]
+            if temp_alias in alias_ids:
+                alias_ids.remove(temp_alias)
+            self.write(cr, uid, res, {'alias_id': alias_ids[0]}, context=context)
+            self.pool['mail.alias'].unlink(cr, uid, temp_alias, context=context)
         return res
 
     def unlink(self, cr, uid, ids, context=None):
