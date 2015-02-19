@@ -14,6 +14,12 @@
 
             <field name="module_xopgi_mailservers"/>
             <label for="module_xopgi_mailservers"/>
+            <br/>
+            <field name="module_xopgi_mail_alias_crm"/>
+            <label for="module_xopgi_mail_alias_crm"/>
+            <br/>
+            <field name="module_xopgi_mail_alias_project"/>
+            <label for="module_xopgi_mail_alias_project"/>
           </div>
         </xpath>
       </field>
