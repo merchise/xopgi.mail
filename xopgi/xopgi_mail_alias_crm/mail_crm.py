@@ -31,7 +31,7 @@ else:
 def str2dict(dict_str):
     try:
         return dict(eval(dict_str))
-    except Exception:
+    except:
         return {}
 
 
@@ -218,36 +218,41 @@ class crm_case_section(Model):
         return 1
 
     _columns = {
-        'alias_ids': fields.function(_get_alias,  fnct_inv=_set_alias,
-                                     method=True, relation='crm.valias',
-                                     string='Mail Aliases',
-                                     type='one2many',
-                                     help="The email addresses associated "
-                                          "with this team. New emails "
-                                          "received will automatically "
-                                          "create new Lead/Opportunity "
-                                          "assigned to the team."),
+        'alias_ids': fields.function(
+            _get_alias,
+            fnct_inv=_set_alias,
+            method=True,
+            relation='crm.valias',
+            string='Mail Aliases',
+            type='one2many',
+            help=("The email addresses associated "
+                  "with this team. New emails "
+                  "received will automatically "
+                  "create new Lead/Opportunity "
+                  "assigned to the team.")),
     }
 
     def create(self, cr, uid, values, context=None):
-        """Check if at lees one mail alias is defined, create a temporal
-        alias to avoid create the default one, replace
-        the temporal alias by user defined ones and remove de temporal
-        alias. Else if not mail alias are defined let create de default one.
+        """Check if at least one mail alias is defined, create a temporal alias to
+        avoid create the default one, replace the temporal alias by user
+        defined ones and remove the temporal alias.  Else if no mail alias are
+        defined let create de default one.
 
         """
         if context is None:
             context = {}
-        temp_alias = False
         if values.get('alias_ids', False):
             alias_obj = self.pool.get("mail.alias")
-            temp_alias = alias_obj.create_unique_alias(cr, uid,
-                                                       {'alias_name':
-                                                            'crm+temp-alias'},
-                                                       model_name="crm.lead",
-                                                       context=context)
+            temp_alias = alias_obj.create_unique_alias(
+                cr, uid,
+                {'alias_name': 'crm+temp-alias'},
+                model_name="crm.lead",
+                context=context
+            )
             values['alias_id'] = temp_alias
             values.pop('alias_name', None)
+        else:
+            temp_alias = False
         res = super(crm_case_section, self).create(cr, uid, values,
                                                    context=context)
         if temp_alias:
