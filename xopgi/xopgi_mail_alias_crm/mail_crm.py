@@ -21,7 +21,11 @@ from openerp.tools.translate import _
 from openerp.release import version_info as ODOO_VERSION_INFO
 
 from xoeuf.osv.orm import get_modelname
-from openerp.addons.crm.crm import crm_case_section as _base
+
+if ODOO_VERSION_INFO < (8, 0):
+    from openerp.addons.crm.crm import crm_case_section as _base
+else:
+    from openerp.addons.sales_team.sales_team import crm_case_section as _base
 
 
 def str2dict(dict_str):
