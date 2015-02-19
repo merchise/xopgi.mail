@@ -18,7 +18,7 @@
           <page string="Mail Aliases">
             <label for="alias_ids"
                    string="Information: Every Lead/Opportunity created by any
-                           of this mail aliases will be notify to all of team
+                           of these mail aliases will be notify to all of team
                            members and assigned to team leader."
                    class="oe_grey"/>
             <field name="alias_ids" nolabel="1" widget="one2many_list"

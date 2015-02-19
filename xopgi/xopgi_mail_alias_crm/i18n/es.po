@@ -85,7 +85,7 @@ msgstr "Alias"
 #. module: xopgi_mail_alias_crm
 #: view:crm.case.section:0
 msgid ""
-"Information: Every Lead/Opportunity created by any of this mail "
+"Information: Every Lead/Opportunity created by any of these mail "
 "aliases will be notify to all of team members and assigned to team leader."
 msgstr ""
 "Información: Todas las Iniciativas/Oportunidades que se creen a "
