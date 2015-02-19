@@ -125,3 +125,27 @@ msgstr "Equipo comercial"
 #: field:crm.valias,user_id:0
 msgid "Team Leader"
 msgstr "Jefe de equipo"
+
+#. module: xopgi_mail_alias_crm
+#: code:addons/xopgi_mail_alias_crm/mail_crm.py:0
+#, python-format
+msgid "Warning!"
+msgstr "Advertencia"
+
+#. module: xopgi_mail_alias_crm
+#: code:addons/xopgi_mail_alias_crm/mail_crm.py:0
+#, python-format
+msgid "This sale team not use leads then cant alias with leads creation."
+msgstr ""
+"Este equipo comercial no usa iniciativas por lo que no se pueden "
+"configurar alias de correo que creen iniciativas"
+
+#. module: xopgi_mail_alias_crm
+#: code:addons/xopgi_mail_alias_crm/mail_crm.py:0
+#, python-format
+msgid ""
+"This sale team not use opportunity then cant alias with opportunities "
+"creation."
+msgstr ""
+"Este equipo comercial no usa oportunidades por lo que no se pueden "
+"configurar alias de correo que creen oportunidades"

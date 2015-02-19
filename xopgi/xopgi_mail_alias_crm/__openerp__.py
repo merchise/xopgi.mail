@@ -24,6 +24,8 @@
     'summary': 'Extend crm module to relate many alias per sale team.',
     'depends': ['crm', 'xopgi_mail'],
     'data': [
-        'view/crm_view.xml'
-    ],
+        (
+        'view/8/crm_view.xml' if ODOO_VERSION_INFO >= (8, 0)  # noqa
+        else 'view/crm_view.xml'
+    ), ],
 }

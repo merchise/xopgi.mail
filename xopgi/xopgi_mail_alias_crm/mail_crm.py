@@ -18,6 +18,7 @@ from __future__ import (division as _py3_division,
 from openerp.osv.orm import Model
 from openerp.osv import fields, osv
 from openerp.tools.translate import _
+from openerp.release import version_info as ODOO_VERSION_INFO
 
 from xoeuf.osv.orm import get_modelname
 from openerp.addons.crm.crm import crm_case_section as _base
@@ -171,7 +172,20 @@ class crm_case_section(Model):
                              for field in other_fields
                              if vals.get(field, False)})
             vals['alias_defaults'] = str(defaults)
-            return vals
+            if ODOO_VERSION_INFO < (8, 0):
+                return vals
+            _type = vals.get('type', False)
+            if not _type:
+                return vals
+            section = self.browse(cr, uid, section_id, context=context)
+            if (not section.use_leads) and _type == 'lead':
+                raise osv.except_osv(_('Warning!'), _(
+                    "This sale team not use leads then cant alias with"
+                    "leads creation."))
+            if (not section.use_opportunities) and _type == 'opportunity':
+                raise osv.except_osv(_('Warning!'), _(
+                    "This sale team not use opportunity then cant alias with"
+                    "opportunities creation."))
 
         def _write(_id, vals):
             vals = _parse_fields(_id, vals)
