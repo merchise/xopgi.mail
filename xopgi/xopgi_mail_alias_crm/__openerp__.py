@@ -25,7 +25,9 @@
     'depends': ['crm', 'xopgi_mail'],
     'data': [
         (
-        'view/8/crm_view.xml' if ODOO_VERSION_INFO >= (8, 0)  # noqa
-        else 'view/crm_view.xml'
-    ), ],
+            'view/8/crm_view.xml'
+            if ODOO_VERSION_INFO >= (8, 0)  # noqa
+            else 'view/crm_view.xml'
+        ),
+    ],
 }
