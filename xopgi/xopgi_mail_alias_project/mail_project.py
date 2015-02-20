@@ -156,6 +156,11 @@ class project_project(Model):
         UPDATE_RELATED = 1
         DELETE_RELATED = 2
 
+        _create = lambda _id, vals: alias_obj.create(cr, uid, vals,
+                                                     context=context)
+        _write = lambda _id, vals: alias_obj.write(cr, uid, _id, vals,
+                                                   context=context)
+
         def _parse_fields(_id, vals):
             '''The fields not present on mail.alias model are include on
             alias_defaults dictionary.
@@ -177,9 +182,10 @@ class project_project(Model):
                 row = alias_obj.read(cr, uid, _id,
                                      ['alias_defaults'], context=context)
                 defaults = str2dict(row['alias_defaults'])
-            defaults.update({field: vals.pop(field, False)
-                             for field in other_fields
-                             if vals.get(field, False)})
+            for field in other_fields:
+                value = vals.pop(field, False)
+                if value:
+                    defaults.update({field: value})
             vals['alias_defaults'] = str(defaults)
             model_id = vals.get('alias_model_id', False)
             if not model_id:
@@ -199,25 +205,21 @@ class project_project(Model):
                     "project.task object creation."))
             return vals
 
-        def _write(_id, vals):
+        def _action(_id, vals, _function):
+            vals['project_id'] = project_id
+            project = self.browse(cr, uid, project_id, context=context)
+            vals['user_id'] = (project.user_id.id
+                               if project and project.user_id
+                               else False)
             vals = _parse_fields(_id, vals)
-            return alias_obj.write(cr, uid, _id, vals, context=context)
+            return _function(_id, vals)
 
-        def _create(vals):
-            if not vals.get('project_id', False):
-                vals['project_id'] = project_id
-                project = self.browse(cr, uid, project_id, context=context)
-                vals['user_id'] = (project.user_id.id
-                                   if project and project.user_id
-                                   else False)
-            vals = _parse_fields(False, vals)
-            return alias_obj.create(cr, uid, vals, context=context)
         to_unlink = []
         for option, alias_id, values in field_value:
             if option == CREATE_RELATED:
-                _create(values)
+                _action(False, values, _create)
             elif option == UPDATE_RELATED:
-                _write(alias_id, values)
+                _action(alias_id, values, _write)
             elif option == DELETE_RELATED:
                 to_unlink.append(alias_id)
         if to_unlink:

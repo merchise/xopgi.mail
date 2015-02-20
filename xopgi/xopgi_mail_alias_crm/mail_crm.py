@@ -151,6 +151,11 @@ class crm_case_section(Model):
         UPDATE_RELATED = 1
         DELETE_RELATED = 2
 
+        _create = lambda _id, vals: alias_obj.create(cr, uid, vals,
+                                                     context=context)
+        _write = lambda _id, vals: alias_obj.write(cr, uid, _id, vals,
+                                                   context=context)
+
         def _parse_fields(alias_id, vals):
             '''The fields not present on mail.alias model are include on
             alias_defaults dictionary.
@@ -172,9 +177,10 @@ class crm_case_section(Model):
                 row = alias_obj.read(cr, uid, alias_id,
                                      ['alias_defaults'], context=context)
                 defaults = str2dict(row['alias_defaults'])
-            defaults.update({field: vals.pop(field, False)
-                             for field in other_fields
-                             if vals.get(field, False)})
+            for field in other_fields:
+                value = vals.pop(field, False)
+                if value:
+                    defaults.update({field: value})
             vals['alias_defaults'] = str(defaults)
             if ODOO_VERSION_INFO < (8, 0):
                 return vals
@@ -190,27 +196,23 @@ class crm_case_section(Model):
                 raise osv.except_osv(_('Warning!'), _(
                     "This sale team not use opportunity then cant alias with"
                     "opportunities creation."))
+            return vals
 
-        def _write(_id, vals):
+        def _action(_id, vals, _function):
+            vals['section_id'] = section_id
+            section = self.browse(cr, uid, section_id, context=context)
+            vals['user_id'] = (section.user_id.id
+                               if section and section.user_id
+                               else False)
             vals = _parse_fields(_id, vals)
-            return alias_obj.write(cr, uid, _id, vals, context=context)
-
-        def _create(vals):
-            if not vals.get('section_id', False):
-                vals['section_id'] = section_id
-                section = self.browse(cr, uid, section_id, context=context)
-                vals['user_id'] = (section.user_id.id
-                                   if section and section.user_id
-                                   else False)
-            vals = _parse_fields(False, vals)
             vals['alias_model_id'] = model_id
-            return alias_obj.create(cr, uid, vals, context=context)
+            return _function(_id, vals)
         to_unlink = []
         for option, alias_id, values in field_value:
             if option == CREATE_RELATED:
-                _create(values)
+                _action(False, values, _create)
             elif option == UPDATE_RELATED:
-                _write(alias_id, values)
+                _action(alias_id, values, _write)
             elif option == DELETE_RELATED:
                 to_unlink.append(alias_id)
         if to_unlink:
