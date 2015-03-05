@@ -209,15 +209,15 @@ class project_project(Model):
             if not model_id:
                 return vals
             project = self.browse(cr, uid, project_id, context=context)
-            if ((not project.use_issues) and
-                        model_id == _get_model_ids(cr, uid, ['project.issue'],
-                                                   context=context)):
+            if (not project.use_issues and
+                model_id == _get_model_ids(cr, uid, ['project.issue'],
+                                           context=context)):
                 raise osv.except_osv(_('Warning!'), _(
                     "This project not use issues then cant alias with"
                     "project.issue object creation."))
-            if ((not project.use_tasks) and
-                        model_id == _get_model_ids(cr, uid, ['project.task'],
-                                                   context=context)):
+            if (not project.use_tasks and
+                model_id == _get_model_ids(cr, uid, ['project.task'],
+                                           context=context)):
                 raise osv.except_osv(_('Warning!'), _(
                     "This project not use tasks then cant alias with"
                     "project.task object creation."))
