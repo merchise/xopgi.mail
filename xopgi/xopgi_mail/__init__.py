@@ -34,4 +34,10 @@ class MailConfig(Model):
 
         'module_xopgi_mailservers':
             fields.boolean('Control outgoing SMTP server by sender.'),
+
+        'module_xopgi_mail_alias_crm':
+            fields.boolean('Several mail alias by sale team.'),
+
+        'module_xopgi_mail_alias_project':
+            fields.boolean('Several mail alias by project.'),
     }

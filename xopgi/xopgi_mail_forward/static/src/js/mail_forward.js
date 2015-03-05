@@ -27,7 +27,7 @@ openerp.xopgi_mail_forward = function (instance) {
             body = (
                 '<br/>' +
                 '<p><i>----------' +
-                _t('Forwarded message') +
+                _t('Original message') +
                 '----------<br/>' +
                 _t('From:') + ' ' +
                 _.str.escapeHTML(this.author_id[1]) + '<br/>' +

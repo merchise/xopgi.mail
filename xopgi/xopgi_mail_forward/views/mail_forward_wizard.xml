@@ -3,7 +3,7 @@
   <data>
 
     <record id="compose_action" model="ir.actions.act_window">
-      <field name="name">Forward Email</field>
+      <field name="name">Copy Reply</field>
       <field name="res_model">mail.compose.message</field>
       <field name="src_model">mail.message</field>
       <field name="type">ir.actions.act_window</field>

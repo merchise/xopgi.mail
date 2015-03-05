@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <!-- Project Form View -->
+
+    <record id="xopgi_mail_edit_project" model="ir.ui.view">
+      <field name="name">xopgi.mail.edit.project</field>
+      <field name="model">project.project</field>
+      <field name="inherit_id" ref="project.edit_project"/>
+      <field name="priority" eval="8"/>
+      <field name="arch" type="xml">
+        <xpath expr="//notebook" position="inside">
+          <page string="Mail Aliases">
+            <label for="alias_ids"
+                   string="Information: Every Task/Issue created by any
+                           of this mail aliases will be notify to all project
+                           members and assigned to project Manager."
+                   class="oe_grey"/>
+            <field name="alias_ids" nolabel="1" widget="one2many_list"
+                   context="{'default_project_id': active_id,
+                             'default_user_id': user_id,
+                             'default_alias_name': name},
+                             'default_alias_defaults': '{}'}">
+              <tree editable="bottom">
+                <field name="alias_model_id"/>
+                <field name="project_id" invisible="1"/>
+                <field name="user_id" invisible="1"/>
+                <field name="alias_name"/>
+                <field name="alias_force_thread_id"/>
+                <field name="alias_defaults" widget="char"/>
+              </tree>
+            </field>
+          </page>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</openerp>

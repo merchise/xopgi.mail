@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 # --------------------------------------------------------------------------
-# xopgi_mail.__openerp__
+# xopgi_mail_alias_project.__openerp__
 # --------------------------------------------------------------------------
 # Copyright (c) 2014, 2015 Merchise Autrement and Contributors
 # All rights reserved.
 #
-# Author: Eddy Ernesto del Valle Pino <eddy@merchise.org>
+# Author: Merchise Autrement
 # Contributors: see CONTRIBUTORS and HISTORY file
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -15,17 +15,16 @@
 
 
 {
-    'name': 'Mail Extensions',
-    'version': '1.3',
+    'name': 'xopgi_mail_alias_project',
+    'version': '1.0',
     'author': 'Merchise Autrement',
-    'category': 'Hidden',
+    'category': 'mail',
     'application': False,
     'installable': True,
-    'summary': 'Several extensions to OpenERP Messaging System',
-    'depends': ['mail', 'web'],
+    'summary': 'Extend project module to relate many alias per project to '
+               'do different thinks.',
+    'depends': ['project', 'project_issue', 'xopgi_mail'],
     'data': [
-        'views/config.xml',
+        'view/project_view.xml'
     ],
-    'description': '',
-    'auto_install': True,
 }
