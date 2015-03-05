@@ -39,40 +39,56 @@ def _get_model_ids(cr, uid, model_names=[], context=None):
                             context=context)
 
 
+# TODO: Design for unity: Don't repeat concepts.  This model and the
+# crm.valias are very similar (the read is just the same).  Put similar things
+# in a superclass.  See for instance the file
+# `xopgi.account/xopgi/xopgi_account/multicompanyitem.py`.
+
 class project_valias(Model):
     _name = 'project.valias'
 
     def _get_models(self, cr, uid, context=None):
         model_ids = _get_model_ids(cr, uid, context=context)
-        return self.pool['ir.model'].name_get(cr, uid, model_ids, context=context)
+        return self.pool['ir.model'].name_get(cr, uid, model_ids,
+                                              context=context)
 
     _columns = {
         'alias_name':
-            fields.char('Alias', required=True,
-                        help="The name of the email alias, e.g. 'jobs' if "
-                             "you want to catch emails "
-                             "for <jobs@example.my.openerp.com>"),
+            fields.char(
+                'Alias',
+                required=True,
+                help=("The name of the email alias, e.g. 'jobs' if "
+                      "you want to catch emails "
+                      "for <jobs@example.my.openerp.com>")
+            ),
         'alias_defaults':
-            fields.text('Default Values',
-                        help="A Python dictionary that will be evaluated to "
-                             "provide default values when creating new "
-                             "records for this alias."),
+            fields.text(
+                'Default Values',
+                help=("A Python dictionary that will be evaluated to "
+                      "provide default values when creating new "
+                      "records for this alias.")
+            ),
         'alias_force_thread_id':
-            fields.integer('Record Thread ID',
-                           help="Optional ID of a thread (record) to which "
-                                "all incoming messages will be attached, "
-                                "even if they did not reply to it. If set, "
-                                "this will disable the creation of new "
-                                "records completely."),
+            fields.integer(
+                'Record Thread ID',
+                help=("Optional ID of a thread (record) to which "
+                      "all incoming messages will be attached, "
+                      "even if they did not reply to it. If set, "
+                      "this will disable the creation of new "
+                      "records completely.")
+            ),
         'alias_model_id':
-            fields.selection(_get_models, 'Aliased Model',
-                             required=True,
-                             help="The model (OpenERP Document Kind) to "
-                                  "which this alias corresponds. Any "
-                                  "incoming email that does not reply to an "
-                                  "existing record will cause the creation "
-                                  "of a new record of this model "
-                                  "(e.g. a Project Task)"),
+            fields.selection(
+                _get_models,
+                'Aliased Model',
+                required=True,
+                help=("The model (OpenERP Document Kind) to "
+                      "which this alias corresponds. Any "
+                      "incoming email that does not reply to an "
+                      "existing record will cause the creation "
+                      "of a new record of this model "
+                      "(e.g. a Project Task)")
+            ),
         'project_id': fields.many2one('project.project', 'Project'),
         'user_id': fields.many2one('res.users', 'Project Manager'),
     }
@@ -87,7 +103,7 @@ class project_valias(Model):
             context = {}
         if not hasattr(ids, '__iter__'):
             ids = [ids]
-        alias_obj = self.pool.get("mail.alias")
+        alias_obj = self.pool['mail.alias']
         fields2 = []
         other_fields = []
         for field in fields:
@@ -107,14 +123,16 @@ class project_valias(Model):
                 row[field] = defaults.pop(field, False)
             row['alias_defaults'] = str(defaults)
         if add_default:
-            [row.pop('alias_defaults', False) for row in res]
+            for row in res:
+                row.pop('alias_defaults', False)
         return res
 
 
 class project_project(Model):
     _inherit = get_modelname(_base)
 
-    def _get_alias(self, cr, uid, ids, field_name=None, arg=None, context=None):
+    def _get_alias(self, cr, uid, ids, field_name=None, arg=None,
+                   context=None):
         """Check if each section_ids are referenced on any mail.alias and
         return a list of alias_ids per section_id.
         """

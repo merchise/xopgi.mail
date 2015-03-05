@@ -40,27 +40,32 @@ class crm_valias(Model):
 
     _columns = {
         'alias_name':
-            fields.char('Alias', required=True,
-                        help="The name of the email alias, e.g. 'jobs' if "
-                             "you want to catch emails "
-                             "for <jobs@example.my.openerp.com>"),
+            fields.char(
+                'Alias',
+                required=True,
+                help=("The name of the email alias, e.g. 'jobs' if "
+                      "you want to catch emails "
+                      "for <jobs@example.my.openerp.com>")),
         'alias_defaults':
-            fields.text('Default Values',
-                        help="A Python dictionary that will be evaluated to "
-                             "provide default values when creating new "
-                             "records for this alias."),
+            fields.text(
+                'Default Values',
+                help=("A Python dictionary that will be evaluated to "
+                      "provide default values when creating new "
+                      "records for this alias.")),
         'alias_force_thread_id':
-            fields.integer('Record Thread ID',
-                           help="Optional ID of a thread (record) to which "
-                                "all incoming messages will be attached, "
-                                "even if they did not reply to it. If set, "
-                                "this will disable the creation of new "
-                                "records completely."),
+            fields.integer(
+                'Record Thread ID',
+                help=("Optional ID of a thread (record) to which "
+                      "all incoming messages will be attached, "
+                      "even if they did not reply to it. If set, "
+                      "this will disable the creation of new "
+                      "records completely.")),
         'type':
-            fields.selection([('lead', 'Lead'), ('opportunity', 'Opportunity')],
-                             'Type', select=True,
-                             help="Type of object to create by incoming "
-                                  "messages."),
+            fields.selection(
+                [('lead', 'Lead'), ('opportunity', 'Opportunity')],
+                'Type', select=True,
+                help="Type of object to create by incoming messages."
+            ),
         'section_id': fields.many2one('crm.case.section', 'Sale Team'),
         'user_id': fields.many2one('res.users', 'Team Leader'),
     }
@@ -75,7 +80,7 @@ class crm_valias(Model):
             context = {}
         if not hasattr(ids, '__iter__'):
             ids = [ids]
-        alias_obj = self.pool.get("mail.alias")
+        alias_obj = self.pool['mail.alias']
         fields2 = []
         other_fields = []
         for field in fields:
@@ -95,7 +100,8 @@ class crm_valias(Model):
                 row[field] = defaults.pop(field, False)
             row['alias_defaults'] = str(defaults)
         if add_default:
-            [row.pop('alias_defaults', False) for row in res]
+            for row in res:
+                row.pop('alias_defaults', False)
         return res
 
 
@@ -107,15 +113,18 @@ class crm_case_section(Model):
         return model_obj.search(cr, uid, [('model', '=', 'crm.lead')],
                                 context=context)[0]
 
-    def _get_alias(self, cr, uid, ids, field_name=None, arg=None, context=None):
+    def _get_alias(self, cr, uid, ids, field_name=None, arg=None,
+                   context=None):
         """Check if each section_ids are referenced on any mail.alias and
         return a list of alias_ids per section_id.
         """
         alias_obj = self.pool.get("mail.alias")
         model_id = self._get_model_id(cr, uid, context=context)
-        alias_ids = alias_obj.search(cr, uid, [('alias_model_id', '=',
-                                                model_id)],
-                                     context=context)
+        alias_ids = alias_obj.search(
+            cr, uid,
+            [('alias_model_id', '=', model_id)],
+            context=context
+        )
 
         def _check_one(section_id, alias_id, defaults):
             check = str2dict(defaults).get('section_id', 0)
@@ -131,7 +140,6 @@ class crm_case_section(Model):
                     value.append(temp)
             return value
         return {i: _check_all(i) for i in ids}
-
 
     def _unlink_alias(self, cr, uid, section_id, alias_id, context=None):
         alias_obj = self.pool.get("mail.alias")
@@ -150,7 +158,6 @@ class crm_case_section(Model):
         CREATE_RELATED = 0
         UPDATE_RELATED = 1
         DELETE_RELATED = 2
-
         _create = lambda _id, vals: alias_obj.create(cr, uid, vals,
                                                      context=context)
         _write = lambda _id, vals: alias_obj.write(cr, uid, _id, vals,
@@ -183,6 +190,7 @@ class crm_case_section(Model):
                     defaults.update({field: value})
             vals['alias_defaults'] = str(defaults)
             if ODOO_VERSION_INFO < (8, 0):
+                # TODO:  Comment on this early return
                 return vals
             _type = vals.get('type', False)
             if not _type:
@@ -261,8 +269,10 @@ class crm_case_section(Model):
             alias_ids = self._get_alias(cr, uid, [res], context=context)[res]
             if temp_alias in alias_ids:
                 alias_ids.remove(temp_alias)
-            self.write(cr, uid, res, {'alias_id': alias_ids[0]}, context=context)
-            self.pool['mail.alias'].unlink(cr, uid, temp_alias, context=context)
+            self.write(cr, uid, res, {'alias_id': alias_ids[0]},
+                       context=context)
+            self.pool['mail.alias'].unlink(cr, uid, temp_alias,
+                                           context=context)
         return res
 
     def unlink(self, cr, uid, ids, context=None):
