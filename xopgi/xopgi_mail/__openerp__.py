@@ -16,7 +16,7 @@
 
 {
     'name': 'Mail Extensions',
-    'version': '1.2',
+    'version': '1.3',
     'author': 'Merchise Autrement',
     'category': 'Hidden',
     'application': False,
