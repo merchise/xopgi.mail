@@ -80,7 +80,7 @@ class mail_bounce_model(orm.TransientModel):
         mail_pool = self.pool['mail.mail']
         mail_id = mail_pool.exists(cr, uid, [int(mail_id)], context=context)
         if mail_id:
-            mail = mail_pool.browse(cr, uid, int(mail_id), context=context)
+            mail = mail_pool.browse(cr, uid, mail_id[0], context=context)
             if mail.email_to:
                 kwargs.update(email_from=mail.email_to)
         # call model message_post method.
