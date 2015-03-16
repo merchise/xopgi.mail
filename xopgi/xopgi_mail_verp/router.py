@@ -37,16 +37,9 @@ class BouncedMailRouter(MailRouter):
         """ Verify that the email_to is the bounce alias. If it is the
         case, log the bounce, return the origin route. """
         from xoeuf.osv.registry import Registry
+        from .common import get_bounce_alias
         registry = Registry(cr.dbname)
-        alias_name = ('mail.catchall.alias'
-                      if ODOO_VERSION_INFO < (8, 0)
-                      else 'mail.bounce.alias')
-        bounce_alias = registry['ir.config_parameter'].get_param(
-            cr,
-            uid,
-            alias_name,
-            default='postmaster-odoo'
-        )
+        bounce_alias = get_bounce_alias(registry, cr, uid)
         message_id = message.get('Message-Id')
         email_from = decode_header(message, 'From')
         email_to = decode_header(message, 'To')

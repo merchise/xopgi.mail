@@ -57,24 +57,21 @@ class VERPTransport(MailTransportRouter):
         not saved on db the possible bounded messages will cant be related
         with the recipient.
         '''
-        alias_name = ('mail.catchall.alias'
-                      if ODOO_VERSION_INFO < (8, 0)
-                      else 'mail.bounce.alias')
+        from .common import get_bounce_alias
+        postmaster = get_bounce_alias(obj, cr, uid, context=context)
         get_param = obj.pool['ir.config_parameter'].get_param
-        postmaster = get_param(cr, uid, alias_name,
-                               default='postmaster-odoo', context=context)
         domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
-        if postmaster and domain:
+        if domain:
             if mail_id:
                 if model_name and res_id:
                     return '%s-%d-%s-%d@%s' % (
                         postmaster, mail_id, model_name, res_id, domain)
                 else:
                     return '%s-%d@%s' % (postmaster, mail_id, domain)
-            return '%s@%s' % (postmaster, domain)
-        elif domain:
-            return 'postmaster-odoo@' + domain
-        return None
+            else:
+                return '%s@%s' % (postmaster, domain)
+        else:
+            return None
 
     @classmethod
     def query(self, obj, cr, uid, message, context=None):
