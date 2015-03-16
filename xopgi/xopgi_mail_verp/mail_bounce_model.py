@@ -17,15 +17,16 @@
 
 from __future__ import (division as _py3_division,
                         print_function as _py3_print,
-                        unicode_literals as _py3_unicode,
                         absolute_import as _py3_abs_import)
 
 from openerp.osv import orm
 from xoutil import logger as _logger
 
+BOUNCE_MODEL = 'mail.bounce.model'
+
 
 class mail_bounce_model(orm.TransientModel):
-    _name = 'mail.bounce.model'
+    _name = BOUNCE_MODEL
 
     def message_new(self, cr, uid, msg_dict, custom_values=None, context=None):
         '''Log an exception to see if this case happen.

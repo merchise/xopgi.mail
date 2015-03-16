@@ -27,8 +27,9 @@ from openerp.release import version_info as ODOO_VERSION_INFO
 from openerp.addons.xopgi_mail_threads import MailRouter
 from openerp.addons.mail.mail_thread import decode_header
 
-from xoutil import logger as _logger
+from .mail_bounce_model import BOUNCE_MODEL
 
+from xoutil import logger as _logger
 
 
 class BouncedMailRouter(MailRouter):
@@ -64,9 +65,9 @@ class BouncedMailRouter(MailRouter):
                 bounced_model, bounced_thread_id)
             thread_id = (bounced_mail_id, bounced_model, bounced_thread_id)
             if ODOO_VERSION_INFO < (8, 0):
-                return ('mail.bounce.model', thread_id, {}, uid)
+                return (BOUNCE_MODEL, thread_id, {}, uid)
             else:
-                return ('mail.bounce.model', thread_id, {}, uid, None)
+                return (BOUNCE_MODEL, thread_id, {}, uid, None)
 
     @classmethod
     def is_applicable(cls, cr, uid, message):
