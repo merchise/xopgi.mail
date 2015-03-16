@@ -31,7 +31,7 @@ class mail_bounce_model(orm.TransientModel):
         '''
         Log an exception to see if this case happen.
         '''
-        _logger.exception(
+        _logger.error(
             "Bounced mail '%s' to <%s> receive with non thread_id",
             msg_dict.get('message_id'),
             msg_dict.get('to'),
