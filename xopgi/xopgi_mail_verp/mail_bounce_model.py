@@ -28,8 +28,11 @@ class mail_bounce_model(orm.TransientModel):
     _name = 'mail.bounce.model'
 
     def message_new(self, cr, uid, msg_dict, custom_values=None, context=None):
-        '''
-        Log an exception to see if this case happen.
+        '''Log an exception to see if this case happen.
+
+        This is not expected to happen cause a bounce should never start a new
+        thread.
+
         '''
         _logger.error(
             "Bounced mail '%s' to <%s> receive with non thread_id",
@@ -42,12 +45,14 @@ class mail_bounce_model(orm.TransientModel):
                        context=None):
         '''Redirect to the origin model correspondent method.
 
+        .. note:: The `ids` is expected to be a single item with a tuple with
+           ``(mail_id, model, thread_id)``, being the `mail_id` the mail id
+           that bounced, `model` the model to which the message belongs and
+           `thread_id` of the object (from model) that identifies the thread.
+
         '''
-        mail_id, model, thread_id = ids[0]  # assumed are only one
-        ctx = dict(
-            context or {},
-            thread_model=model
-        )
+        mail_id, model, thread_id = ids[0]
+        ctx = dict(context or {}, thread_model=model)
         model_pool = self.pool[model]
         if hasattr(model_pool, 'message_update'):
             model_pool.message_update(cr, uid, [int(thread_id)], msg_dict,
@@ -63,27 +68,32 @@ class mail_bounce_model(orm.TransientModel):
         return True
 
     def message_post(self, cr, uid, ids, **kwargs):
-        '''Change the email_from by the email_to of original message and Add
-        "mail_notify_noemail" magic key on context before call the message
-        post os the real bounced model to avoid send notification mails.
+        '''Post the bounce to the proper thread.
+
+        Change the email_from with the email_to of the original message (not
+        the bounce) and add "mail_notify_noemail" magic key to the context
+        before actually posting the message to avoid sending notification
+        mails.
+
+        .. note:: The `ids` is expected to be a single item with a tuple with
+           ``(mail_id, model, thread_id)``, being the `mail_id` the mail id
+           that bounced, `model` the model to which the message belongs and
+           `thread_id` of the object (from model) that identifies the thread.
 
         '''
-        # Add context entries.
-        mail_id, model, thread_id = ids[0]  # assumed are only one
+        mail_id, model, thread_id = ids[0]
         context = dict(
             kwargs.get('context', {}) or {},
             mail_notify_noemail=True,
             thread_model=model
         )
         kwargs.update(context=context)
-        # Update email_from header.
         mail_pool = self.pool['mail.mail']
         mail_id = mail_pool.exists(cr, uid, [int(mail_id)], context=context)
         if mail_id:
             mail = mail_pool.browse(cr, uid, mail_id[0], context=context)
             if mail.email_to:
                 kwargs.update(email_from=mail.email_to)
-        # call model message_post method.
         model_pool = self.pool[model]
         if not hasattr(model_pool, 'message_post'):
             context['thread_model'] = model
