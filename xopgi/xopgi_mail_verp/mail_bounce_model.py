@@ -25,7 +25,7 @@ from xoutil import logger as _logger
 BOUNCE_MODEL = 'mail.bounce.model'
 
 
-class mail_bounce_model(orm.TransientModel):
+class MailBounce(orm.TransientModel):
     _name = BOUNCE_MODEL
 
     def message_new(self, cr, uid, msg_dict, custom_values=None, context=None):
