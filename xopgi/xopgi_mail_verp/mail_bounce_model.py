@@ -11,8 +11,8 @@
 #
 # Created on 2015-03-10
 
-'''
-A transiend model to avoid send notification mails on bounced messages.
+'''A transient model to avoid send notification mails on bounced messages.
+
 '''
 
 from __future__ import (division as _py3_division,
@@ -38,9 +38,10 @@ class mail_bounce_model(orm.TransientModel):
         )
         return False
 
-    def message_update(self, cr, uid, ids, msg_dict, update_vals=None, context=None):
-        '''
-        Redirect to the origin model correspondent method.
+    def message_update(self, cr, uid, ids, msg_dict, update_vals=None,
+                       context=None):
+        '''Redirect to the origin model correspondent method.
+
         '''
         mail_id, model, thread_id = ids[0]  # assumed are only one
         ctx = dict(
@@ -62,11 +63,10 @@ class mail_bounce_model(orm.TransientModel):
         return True
 
     def message_post(self, cr, uid, ids, **kwargs):
-        '''
-        Change the email_from by the email_to of original message and Add
-        "mail_notify_noemail" magic key on context before call the
-        message post os the real bounced model to avoid send notification
-        mails.
+        '''Change the email_from by the email_to of original message and Add
+        "mail_notify_noemail" magic key on context before call the message
+        post os the real bounced model to avoid send notification mails.
+
         '''
         # Add context entries.
         mail_id, model, thread_id = ids[0]  # assumed are only one
