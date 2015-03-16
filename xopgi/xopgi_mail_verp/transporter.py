@@ -96,5 +96,4 @@ class verp_transport(MailTransportRouter):
                 _mail.res_id,
                 context=context
             )
-            return TransportRouteData(message, {})
-        return False
+        return TransportRouteData(message, {})
