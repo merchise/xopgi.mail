@@ -98,4 +98,9 @@ class BouncedMailRouter(MailRouter):
     def apply(cls, cr, uid, routes, message):
         route = cls._message_route_check_bounce(cr, uid, message)
         if route:
-            routes.append(route)
+            # We assume a bounce should never create anything else.  What's
+            # the point for creating a lead, or task... Specially if the alias
+            # is bound to some ids.  This only could happen if another router
+            # is in place and that would be a design error.
+            routes[:] = [route]
+        return routes
