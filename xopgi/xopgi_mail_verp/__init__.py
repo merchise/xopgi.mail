@@ -13,7 +13,6 @@
 # terms of the LICENCE attached (see LICENCE file) in the distribution
 # package.
 
-
 from __future__ import absolute_import as _py3_abs_imports
 
 from . import router  # noqa

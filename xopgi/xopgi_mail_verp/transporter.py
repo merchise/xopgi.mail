@@ -12,8 +12,8 @@
 #
 # Created on 2015-03-10
 
-'''
-A transport to add a unique Return-Path to each outbound message.
+'''A transport to add a unique Return-Path to each outbound message.
+
 '''
 
 from __future__ import (division as _py3_division,
@@ -25,8 +25,16 @@ from openerp.addons.xopgi_mail_threads import TransportRouteData
 
 from openerp.release import version_info as ODOO_VERSION_INFO
 
-class verp_transport(MailTransportRouter):
 
+class VERPTransport(MailTransportRouter):
+    '''A Variable Envelop Return Path Transport.
+
+    Along with the router takes care of matching outgoing messages with
+    bounces.
+
+    Done via a VERP scheme.
+
+    '''
     def _get_bounce_address(self, obj, cr, uid, mail_id, model_name, res_id,
                             context=None):
         '''Compute the bounce address.
@@ -70,18 +78,17 @@ class verp_transport(MailTransportRouter):
 
     @classmethod
     def query(self, obj, cr, uid, message, context=None):
-        '''
-        Apply only in openerp 7, if mail_id is on context and message
-        haven't Return-Path
+        '''Apply only in openerp 7, if mail_id is on context and message haven't
+        Return-Path
+
         '''
         context = context if context else {}
-        return (ODOO_VERSION_INFO < (8, 0) and
-                context.get('mail_id', False) and
-                not message.get('Return-Path'))
+        return (ODOO_VERSION_INFO < (8, 0) and context.get('mail_id', False)
+                and not message.get('Return-Path'))
 
     def prepare_message(self, obj, cr, uid, message, context=None):
-        '''
-        Add the bounce address to the message.
+        '''Add the bounce address to the message.
+
         '''
         mail_id = context.get('mail_id', False) if context else False
         if mail_id and not message.get('Return-Path'):

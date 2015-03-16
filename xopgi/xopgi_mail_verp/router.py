@@ -21,17 +21,17 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 
+import re
+
 from openerp.release import version_info as ODOO_VERSION_INFO
 from openerp.addons.xopgi_mail_threads import MailRouter
 from openerp.addons.mail.mail_thread import decode_header
 
 from xoutil import logger as _logger
 
-import re
 
 
 class BouncedMailRouter(MailRouter):
-
     @classmethod
     def _message_route_check_bounce(self, cr, uid, message):
         """ Verify that the email_to is the bounce alias. If it is the
