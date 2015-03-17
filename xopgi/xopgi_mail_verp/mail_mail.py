@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # xopgi_mail_verp.mail_mail
 # ---------------------------------------------------------------------
-# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
+# Copyright (c) 2015 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -10,15 +10,24 @@
 # package.
 #
 # Created on 2015-03-10
-
-'''
-Override the send method to add mail_id on context.
-'''
-
 from openerp.osv import osv
 
 
 class mail_mail(osv.Model):
+    '''Override the send method to add mail_id on context.
+
+    This is needed by the transport to properly build a bounce address which
+    include the id of the mail_mail object.
+
+    This is needed because a single mail_mail is create for each recipient of
+    the message, any of which can bounce.  The transports are only provided
+    with the `message`, but we need to know which recipient is bouncing.
+    That's why we serialize the sending in a way that `send_email` is called
+    with the "mail_id" in the `context`, which is then inspected by our
+    transport.
+
+    '''
+
     _name = 'mail.mail'
     _inherit = _name
 
@@ -29,7 +38,7 @@ class mail_mail(osv.Model):
 
         '''
         res = True
-        context = kwargs.get('context', {})
+        context = kwargs.get('context', {}) or {}
         _super = super(mail_mail, self).send
         for _id in ids:
             context.update(mail_id=_id)

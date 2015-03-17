@@ -45,17 +45,15 @@ class VERPTransport(MailTransportRouter):
         `mail.bounce.alias` on odoo) and `mail.catchall.domain` with the
         id, model, res_id of mail.mail object.
 
-        If (`mail.catchall.alias` on openepr or `mail.bounce.alias` on odoo)
-        is not set it defaults to "postmaster-odoo".
+        If `mail.catchall.alias` (openerp) or `mail.bounce.alias` (odoo) is
+        not set it defaults to "postmaster-odoo".
 
         If "mail.catchall.domain" is not set, return None.
 
-        Important:
-        ----------
+        .. warning:: This have a weakness, if an mail is sended and, for any
+           reason, not saved on db the possible bounded messages could not be
+           related with the recipient.
 
-        This have a weakness, if an mail is sended and, by any reason,
-        not saved on db the possible bounded messages will cant be related
-        with the recipient.
         '''
         from .common import get_bounce_alias
         postmaster = get_bounce_alias(obj, cr, uid, context=context)
