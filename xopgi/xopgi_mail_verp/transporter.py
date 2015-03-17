@@ -88,16 +88,14 @@ class VERPTransport(MailTransportRouter):
 
         '''
         mail_id = context.get('mail_id', False) if context else False
-        if mail_id and not message.get('Return-Path'):
-            _mail = obj.pool['mail.mail'].browse(cr, uid, mail_id,
-                                                 context=context)
-            message['Return-Path'] = self._get_bounce_address(
-                obj,
-                cr,
-                uid,
-                _mail.id,
-                _mail.model,
-                _mail.res_id,
-                context=context
-            )
+        mail = obj.pool['mail.mail'].browse(cr, uid, mail_id, context=context)
+        message['Return-Path'] = self._get_bounce_address(
+            obj,
+            cr,
+            uid,
+            mail.id,
+            mail.model,
+            mail.res_id,
+            context=context
+        )
         return TransportRouteData(message, {})
