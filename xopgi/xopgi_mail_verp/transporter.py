@@ -23,8 +23,6 @@ from __future__ import (division as _py3_division,
 from openerp.addons.xopgi_mail_threads import MailTransportRouter
 from openerp.addons.xopgi_mail_threads import TransportRouteData
 
-from openerp.release import version_info as ODOO_VERSION_INFO
-
 
 class VERPTransport(MailTransportRouter):
     '''A Variable Envelop Return Path Transport.
