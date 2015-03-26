@@ -101,4 +101,11 @@ class MailBounce(orm.TransientModel):
         if not hasattr(model_pool, 'message_post'):
             context['thread_model'] = model
             model_pool = self.pool['mail.thread']
+        if thread_id:
+            # thread_id must time will be an integer but on few cases can
+            # be an str (virtual Id) Ej: recurrent events
+            try:
+                thread_id = int(thread_id)
+            except ValueError:
+                pass
         return model_pool.message_post(cr, uid, [thread_id], **kwargs)
