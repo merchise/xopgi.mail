@@ -56,7 +56,7 @@ class VERPTransport(MailTransportRouter):
 
         '''
         from .common import get_bounce_alias
-        postmaster = get_bounce_alias(obj, cr, uid, context=context)
+        postmaster = get_bounce_alias(obj.pool, cr, uid, context=context)
         get_param = obj.pool['ir.config_parameter'].get_param
         domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
         if domain:
