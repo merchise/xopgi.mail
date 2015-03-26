@@ -47,23 +47,29 @@ class BouncedMailRouter(MailRouter):
         if bounce_alias not in email_to:
             return None
         # Bounce regex
-        # Typical form of bounce is bounce_alias-128-crm.lead-34@domain
+        # Typical form of bounce is
+        # bounce_alias-128-crm.lead-34+recipient=destination.domain@domain
         # group(1) = the mail ID; group(2) = the model (if any);
         # group(3) = the record ID
+        # group(4) = recipient address or False
         bounce_re = re.compile(
-            ("%s-(\d+)-?([\w.]+)?-?(\d+)?" % re.escape(bounce_alias)),
+            ("%s-(\d+)-?([\w.]+)?-?(\d+)?\+?([^@]+)?" % re.escape(bounce_alias)),
             re.UNICODE)
         bounce_match = bounce_re.search(email_to)
         if bounce_match:
             bounced_mail_id = bounce_match.group(1)
             bounced_model = bounce_match.group(2) or None
             bounced_thread_id = bounce_match.group(3) or False
+            bounced_email_from = bounce_match.group(4) or False
+            email_from = (bounced_email_from.replace('=', '@').replace('@@', '@')
+                          if bounced_email_from else email_from)
             _logger.info(
                 'Routing mail from %s to %s with Message-Id %s: '
                 'bounced mail from mail %s, model: %s, thread_id: %s',
                 email_from, email_to, message_id, bounced_mail_id,
                 bounced_model, bounced_thread_id)
-            thread_id = (bounced_mail_id, bounced_model, bounced_thread_id)
+            thread_id = (bounced_mail_id, bounced_model, bounced_thread_id,
+                         email_from)
             if ODOO_VERSION_INFO < (8, 0):
                 return (BOUNCE_MODEL, thread_id, {}, uid)
             else:
