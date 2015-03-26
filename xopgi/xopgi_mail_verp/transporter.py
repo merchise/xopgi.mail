@@ -35,8 +35,8 @@ class VERPTransport(MailTransportRouter):
     Done via a VERP scheme.
 
     '''
-    def _get_bounce_address(self, obj, cr, uid, mail_id, model_name, res_id,
-                            context=None):
+    def _get_bounce_address(self, obj, cr, uid, mail_id, model_name,
+                            res_id, email_to, context=None):
         '''Compute the bounce address.
 
         The bounce address is used to set the envelop address if no
@@ -59,13 +59,25 @@ class VERPTransport(MailTransportRouter):
         postmaster = get_bounce_alias(obj.pool, cr, uid, context=context)
         get_param = obj.pool['ir.config_parameter'].get_param
         domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
+        if email_to:
+            from six import string_types
+            email_to = ([email_to] if isinstance(email_to, string_types)
+                        else email_to)
+            from email.utils import getaddresses
+            email_to = getaddresses(email_to)
+            # Get the address from first recipient (must be the unique one).
+            email_to = email_to[0][-1] if email_to and email_to[0] else False
+            email_to = (email_to.replace('=', '==').replace('@', '=')
+                        if email_to else '')
         if domain:
             if mail_id:
                 if model_name and res_id:
-                    return '%s-%d-%s-%d@%s' % (
-                        postmaster, mail_id, model_name, res_id, domain)
+                    return '%s-%d-%s-%d+%s@%s' % (
+                        postmaster, mail_id, model_name, res_id, email_to,
+                        domain)
                 else:
-                    return '%s-%d@%s' % (postmaster, mail_id, domain)
+                    return '%s-%d+%s@%s' % (postmaster, mail_id, email_to,
+                                            domain)
             else:
                 return '%s@%s' % (postmaster, domain)
         else:
@@ -94,6 +106,7 @@ class VERPTransport(MailTransportRouter):
             mail.id,
             mail.model,
             mail.res_id,
+            mail.email_to or message['To'],
             context=context
         )
         return TransportRouteData(message, {})
