@@ -85,13 +85,12 @@ class VERPTransport(MailTransportRouter):
 
     @classmethod
     def query(self, obj, cr, uid, message, context=None):
-        '''Apply only in openerp 7, if mail_id is on context and message haven't
-        Return-Path
+        '''Apply on both openerp 7 and Odoo for any outbound message,
+        if context have mail_id key.
 
         '''
         context = context if context else {}
-        return (ODOO_VERSION_INFO < (8, 0) and context.get('mail_id', False)
-                and not message.get('Return-Path'))
+        return context.get('mail_id', False)
 
     def prepare_message(self, obj, cr, uid, message, context=None):
         '''Add the bounce address to the message.
