@@ -108,4 +108,5 @@ class MailBounce(orm.TransientModel):
                 thread_id = int(thread_id)
             except ValueError:
                 pass
+        # TODO: replace original bounce message by a customized one.
         return model_pool.message_post(cr, uid, [thread_id], **kwargs)
