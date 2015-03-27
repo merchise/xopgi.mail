@@ -47,7 +47,7 @@ def decode(verpmail):
        'some@address.com'
 
        >>> decode(encode('some=thing@else.com='))
-       'some=thing@else.com'
+       'some=thing@else.com='
 
     Decoding this should be done with `decode`:func:.
 
