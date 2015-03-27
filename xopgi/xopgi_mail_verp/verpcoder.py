@@ -21,12 +21,6 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 
-import re
-PADDING = '='
-NORMAL_REGEX = re.compile('[^%s]+' % PADDING)
-PADDING_REGEX = re.compile('%s+' % PADDING)
-
-
 def encode(email):
     '''Encodes an email so that is could be embedded in another address.
 
