@@ -58,16 +58,4 @@ def decode(vmail):
     Decoding this should be done with `decode`:func:.
 
     '''
-    res = ''
-    match = PADDING_REGEX.search(vmail)
-    while match:
-        pos, end = match.span()
-        before, pad, vmail = vmail[:pos], vmail[pos:end], vmail[end:]
-        res += before + PADDING * (len(pad) // 2)
-        if len(pad) % 2 != 0:
-            res += '@'
-        match = PADDING_REGEX.search(vmail)
-    assert res, 'Not a single "=" was found'
-    if vmail:
-        res += vmail
-    return res
+    return vmail.replace('=', '@').replace('@@', '=')
