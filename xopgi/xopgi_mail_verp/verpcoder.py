@@ -35,7 +35,7 @@ def encode(email):
     Decoding this should be done with `decode`:func:.
 
     '''
-    pass
+    return email.replace('=', '==').replace('@', '=')
 
 
 def decode(verpmail):
