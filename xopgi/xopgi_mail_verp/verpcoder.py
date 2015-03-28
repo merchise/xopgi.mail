@@ -99,7 +99,4 @@ NotFound = NotFoundType()
 
 def find(s, what):
     res = s.find(what)
-    if res < 0:
-        return NotFound
-    else:
-        return res
+    return res if res >= 0 else NotFound
