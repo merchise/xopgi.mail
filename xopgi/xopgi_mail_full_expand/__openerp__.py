@@ -24,7 +24,7 @@
     'summary': 'Add an option to open the mail in a big window.',
     'depends': ['mail', 'web', 'xopgi_mail_threads'],
     'description': '',
-    'update_xml': [
+    'data': [
         'views/mail_full_expand_view.xml',
     ],
     'css': [
