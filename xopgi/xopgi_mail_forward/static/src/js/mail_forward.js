@@ -40,7 +40,7 @@ openerp.xopgi_mail_forward = function (instance) {
                 default_body: body,
                 default_model: this.model,
                 default_res_id: this.res_id,
-                default_subject: subject.join(": "),
+                default_subject: subject.join(" "),
             };
 
             // Get the action data and execute it to open the composer wizard
