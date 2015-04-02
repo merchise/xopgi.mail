@@ -50,6 +50,7 @@ setup(name=project_name,
           'xoeuf',
           'xoutil',
           'lxml',
+          'xopgi.mail_threads',
       ],
       entry_points="""
       [xoeuf.addons]
