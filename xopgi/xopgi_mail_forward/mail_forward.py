@@ -52,7 +52,7 @@ class mail_compose_forward(orm.TransientModel):
         if model:
             res_id = int(context.get('default_res_id'))
             name = self.pool[model].name_get(
-                cr, uid, res_id, context=context
+                cr, uid, [res_id], context=context
             )[0][1]
             result['record_name'] = name
             if not result['subject']:
