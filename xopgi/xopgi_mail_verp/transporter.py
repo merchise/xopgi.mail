@@ -23,6 +23,8 @@ from __future__ import (division as _py3_division,
 from openerp.addons.xopgi_mail_threads import MailTransportRouter
 from openerp.addons.xopgi_mail_threads import TransportRouteData
 
+from . import verpcoder
+
 
 class VERPTransport(MailTransportRouter):
     '''A Variable Envelop Return Path Transport.
@@ -65,8 +67,10 @@ class VERPTransport(MailTransportRouter):
             email_to = getaddresses(email_to)
             # Get the address from first recipient (must be the unique one).
             email_to = email_to[0][-1] if email_to and email_to[0] else False
-            email_to = (email_to.replace('=', '==').replace('@', '=')
-                        if email_to else '')
+            email_to = (
+                verpcoder.encode(email_to)
+                if email_to else ''
+            )
         if domain:
             if mail_id:
                 if model_name and res_id:
