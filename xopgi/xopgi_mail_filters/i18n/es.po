@@ -1,0 +1,37 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* xopgi_mail_filters
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0-20150312-083231-0492a56\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-04-03 14:40+0000\n"
+"PO-Revision-Date: 2015-04-03 14:40+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xopgi_mail_filters
+#: view:base.config.settings:xopgi_mail_filters.view_general_configuration_mail_alias_domain
+msgid "Add Followers filter"
+msgstr "Agregar filtro por seguidor"
+
+#. module: xopgi_mail_filters
+#: field:mail.message,model_names:0
+msgid "Associated to"
+msgstr "Asociado a"
+
+#. module: xopgi_mail_filters
+#: model:ir.model,name:xopgi_mail_filters.model_mail_thread
+msgid "Email Thread"
+msgstr "Hilo de mensajes"
+
+#. module: xopgi_mail_filters
+#: model:ir.model,name:xopgi_mail_filters.model_mail_message
+msgid "Message"
+msgstr "Mensaje"
+
