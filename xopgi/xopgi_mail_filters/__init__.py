@@ -19,5 +19,5 @@ from __future__ import (absolute_import as _py3_abs_imports,
                         print_function as _py3_print,
                         unicode_literals as _py3_unicode)
 
-
+from . import mail_config
 from . import mail_message
