@@ -40,4 +40,7 @@ class MailConfig(Model):
 
         'module_xopgi_mail_alias_project':
             fields.boolean('Several mail alias by project.'),
+
+        'module_xopgi_mail_verp': fields.boolean(
+            'Add VERP mail management.'),
     }

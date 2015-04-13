@@ -20,6 +20,9 @@
             <br/>
             <field name="module_xopgi_mail_alias_project"/>
             <label for="module_xopgi_mail_alias_project"/>
+            <br/>
+            <field name="module_xopgi_mail_verp"/>
+            <label for="module_xopgi_mail_verp"/>
           </div>
         </xpath>
       </field>
