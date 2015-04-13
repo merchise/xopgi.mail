@@ -47,6 +47,7 @@ setup(name=project_name,
       include_package_data=True,
       zip_safe=False,
       install_requires=[
+          'six',
           'xoeuf',
           'xoutil',
           'lxml',

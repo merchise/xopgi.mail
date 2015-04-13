@@ -26,9 +26,9 @@ STDOUT=$(tempfile --prefix="$HASH-" --suffix=.log)
 
 # Trick to test with openerp-server.
 if [ -z "$1" ]; then
-    EXECUTABLE=xoeuf
+    EXECUTABLE=bin/xoeuf
 else
-    EXECUTABLE="$1"
+    EXECUTABLE="bin/$1"
 fi
 
 echo ">>> $EXECUTABLE ..."
@@ -38,8 +38,8 @@ dropdb $DB 2>/dev/null
 
 # Create the DB install the addons and run tests.
 createdb "$DB" && \
-   $EXECUTABLE -d $DB -i all --stop-after-init && \
-   $EXECUTABLE -d $DB -i "$ADDONS" --stop-after-init \
+   $EXECUTABLE -d $DB -i all --stop-after-init --addons-path="$CDIR"/xopgi/ && \
+   $EXECUTABLE -d $DB -i "$ADDONS" --stop-after-init --addons-path="$CDIR"/xopgi/ \
       --test-enable --log-level=test | tee "$STDOUT"
 
 if egrep -q "(At least one test failed when loading the modules.|ERROR ${DB})" "$STDOUT"; then

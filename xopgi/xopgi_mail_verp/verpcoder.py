@@ -86,12 +86,8 @@ def decode(vmail):
 # basically a position which is always bigger than any other position, but
 # that is not an integer.
 class NotFoundType(object):
-    def __lt__(self, x):
-        return False
-    def __gt__(self, x):
-        return True
-    def __bool__(self, x):
-        return False
+    __lt__ = __bool__ = lambda self, x: False
+    __gt__ = lambda self, x: True
     __nonzero__ = __bool__
 
 NotFound = NotFoundType()

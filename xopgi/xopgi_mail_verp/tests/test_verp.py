@@ -25,6 +25,16 @@ except ImportError:
     from openerp.addons.mail.tests.test_mail_base import TestMailBase as TestMail
 
 
+import unittest2
+
+
+class TestEncoding(unittest2.TestCase):
+    def test_encoding(self):
+        from xopgi.xopgi_mail_verp import verpcoder
+        address = 'some=thing=@=else.com'
+        assert verpcoder.decode(verpcoder.encode(address)) == address
+
+
 class TestVERP(TestMail):
     def test_verp_mail(self):
         assert False, 'VERPing'
