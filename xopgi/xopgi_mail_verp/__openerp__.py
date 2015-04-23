@@ -22,6 +22,7 @@
     'application': False,
     'installable': True,
     'summary': 'VERP',
+    'description': 'Allows to track email bounces and add them to the proper thread.',
     'depends': ['mail', 'xopgi_mail_threads'],
     'data': [],
 }

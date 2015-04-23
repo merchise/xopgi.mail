@@ -28,6 +28,7 @@ from openerp.addons.xopgi_mail_threads import MailRouter
 from openerp.addons.mail.mail_thread import decode_header
 
 from .mail_bounce_model import BOUNCE_MODEL
+from . import verpcoder
 
 from xoutil import logger as _logger
 
@@ -61,8 +62,10 @@ class BouncedMailRouter(MailRouter):
             bounced_model = bounce_match.group(2) or None
             bounced_thread_id = bounce_match.group(3) or False
             bounced_email_from = bounce_match.group(4) or False
-            email_from = (bounced_email_from.replace('=', '@').replace('@@', '@')
-                          if bounced_email_from else email_from)
+            email_from = (
+                verpcoder.decode(bounced_email_from)
+                if bounced_email_from else email_from
+            )
             _logger.info(
                 'Routing mail from %s to %s with Message-Id %s: '
                 'bounced mail from mail %s, model: %s, thread_id: %s',
