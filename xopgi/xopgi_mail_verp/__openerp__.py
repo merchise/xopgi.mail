@@ -14,15 +14,16 @@
 # package.
 
 
-{
-    'name': 'xopgi_mail_verp',
-    'version': '1.0',
-    'author': 'Merchise Autrement',
-    'category': 'mail',
-    'application': False,
-    'installable': True,
-    'summary': 'VERP',
-    'description': 'Allows to track email bounces and add them to the proper thread.',
-    'depends': ['mail', 'xopgi_mail_threads'],
-    'data': [],
-}
+dict(
+    name='xopgi_mail_verp',
+    version='1.0',
+    author='Merchise Autrement',
+    category='mail',
+    application=False,
+    installable=True,
+    summary='Variable Envelop Return Path (VERP)',
+    description=('Allows to track email bounces and add them to the '
+                 'proper thread.'),
+    depends=['mail', 'xopgi_mail_threads'],
+    data=[],
+)
