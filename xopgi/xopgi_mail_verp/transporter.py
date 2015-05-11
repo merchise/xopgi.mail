@@ -36,13 +36,25 @@ class VERPTransport(MailTransportRouter):
 
     '''
     def _get_bounce_address(self, obj, cr, uid, mail_id, model_name,
-                            res_id, email_to, context=None):
+                            thread_id, email_to, context=None):
         '''Compute the bounce address.
 
         The bounce address is used to set the envelop address if no envelop
         address is provided in the message.  It is formed by properly joining
         the `bounce alias <.common.get_bounce_alias>`:func: the id, model,
         res_id of mail.mail object.
+
+        :param mail_id: The id of the mail.mail object being sent.
+
+        :param model_name: This is the model name of the OpenERP object
+                           issuing the message.  Since the messaging system in
+                           OpenERP is a mixin, this could be a task, lead,
+                           invoice, etc..
+
+        :param thread_id: The id of the object where this message is being
+                          sent from.
+
+        :param email_to: The address to which the message is being sent.
 
         If "mail.catchall.domain" is not set, return None.
 
@@ -67,9 +79,9 @@ class VERPTransport(MailTransportRouter):
             email_to = verpcoder.encode(email_to) if email_to else ''
         postmaster = get_bounce_alias(obj.pool, cr, uid, context=context)
         if mail_id:
-            if model_name and res_id:
+            if model_name and thread_id:
                 return '%s-%d-%s-%d+%s@%s' % (
-                    postmaster, mail_id, model_name, res_id, email_to,
+                    postmaster, mail_id, model_name, thread_id, email_to,
                     domain)
             else:
                 return '%s-%d+%s@%s' % (postmaster, mail_id, email_to,
