@@ -19,6 +19,7 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
+from openerp import SUPERUSER_ID
 from openerp.osv import orm
 from xoutil import logger as _logger
 
@@ -28,10 +29,11 @@ BOUNCE_TEMPLATE = (
     '''
     <p>The recipient <strong>%(recipient)s</strong> did not get your
     message.</p>
+    <hr/>
     <p>The original message was:</p>
-    <blockquote>%(message)s</blockquote>
+    <quote>%(message)s</quote>
     <p>The bounce message was:</p>
-    <blockquote>%(bounce)s</blockquote>
+    <quote>%(bounce)s</quote>
     '''
 )
 
@@ -96,7 +98,9 @@ class MailBounce(orm.TransientModel):
                 pass
         message = self._get_message(cr, uid, int(message_id))
         self._build_bounce(cr, uid, message, recipient, kwargs)
-        return model_pool.message_post(cr, uid, [thread_id], **kwargs)
+        msgid = model_pool.message_post(cr, uid, [thread_id], **kwargs)
+        self.notify(cr, uid, msgid, message.author_id)
+        return msgid
 
     def _build_bounce(self, cr, uid, message, recipient, params):
         '''Rewrites the bounce email.
@@ -113,3 +117,27 @@ class MailBounce(orm.TransientModel):
 
     def _get_message(self, cr, uid, message_id):
         return self.pool['mail.message'].browse(cr, uid, message_id)
+
+    def notify(self, cr, uid, message_id, originator):
+        '''Notify the originator about the bounce.
+
+        No other followers are notified.
+
+        '''
+        Notifications = self.pool['mail.notification']
+        notifications = Notifications.search(
+            cr,
+            SUPERUSER_ID,
+            [('message_id', '=', message_id),
+             ('partner_id', '=', originator.id),
+             ('is_read', '=', False)],
+        ) or Notifications.update_message_notification(
+            cr,
+            SUPERUSER_ID,
+            [],
+            message_id,
+            [originator.id]
+        )
+        if notifications:
+            Notifications._notify_email(cr, uid, notifications, message_id,
+                                        force_send=True)
