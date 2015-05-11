@@ -64,21 +64,14 @@ class MailBounce(orm.TransientModel):
            `thread_id` of the object (from model) that identifies the thread.
 
         '''
-        mail_id, model, thread_id, email_from = ids[0]
-        context = dict(
-            kwargs.get('context', {}) or {},
+        message_id, model, thread_id, email_from = ids[0]
+        if not model:
+            return
+        context = kwargs.setdefault('context', {})
+        context.update(
             mail_notify_noemail=True,
             thread_model=model
         )
-        kwargs.update(context=context)
-        mail_pool = self.pool['mail.mail']
-        if mail_id:
-            mail_id = mail_pool.exists(cr, uid, [int(mail_id)], context=context)
-            if mail_id:
-                mail = mail_pool.browse(cr, uid, mail_id[0], context=context)
-                if mail.email_to:
-                    email_from = mail.email_to
-        kwargs.update(email_from=email_from)
         model_pool = self.pool[model]
         if not hasattr(model_pool, 'message_post'):
             context['thread_model'] = model

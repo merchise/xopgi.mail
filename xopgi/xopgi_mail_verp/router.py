@@ -30,8 +30,6 @@ from openerp.addons.mail.mail_thread import decode_header
 from .mail_bounce_model import BOUNCE_MODEL
 from . import verpcoder
 
-from xoutil import logger as _logger
-
 
 class BouncedMailRouter(MailRouter):
     @classmethod
@@ -42,41 +40,49 @@ class BouncedMailRouter(MailRouter):
         from .common import get_bounce_alias
         registry = Registry(cr.dbname)
         bounce_alias = get_bounce_alias(registry, cr, uid)
-        message_id = message.get('Message-Id')
         email_from = decode_header(message, 'From')
         email_to = decode_header(message, 'To')
         if bounce_alias not in email_to:
             return None
         # Bounce regex
         # Typical form of bounce is
-        # bounce_alias-128-crm.lead-34+recipient=destination.domain@domain
+        # bounce_alias-128-989-crm.lead-34+recipient=destination.domain@domain
         # group(1) = the mail ID; group(2) = the model (if any);
         # group(3) = the record ID
         # group(4) = recipient address or False
         bounce_re = re.compile(
-            ("%s-(\d+)-?([\w.]+)?-?(\d+)?\+?([^@]+)?" % re.escape(bounce_alias)),
+            ("%s-(\d+)-?([\w.]+)?-?(\d+)?\+?([^@]+)?" %
+             re.escape(bounce_alias)),
             re.UNICODE)
         bounce_match = bounce_re.search(email_to)
         if bounce_match:
-            bounced_mail_id = bounce_match.group(1)
+            bounced_message_id = bounce_match.group(1)
             bounced_model = bounce_match.group(2) or None
             bounced_thread_id = bounce_match.group(3) or False
             bounced_email_from = bounce_match.group(4) or False
-            email_from = (
+            email = (
                 verpcoder.decode(bounced_email_from)
                 if bounced_email_from else email_from
             )
-            _logger.info(
-                'Routing mail from %s to %s with Message-Id %s: '
-                'bounced mail from mail %s, model: %s, thread_id: %s',
-                email_from, email_to, message_id, bounced_mail_id,
-                bounced_model, bounced_thread_id)
-            thread_id = (bounced_mail_id, bounced_model, bounced_thread_id,
-                         email_from)
-            if ODOO_VERSION_INFO < (8, 0):
-                return (BOUNCE_MODEL, thread_id, {}, uid)
-            else:
-                return (BOUNCE_MODEL, thread_id, {}, uid, None)
+            return (bounced_message_id, bounced_model, bounced_thread_id,
+                    email)
+        else:
+            return None
+
+    @classmethod
+    def _get_route(self, uid, bouncedata):
+        msgid, model, thread, email = bouncedata
+        if not model:
+            # A private bounce: take the message's originator an issue place
+            # the bounce there.  If the originator is not an internal user (a
+            # message from the outside that created a private conversation)
+            # fallback.
+            pass
+        thread_id = (msgid, model, thread, email)
+        if ODOO_VERSION_INFO < (8, 0):
+            return (BOUNCE_MODEL, thread_id, {}, uid)
+        else:
+            return (BOUNCE_MODEL, thread_id, {}, uid, None)
 
     @classmethod
     def is_applicable(cls, cr, uid, message):
@@ -84,8 +90,9 @@ class BouncedMailRouter(MailRouter):
 
     @classmethod
     def apply(cls, cr, uid, routes, message):
-        route = cls._message_route_check_bounce(cr, uid, message)
-        if route:
+        bounce = cls._message_route_check_bounce(cr, uid, message)
+        if bounce:
+            route = cls._get_route(uid, bounce)
             # We assume a bounce should never create anything else.  What's
             # the point for creating a lead, or task... Specially if the alias
             # is bound to some ids.  This only could happen if another router

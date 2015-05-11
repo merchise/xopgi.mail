@@ -35,7 +35,7 @@ class VERPTransport(MailTransportRouter):
     Done via a VERP scheme.
 
     '''
-    def _get_bounce_address(self, obj, cr, uid, mail_id, model_name,
+    def _get_bounce_address(self, obj, cr, uid, message_id, model_name,
                             thread_id, email_to, context=None):
         '''Compute the bounce address.
 
@@ -44,7 +44,9 @@ class VERPTransport(MailTransportRouter):
         the `bounce alias <.common.get_bounce_alias>`:func: the id, model,
         res_id of mail.mail object.
 
-        :param mail_id: The id of the mail.mail object being sent.
+        :param message_id: The id of the mail.message object being sent.  This
+                           is not generally the same as the thread_id, but a
+                           descendant.
 
         :param model_name: This is the model name of the OpenERP object
                            issuing the message.  Since the messaging system in
@@ -78,14 +80,15 @@ class VERPTransport(MailTransportRouter):
             email_to = email_to[0][-1] if email_to and email_to[0] else False
             email_to = verpcoder.encode(email_to) if email_to else ''
         postmaster = get_bounce_alias(obj.pool, cr, uid, context=context)
-        if mail_id:
+        if message_id:
             if model_name and thread_id:
                 return '%s-%d-%s-%d+%s@%s' % (
-                    postmaster, mail_id, model_name, thread_id, email_to,
-                    domain)
+                    postmaster, message_id, model_name, thread_id,
+                    email_to, domain)
             else:
-                return '%s-%d+%s@%s' % (postmaster, mail_id, email_to,
-                                        domain)
+                return '%s-%d+%s@%s' % (
+                    postmaster, message_id, email_to,
+                    domain)
         else:
             return '%s@%s' % (postmaster, domain)
 
@@ -105,11 +108,13 @@ class VERPTransport(MailTransportRouter):
         mail_id = context.get('mail_id', False) if context else False
         mail = obj.pool['mail.mail'].browse(cr, uid, mail_id, context=context)
         del message['Return-Path']  # Ensure a single Return-Path
+        msg, _ = self.get_message_objects(obj, cr, uid, message,
+                                          context=context)
         message['Return-Path'] = self._get_bounce_address(
             obj,
             cr,
             uid,
-            mail.id,
+            msg.id,
             mail.model,
             mail.res_id,
             mail.email_to or message['To'],
