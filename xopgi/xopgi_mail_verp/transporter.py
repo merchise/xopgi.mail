@@ -52,9 +52,10 @@ class VERPTransport(MailTransportRouter):
 
         '''
         from .common import get_bounce_alias
-        postmaster = get_bounce_alias(obj.pool, cr, uid, context=context)
         get_param = obj.pool['ir.config_parameter'].get_param
         domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
+        if not domain:
+            return None
         if email_to:
             from six import string_types
             email_to = ([email_to] if isinstance(email_to, string_types)
@@ -63,23 +64,18 @@ class VERPTransport(MailTransportRouter):
             email_to = getaddresses(email_to)
             # Get the address from first recipient (must be the unique one).
             email_to = email_to[0][-1] if email_to and email_to[0] else False
-            email_to = (
-                verpcoder.encode(email_to)
-                if email_to else ''
-            )
-        if domain:
-            if mail_id:
-                if model_name and res_id:
-                    return '%s-%d-%s-%d+%s@%s' % (
-                        postmaster, mail_id, model_name, res_id, email_to,
-                        domain)
-                else:
-                    return '%s-%d+%s@%s' % (postmaster, mail_id, email_to,
-                                            domain)
+            email_to = verpcoder.encode(email_to) if email_to else ''
+        postmaster = get_bounce_alias(obj.pool, cr, uid, context=context)
+        if mail_id:
+            if model_name and res_id:
+                return '%s-%d-%s-%d+%s@%s' % (
+                    postmaster, mail_id, model_name, res_id, email_to,
+                    domain)
             else:
-                return '%s@%s' % (postmaster, domain)
+                return '%s-%d+%s@%s' % (postmaster, mail_id, email_to,
+                                        domain)
         else:
-            return None
+            return '%s@%s' % (postmaster, domain)
 
     @classmethod
     def query(self, obj, cr, uid, message, context=None):
@@ -96,6 +92,7 @@ class VERPTransport(MailTransportRouter):
         '''
         mail_id = context.get('mail_id', False) if context else False
         mail = obj.pool['mail.mail'].browse(cr, uid, mail_id, context=context)
+        del message['Return-Path']  # Ensure a single Return-Path
         message['Return-Path'] = self._get_bounce_address(
             obj,
             cr,
