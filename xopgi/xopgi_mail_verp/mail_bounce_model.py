@@ -24,6 +24,17 @@ from xoutil import logger as _logger
 
 BOUNCE_MODEL = 'mail.bounce.model'
 
+BOUNCE_TEMPLATE = (
+    '''
+    <p>The recipient <strong>%(recipient)s</strong> did not get your
+    message.</p>
+    <p>The original message was:</p>
+    <blockquote>%(message)s</blockquote>
+    <p>The bounce message was:</p>
+    <blockquote>%(bounce)s</blockquote>
+    '''
+)
+
 
 class MailBounce(orm.TransientModel):
     _name = BOUNCE_MODEL
@@ -64,7 +75,7 @@ class MailBounce(orm.TransientModel):
            `thread_id` of the object (from model) that identifies the thread.
 
         '''
-        message_id, model, thread_id, email_from = ids[0]
+        message_id, model, thread_id, recipient = ids[0]
         if not model:
             return
         context = kwargs.setdefault('context', {})
@@ -83,5 +94,22 @@ class MailBounce(orm.TransientModel):
                 thread_id = int(thread_id)
             except ValueError:
                 pass
-        # TODO: replace original bounce message by a customized one.
+        message = self._get_message(cr, uid, int(message_id))
+        self._build_bounce(cr, uid, message, recipient, kwargs)
         return model_pool.message_post(cr, uid, [thread_id], **kwargs)
+
+    def _build_bounce(self, cr, uid, message, recipient, params):
+        '''Rewrites the bounce email.
+
+        '''
+        params['subject'] = 'Undelivered Mail Returned to Sender'
+        body = BOUNCE_TEMPLATE % dict(
+            recipient=recipient,
+            message=message.body,
+            bounce=params['body'],
+        )
+        params['body'] = body
+        return params
+
+    def _get_message(self, cr, uid, message_id):
+        return self.pool['mail.message'].browse(cr, uid, message_id)
