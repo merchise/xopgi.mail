@@ -44,28 +44,10 @@ class MailBounce(orm.TransientModel):
 
     def message_update(self, cr, uid, ids, msg_dict, update_vals=None,
                        context=None):
-        '''Redirect to the origin model correspondent method.
-
-        .. note:: The `ids` is expected to be a single item with a tuple with
-           ``(mail_id, model, thread_id)``, being the `mail_id` the mail id
-           that bounced, `model` the model to which the message belongs and
-           `thread_id` of the object (from model) that identifies the thread.
-
-        '''
-        mail_id, model, thread_id, _ = ids[0]
-        ctx = dict(context or {}, thread_model=model)
-        model_pool = self.pool[model]
-        if hasattr(model_pool, 'message_update'):
-            model_pool.message_update(cr, uid, [int(thread_id)], msg_dict,
-                                      context=ctx)
-        else:
-            nosub_ctx = dict(ctx, mail_create_nolog=True)
-            model_pool.message_new(cr, uid, msg_dict, {}, context=nosub_ctx)
-            _logger.warn(
-                "Bounced mail '%s' to <%s> own to a model '%s' without "
-                "message_update method.",
-                msg_dict.get('message_id'), msg_dict.get('to'), model
-            )
+        # Conceptually this is not needed, cause its purpose is to update the
+        # object record from an email data.  Being a bounce we mustn't modify
+        # any record for that sort of thing.  However, this is method is still
+        # needed to keep Odoo from calling `message_new`.
         return True
 
     def message_post(self, cr, uid, ids, **kwargs):
