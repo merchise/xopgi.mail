@@ -39,18 +39,14 @@ class VERPTransport(MailTransportRouter):
                             res_id, email_to, context=None):
         '''Compute the bounce address.
 
-        The bounce address is used to set the envelop address if no
-        envelop address is provided in the message.  It is formed by properly
-        joining the parameters (`mail.catchall.alias` on openepr or
-        `mail.bounce.alias` on odoo) and `mail.catchall.domain` with the
-        id, model, res_id of mail.mail object.
-
-        If `mail.catchall.alias` (openerp) or `mail.bounce.alias` (odoo) is
-        not set it defaults to "postmaster-odoo".
+        The bounce address is used to set the envelop address if no envelop
+        address is provided in the message.  It is formed by properly joining
+        the `bounce alias <.common.get_bounce_alias>`:func: the id, model,
+        res_id of mail.mail object.
 
         If "mail.catchall.domain" is not set, return None.
 
-        .. warning:: This have a weakness, if an mail is sended and, for any
+        .. warning:: This have a weakness, if an mail is sent and, for any
            reason, not saved on db the possible bounded messages could not be
            related with the recipient.
 
@@ -87,7 +83,7 @@ class VERPTransport(MailTransportRouter):
 
     @classmethod
     def query(self, obj, cr, uid, message, context=None):
-        '''Apply on both openerp 7 and Odoo for any outbound message,
+        '''Apply on both OpenERP 7 and Odoo for any outbound message,
         if context have mail_id key.
 
         '''

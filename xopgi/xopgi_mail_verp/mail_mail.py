@@ -17,14 +17,13 @@ class mail_mail(osv.Model):
     '''Override the send method to add mail_id on context.
 
     This is needed by the transport to properly build a bounce address which
-    include the id of the mail_mail object.
+    include the id of the mail_mail object and since a single mail_mail is
+    create for each recipient of the message, any of which can bounce.
 
-    This is needed because a single mail_mail is create for each recipient of
-    the message, any of which can bounce.  The transports are only provided
-    with the `message`, but we need to know which recipient is bouncing.
-    That's why we serialize the sending in a way that `send_email` is called
-    with the "mail_id" in the `context`, which is then inspected by our
-    transport.
+    Transports are only provided with the `message`, but we need to know which
+    recipient is bouncing.  That's why we serialize the sending in a way that
+    `send_email` is called with the "mail_id" in the `context`, which is then
+    inspected by our transport.
 
     '''
 
