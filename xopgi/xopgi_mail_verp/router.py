@@ -33,13 +33,11 @@ from . import verpcoder
 
 class BouncedMailRouter(MailRouter):
     @classmethod
-    def _message_route_check_bounce(self, cr, uid, message):
+    def _message_route_check_bounce(self, obj, cr, uid, message):
         """ Verify that the email_to is the bounce alias. If it is the
         case, log the bounce, return the origin route. """
-        from xoeuf.osv.registry import Registry
         from .common import get_bounce_alias
-        registry = Registry(cr.dbname)
-        bounce_alias = get_bounce_alias(registry, cr, uid)
+        bounce_alias = get_bounce_alias(obj.pool, cr, uid)
         email_from = decode_header(message, 'From')
         email_to = decode_header(message, 'To')
         if bounce_alias not in email_to:
@@ -70,13 +68,14 @@ class BouncedMailRouter(MailRouter):
             return None
 
     @classmethod
-    def _get_route(self, uid, bouncedata):
+    def _get_route(self, obj, cr, uid, bouncedata):
         msgid, model, thread, email = bouncedata
         if not model:
             # A private bounce: take the message's originator an issue place
             # the bounce there.  If the originator is not an internal user (a
             # message from the outside that created a private conversation)
             # fallback.
+            # msg = obj.pool['mail.message'].browse(cr, uid, int(msgid))
             pass
         thread_id = (msgid, model, thread, email)
         if ODOO_VERSION_INFO < (8, 0):
@@ -85,14 +84,14 @@ class BouncedMailRouter(MailRouter):
             return (BOUNCE_MODEL, thread_id, {}, uid, None)
 
     @classmethod
-    def is_applicable(cls, cr, uid, message):
-        return bool(cls._message_route_check_bounce(cr, uid, message))
+    def is_applicable(cls, obj, cr, uid, message):
+        return bool(cls._message_route_check_bounce(obj, cr, uid, message))
 
     @classmethod
-    def apply(cls, cr, uid, routes, message):
-        bounce = cls._message_route_check_bounce(cr, uid, message)
+    def apply(cls, obj, cr, uid, routes, message):
+        bounce = cls._message_route_check_bounce(obj, cr, uid, message)
         if bounce:
-            route = cls._get_route(uid, bounce)
+            route = cls._get_route(obj, cr, uid, bounce)
             # We assume a bounce should never create anything else.  What's
             # the point for creating a lead, or task... Specially if the alias
             # is bound to some ids.  This only could happen if another router
