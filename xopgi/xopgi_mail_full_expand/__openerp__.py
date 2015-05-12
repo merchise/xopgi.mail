@@ -15,7 +15,7 @@
 
 {
     'name': 'XOPGI Mail Full Expand',
-    'version': '1.2',
+    'version': '1.4',
     "author": 'Merchise Autrement',
     'category': 'Social Network',
     'application': False,

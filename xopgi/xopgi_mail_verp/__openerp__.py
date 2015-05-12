@@ -16,7 +16,7 @@
 
 dict(
     name='xopgi_mail_verp',
-    version='1.0',
+    version='1.4',
     author='Merchise Autrement',
     category='mail',
     application=False,
