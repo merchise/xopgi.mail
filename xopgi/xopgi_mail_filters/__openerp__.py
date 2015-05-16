@@ -16,7 +16,7 @@
 
 {
     'name': 'XOPGI Mail Filters',
-    'version': '1.2',
+    'version': '1.4',
     'author': 'Merchise Autrement',
     'category': 'Hidden',
     'application': False,
@@ -24,6 +24,8 @@
     'summary': 'Add default filters for messages.',
     'depends': ['base', 'mail'],
     'data': [
+        'data/extend_search_views.xml',
+        'views/config.xml',
         'views/mail_message_search.xml',
         (
             'views/8/search.xml'

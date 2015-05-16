@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+    <data>
+      <function name="extend_search_views" model="base.config.settings"/>
+    </data>
+</openerp>

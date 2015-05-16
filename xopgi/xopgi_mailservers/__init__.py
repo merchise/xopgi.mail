@@ -110,7 +110,7 @@ class SameOriginTransport(MailTransportRouter):
                 # matching POP/IMAP incoming fetchmail server for the same
                 # account.
                 del message['Reply-To'], message['Sender']
-                message['Return-Path'] = message['Sender'] = address
+                message['Sender'] = address
                 message['Reply-To'] = address
             else:
                 _logger.info(

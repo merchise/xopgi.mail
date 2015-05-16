@@ -16,7 +16,7 @@
 
 {
     'name': 'xopgi_mail_alias_project',
-    'version': '1.0',
+    'version': '1.4',
     'author': 'Merchise Autrement',
     'category': 'mail',
     'application': False,

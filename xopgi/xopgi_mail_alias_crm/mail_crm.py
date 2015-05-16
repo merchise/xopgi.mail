@@ -235,10 +235,8 @@ class crm_case_section(Model):
             relation='crm.valias',
             string='Mail Aliases',
             type='one2many',
-            help=("The email addresses associated "
-                  "with this team. New emails "
-                  "received will automatically "
-                  "create new Lead/Opportunity "
+            help=("The email addresses associated with this team. New emails "
+                  "received will automatically create new Lead/Opportunity "
                   "assigned to the team.")),
     }
 

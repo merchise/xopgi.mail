@@ -15,24 +15,33 @@
 
 {
     'name': 'XOPGI Mail Full Expand',
-    'version': '1.2',
+    'version': '1.4',
     "author": 'Merchise Autrement',
     'category': 'Social Network',
     'application': False,
     'installable': True,
     'auto_install': True,
     'summary': 'Add an option to open the mail in a big window.',
-    'depends': ['mail', 'web', 'xopgi_mail_threads'],
+    'depends': [
+        'mail',
+        'web',
+        'xopgi_mail_threads'
+    ],
     'description': '',
-    'update_xml': [
+    'data': [
         'views/mail_full_expand_view.xml',
+        (
+            'views/assets.xml'
+            if ODOO_VERSION_INFO >= (8, 0)  # noqa
+            else 'views/dummy.xml'
+        ),
     ],
     'css': [
         'static/src/css/mail_full_expand.css',
-    ],
+    ] if ODOO_VERSION_INFO < (8, 0) else [],   # noqa
     'js': [
         'static/src/js/mail_full_expand.js',
-    ],
+    ] if ODOO_VERSION_INFO < (8, 0) else [],   # noqa
     'qweb': [
         'static/src/xml/mail_full_expand.xml',
     ],
