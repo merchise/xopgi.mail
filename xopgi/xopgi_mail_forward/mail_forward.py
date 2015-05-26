@@ -49,10 +49,10 @@ class mail_compose_forward(orm.TransientModel):
         if body:
             result['body'] = html.tostring(html.document_fromstring(body))
         model = context.get('default_model', None)
-        if model:
-            res_id = int(context.get('default_res_id'))
+        res_id = context.get('default_res_id')
+        if model and res_id:
             name = self.pool[model].name_get(
-                cr, uid, [res_id], context=context
+                cr, uid, [int(res_id)], context=context
             )[0][1]
             result['record_name'] = name
             if not result['subject']:

@@ -71,17 +71,15 @@ class BouncedMailRouter(MailRouter):
     def _get_route(self, obj, cr, uid, bouncedata):
         msgid, model, thread, email = bouncedata
         if not model:
-            # A private bounce: take the message's originator an issue place
-            # the bounce there.  If the originator is not an internal user (a
+            # A private bounce: take the message's originator and issue the
+            # bounce there.  If the originator is not an internal user (a
             # message from the outside that created a private conversation)
             # fallback.
-            # msg = obj.pool['mail.message'].browse(cr, uid, int(msgid))
             pass
-        thread_id = (msgid, model, thread, email)
         if ODOO_VERSION_INFO < (8, 0):
-            return (BOUNCE_MODEL, thread_id, {}, uid)
+            return (BOUNCE_MODEL, bouncedata, {}, uid)
         else:
-            return (BOUNCE_MODEL, thread_id, {}, uid, None)
+            return (BOUNCE_MODEL, bouncedata, {}, uid, None)
 
     @classmethod
     def is_applicable(cls, obj, cr, uid, message):
@@ -93,8 +91,9 @@ class BouncedMailRouter(MailRouter):
         if bounce:
             route = cls._get_route(obj, cr, uid, bounce)
             # We assume a bounce should never create anything else.  What's
-            # the point for creating a lead, or task... Specially if the alias
-            # is bound to some ids.  This only could happen if another router
-            # is in place and that would be a design error.
+            # the point for creating a lead, or task from a
+            # bounce... Specially if the alias is bound to some ids.  This
+            # only could happen if another router is in place and that would
+            # be a design error.
             routes[:] = [route]
         return routes
