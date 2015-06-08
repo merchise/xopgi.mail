@@ -18,14 +18,8 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 
-try:
-    from openerp.addons.mail.tests.common import TestMail
-except ImportError:
-    # OpenERP 7.0
-    from openerp.addons.mail.tests.test_mail_base import TestMailBase as TestMail
-
-
 import unittest2
+from openerp.addons.mail.tests.common import TestMail
 
 
 class TestEncoding(unittest2.TestCase):
@@ -33,8 +27,3 @@ class TestEncoding(unittest2.TestCase):
         from xopgi.xopgi_mail_verp import verpcoder
         address = 'some=thing=@=else.com'
         assert verpcoder.decode(verpcoder.encode(address)) == address
-
-
-class TestVERP(TestMail):
-    def test_verp_mail(self):
-        assert False, 'VERPing'
