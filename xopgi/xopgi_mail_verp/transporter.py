@@ -110,6 +110,8 @@ class VERPTransport(MailTransportRouter):
         del message['Return-Path']  # Ensure a single Return-Path
         msg, _ = self.get_message_objects(obj, cr, uid, message,
                                           context=context)
+        if isinstance(msg, list):
+            msg = msg[0]
         message['Return-Path'] = self._get_bounce_address(
             obj,
             cr,
