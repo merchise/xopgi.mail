@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="new_thread_wizard_view" model="ir.ui.view">
+      <!-- The expanded form of a message -->
+      <field name="name">new.thread.wizard.view</field>
+      <field name="model">new.thread.wizard</field>
+      <field name="arch" type="xml">
+        <form version="7.0">
+          <sheet>
+            <group colspan="4" col="4">
+              <field name="message_id"/>
+              <field name="leave_msg"/>
+            </group>
+            <group>
+              <field name="model_id"/>
+            </group>
+          </sheet>
+          <footer>
+            <button string="Confirm" type="object" name="confirm"
+                    confirm="Are you sure you want to create a new document from this message."
+                    class="oe_highlight"/> or
+            <button string="Cancel" class="oe_link" special="cancel"/>
+          </footer>
+        </form>
+      </field>
+    </record>
+
+    <record id="new_thread_wizard_action" model="ir.actions.act_window">
+      <field name="name">Create New Document</field>
+      <field name="res_model">new.thread.wizard</field>
+      <field name="src_model">mail.message</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="view_id" ref="new_thread_wizard_view"/>
+      <field name="view_type">form</field>
+      <field name="view_mode">form</field>
+      <field name="target">new</field>
+    </record>
+  </data>
+</openerp>
