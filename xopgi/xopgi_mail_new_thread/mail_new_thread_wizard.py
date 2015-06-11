@@ -36,4 +36,35 @@ class NewThreadWizard(osv.TransientModel):
     }
 
     def confirm(self, cr, uid, ids, context=None):
-        return True
+        '''Create a new mail thread, post new message, remove original
+        message if not leave_msg and open new thread on edit form.
+
+        '''
+        wiz = self.browse(cr, uid, ids[0], context=context)
+        msg_obj = self.pool['mail.message']
+        msg_dict = msg_obj.read(cr, uid, wiz.message_id.id,
+                                ['type', 'message_id', 'subject',
+                                 'email_from', 'date', 'author_id',
+                                 'parent_id', 'body', 'attachment_ids'],
+                                context=context)
+        msg_dict['from'] = msg_dict.get('email_from') if msg_dict else False
+        if msg_dict and isinstance(msg_dict.get('author_id', False), tuple):
+            msg_dict['author_id'] = msg_dict['author_id'][0]
+        if msg_dict and isinstance(msg_dict.get('parent_id', False), tuple):
+            msg_dict['parent_id'] = msg_dict['parent_id'][0]
+        thread_obj = self.pool[wiz.model_id]
+        thread_id = thread_obj.message_new(cr, uid, msg_dict, {},
+                                           context=context)
+        thread_obj.message_post(cr, uid, [thread_id], context=context,
+                                subtype='mail.mt_comment', **msg_dict)
+        if not wiz.leave_msg:
+            msg_obj.unlink(cr, SUPERUSER_ID, wiz.message_id.id, context=context)
+        return {
+            'name': _('New Document from Mail Message'),
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': wiz.model_id,
+            'res_id': thread_id,
+            'type': 'ir.actions.act_window',
+            'context': dict(context or {}, active_id=thread_id)
+        }
