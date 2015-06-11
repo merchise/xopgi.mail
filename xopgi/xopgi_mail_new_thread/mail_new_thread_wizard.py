@@ -26,7 +26,11 @@ class NewThreadWizard(osv.TransientModel):
         check = lambda model, operation: (
             self.pool[model].check_access_rights(cr, uid, operation,
                                                  raise_exception=False))
-        models = [(n, d)
+        translate = lambda source: (
+            self.pool['ir.translation']._get_source(
+                cr, SUPERUSER_ID, None, ('model',),
+                (context or {}).get('lang', False), source) or source)
+        models = [(n, translate(d))
                   for n, d in thread_obj.message_capable_models(
                       cr, uid, context=context).items()
                   if (n != 'mail.thread'
