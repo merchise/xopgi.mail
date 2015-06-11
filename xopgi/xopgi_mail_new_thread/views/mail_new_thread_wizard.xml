@@ -37,5 +37,15 @@
       <field name="view_mode">form</field>
       <field name="target">new</field>
     </record>
+
+    <record id="new_thread_wizard_action_multi" model="ir.values">
+      <field name="name">Create New Document</field>
+      <field name="key">action</field>
+      <field name="key2">client_action_multi</field>
+      <field name="model">mail.message</field>
+      <field name="value"
+             eval="'ir.actions.act_window,'+str(ref('new_thread_wizard_action'))"/>
+      <field name="context">{'default_message_id': active_id}</field>
+    </record>
   </data>
 </openerp>
