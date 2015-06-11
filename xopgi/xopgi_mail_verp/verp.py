@@ -39,17 +39,19 @@ from . import verpcoder
 # [model]-[thread-id]
 #
 CLASSICAL_REFERENCE_REGEX = re.compile(
-    r'(?P<model>\w+)-(?P<thread_id>\d+)',
+    r'(?P<model>[\w\._\d]+)-(?P<thread_id>\d+)',
     re.UNICODE
 )
 
 
-# Template for a bounce address.
+# Regular expression for the trailing part of bounce address.
+# You must have checked and stripped the "<bounce-alias>-" prefix.
 #
-# <postmaster>-<message id>-<reference>+<encoded recipient>@<domain.com>
+# <message id>-<reference>+<encoded recipient>@<domain.com>
 #
-BOUNCE_ADDRESS_TEMPLATE = (
-    r'%s-(?P<messageid>\d+)-(?P<threadref>[^\+]+)\+(?<failed_address>[^@]+)'
+BOUNCE_ADDRESS_REGEXP = re.compile(
+    r'(?P<messageid>\d+)-(?P<threadref>[^\+]+)\+(?P<failed_address>[^@]+)',
+    re.UNICODE
 )
 
 
@@ -58,36 +60,37 @@ class BouncedMailRouter(MailRouter):
     def _message_route_check_bounce(self, obj, cr, uid, message):
         """Verify that the email_to is the bounce alias.
 
-        If it is the case, log the bounce, return the origin route.
-
         """
+        from xoutil.string import cut_prefix
         from .common import get_bounce_alias
         bounce_alias = get_bounce_alias(obj.pool, cr, uid)
-        recipient = decode_header(message, 'To')
-        if bounce_alias not in recipient:
+        if not bounce_alias:
             return None
-        regexp = re.compile(
-            BOUNCE_ADDRESS_TEMPLATE % re.escape(bounce_alias),
-            re.UNICODE
-        )
-        matches = regexp.search(recipient)
+        prefix = bounce_alias + '-'
+        recipient = decode_header(message, 'To')
+        if not recipient.startswith(prefix):
+            return None
+        recipient = cut_prefix(recipient, prefix)
+        matches = BOUNCE_ADDRESS_REGEXP.search(recipient)
         if matches:
             params = matches.groupdict()
             message_id = params['messageid']
             thread_ref = params['threadref']
             if thread_ref.startswith('#'):
+                # This is the case of the global index introduced by us in our
+                # Odoo build.
                 thread_index = thread_ref[1:]
                 Threads = obj.pool['mail.thread']
                 model, thread_id = Threads._threadref_by_index(
                     cr, SUPERUSER_ID, thread_index
                 )
             else:
+                # Though new threads will have the global index, there may be
+                # bounces in their way to us using the "classical" reference.
                 matches = CLASSICAL_REFERENCE_REGEX.match(thread_ref)
                 assert matches
                 model, thread_id = matches.group(1, 2)
-            failed_address = verpcoder.decode(
-                params.get('failed_address', '')
-            )
+            failed_address = verpcoder.decode(params.get('failed_address', ''))
             return (message_id, model, int(thread_id), failed_address)
         else:
             return None
@@ -97,12 +100,13 @@ class BouncedMailRouter(MailRouter):
         return (BOUNCE_MODEL, bouncedata, {}, uid, None)
 
     @classmethod
-    def is_applicable(cls, obj, cr, uid, message):
-        return bool(cls._message_route_check_bounce(obj, cr, uid, message))
+    def query(cls, obj, cr, uid, message, context=None):
+        route = cls._message_route_check_bounce(obj, cr, uid, message)
+        return bool(route), route
 
     @classmethod
-    def apply(cls, obj, cr, uid, routes, message):
-        bounce = cls._message_route_check_bounce(obj, cr, uid, message)
+    def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
+        bounce = data
         if bounce:
             route = cls._get_route(obj, cr, uid, bounce)
             # We assume a bounce should never create anything else.  What's
@@ -114,7 +118,7 @@ class BouncedMailRouter(MailRouter):
         return routes
 
 
-class VERPTransport(MailTransportRouter):
+class VariableEnvReturnPathTransport(MailTransportRouter):
     '''A Variable Envelop Return Path Transport.
 
     Along with the router takes care of matching outgoing messages with
@@ -123,7 +127,8 @@ class VERPTransport(MailTransportRouter):
     Done via a VERP scheme.
 
     '''
-    def _get_bounce_address(self, obj, cr, uid, message, mail, email_to,
+    @classmethod
+    def _get_bounce_address(cls, obj, cr, uid, message, mail, email_to,
                             context=None):
         '''Compute the bounce address.
 
@@ -150,12 +155,9 @@ class VERPTransport(MailTransportRouter):
 
         '''
         if not mail.mail_message_id:
-            # The transport mechanism will fallback to using standard Odoo's
-            # transport (or the next transport available).
-            raise TypeError('No message given to VERP transport')
-
+            # I can't provide a VERP bounce address without a message id.
+            return None
         assert mail.mail_message_id == message
-
         from .common import get_bounce_alias
         get_param = obj.pool['ir.config_parameter'].get_param
         domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
@@ -190,28 +192,29 @@ class VERPTransport(MailTransportRouter):
         '''Apply on both OpenERP 7 and Odoo for any outbound message,
         if context have mail_id key.
 
+        If applicable, return ``(True, {'address': address})``.
+
         '''
         context = context if context else {}
-        return context.get('mail_id', False)
+        mail_id = context.get('mail_id', False) if context else False
+        if not mail_id:
+            return False, None
+        msg, _ = self.get_message_objects(obj, cr, uid, message,
+                                          context=context)
+        if msg:
+            msg = msg[0] if isinstance(msg, list) else msg
+            mail = obj.pool['mail.mail'].browse(cr, uid, mail_id,
+                                                context=context)
+            address = self._get_bounce_address(obj, cr, uid, msg, mail,
+                                               mail.email_to or message['To'],
+                                               context=context)
+            return bool(address), dict(address=address)
+        return False, None
 
-    def prepare_message(self, obj, cr, uid, message, context=None):
+    def prepare_message(self, obj, cr, uid, message, data=None, context=None):
         '''Add the bounce address to the message.
 
         '''
-        mail_id = context.get('mail_id', False) if context else False
-        mail = obj.pool['mail.mail'].browse(cr, uid, mail_id, context=context)
         del message['Return-Path']  # Ensure a single Return-Path
-        msg, _ = self.get_message_objects(obj, cr, uid, message,
-                                          context=context)
-        if isinstance(msg, list):
-            msg = msg[0]
-        message['Return-Path'] = self._get_bounce_address(
-            obj,
-            cr,
-            uid,
-            msg,
-            mail,
-            mail.email_to or message['To'],
-            context=context
-        )
+        message['Return-Path'] = data['address']
         return TransportRouteData(message, {})
