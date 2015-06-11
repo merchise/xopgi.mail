@@ -49,6 +49,19 @@ class NewThreadWizard(osv.TransientModel):
         'leave_msg': True
     }
 
+    def fields_view_get(self, cr, uid, view_id=None, view_type='form',
+                        context=None, toolbar=False, submenu=False):
+        context = dict(context or {})
+        if view_type == 'form':
+            if (len(context.get('active_ids', [])) > 1
+                    or not context.get('default_message_id', False)):
+                raise osv.except_osv(_('Error!'), _(
+                    'You should select one and only one message.'))
+        result = super(NewThreadWizard, self).fields_view_get(
+            cr, uid, view_id=view_id, view_type=view_type, context=context,
+            toolbar=toolbar, submenu=submenu)
+        return result
+
     def confirm(self, cr, uid, ids, context=None):
         '''Create a new mail thread, post new message, remove original
         message if not leave_msg and open new thread on edit form.
