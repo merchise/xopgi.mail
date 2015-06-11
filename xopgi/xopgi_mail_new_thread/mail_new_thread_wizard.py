@@ -18,11 +18,25 @@ from openerp import SUPERUSER_ID
 class NewThreadWizard(osv.TransientModel):
     _name = 'new.thread.wizard'
 
+    def _get_model_selection(self, cr, uid, context=None):
+        """Get message_capable_models where uid can write and create.
+
+        """
+        thread_obj = self.pool['mail.thread']
+        check = lambda model, operation: (
+            self.pool[model].check_access_rights(cr, uid, operation,
+                                                 raise_exception=False))
+        models = [(n, d)
+                  for n, d in thread_obj.message_capable_models(
+                      cr, uid, context=context).items()
+                  if (n != 'mail.thread'
+                      and hasattr(self.pool[n], 'message_new')
+                      and check(n, 'create') and check(n, 'write'))]
+        return models
+
     _columns = {
         'model_id':
-            fields.selection(
-                lambda s, c, u: s.pool['mail.thread'].message_capable_models(
-                    c, u).items(), 'Model', required=True),
+            fields.selection(_get_model_selection, 'Model', required=True),
         'message_id':
             fields.many2one('mail.message', 'Message', readonly=True),
         'leave_msg':
