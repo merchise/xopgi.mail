@@ -12,17 +12,33 @@
 # Created on 2015-03-10
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
+from openerp import SUPERUSER_ID
 
 
 class MoveMessageWizard(osv.TransientModel):
     _name = 'move.message.wizard'
 
+    def _get_model_selection(self, cr, uid, context=None):
+        """Get message_capable_models with at least one thread.
+
+        """
+        thread_obj = self.pool['mail.thread']
+        check = lambda model: (
+            self.pool[model].search(cr, uid, [], limit=1, context=context,
+                                    count=True))
+        translate = lambda source: (
+            self.pool['ir.translation']._get_source(
+                cr, SUPERUSER_ID, None, ('model',),
+                (context or {}).get('lang', False), source) or source)
+        models = [(n, translate(d))
+                  for n, d in thread_obj.message_capable_models(
+                      cr, uid, context=context).items()
+                  if (n != 'mail.thread' and check(n))]
+        return models
+
     _columns = {
-        'thread_id':
-            fields.reference('Destination Mail Thread', selection=(
-                lambda s, u, c, ctx:
-                                          s.pool['mail.thread'].message_capable_models(
-                                          c, u, context=ctx).items()),
+        'thread_id': fields.reference('Destination Mail Thread',
+                                      selection=_get_model_selection,
                                       size=128, required=True),
         'message_ids': fields.many2many('mail.message', 'message_move_rel',
                                         'move_id', 'message_id',
