@@ -239,8 +239,8 @@ msgstr "Subtipo"
 
 #. module: xopgi_mail_forward
 #: model:ir.actions.act_window,name:xopgi_mail_forward.compose_action
-msgid "Forward Email"
-msgstr "Reenviar correo electrónico"
+msgid "Copy Reply"
+msgstr "Responder con copia"
 
 #. module: xopgi_mail_forward
 #: field:mail.compose.forward,partner_ids:0
