@@ -25,6 +25,8 @@ from __future__ import (division as _py3_division,
 from openerp import SUPERUSER_ID
 from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
 from openerp.addons.xopgi_mail_threads import TransportRouteData
+from openerp.addons.xopgi_mail_threads.utils import set_message_from
+from openerp.addons.xopgi_mail_threads.utils import set_message_sender
 
 
 # The default prefix for a Reply-To address.
@@ -62,24 +64,10 @@ class UniqueAddressTransport(MailTransportRouter):
         the same.
 
         '''
-        from email.utils import getaddresses, formataddr
-        from openerp.addons.mail.mail_thread import decode_header
-        from openerp.addons.base.ir.ir_mail_server import encode_rfc2822_address_header
         del message['Reply-To']
         message['Reply-To'] = address
-        sender = decode_header(message, 'Sender')
-        if sender:
-            sender_name, _ = getaddresses([sender])[0]
-            message.replace_header(
-                'Sender',
-                encode_rfc2822_address_header(formataddr((sender_name, address)))
-            )
-        from_list = []
-        for authorname, _ in getaddresses([decode_header(message, 'From')]):
-            from_list.append(formataddr((authorname, address)))
-        if from_list:
-            del message['From']
-            message['From'] = encode_rfc2822_address_header(', '.join(from_list))
+        set_message_sender(message, address)
+        set_message_from(message, address, address_only=True)
 
     @classmethod
     def _get_replyto_address(cls, obj, cr, uid, thread_index,
