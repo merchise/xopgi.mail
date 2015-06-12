@@ -43,4 +43,7 @@ class MailConfig(Model):
 
         'module_xopgi_mail_verp': fields.boolean(
             'Add VERP mail management.'),
+
+        'module_xopgi_mail_move_message':
+            fields.boolean('Add copy/move messages management.'),
     }
