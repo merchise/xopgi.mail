@@ -37,5 +37,14 @@
       <field name="view_mode">form</field>
       <field name="target">new</field>
     </record>
+
+    <record id="move_message_wizard_action_multi" model="ir.values">
+      <field name="name">Copy/Move Messages</field>
+      <field name="key">action</field>
+      <field name="key2">client_action_multi</field>
+      <field name="model">mail.message</field>
+      <field name="value"
+             eval="'ir.actions.act_window,'+str(ref('move_message_wizard_action'))"/>
+    </record>
   </data>
 </openerp>
