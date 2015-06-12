@@ -20,8 +20,9 @@ class MoveMessageWizard(osv.TransientModel):
         'thread_id':
             fields.reference('Destination Mail Thread', selection=(
                 lambda s, u, c, ctx:
-                s.pool['mail.thread'].message_capable_models(
-                    c, u, context=ctx).items()), size=128, required=True),
+                                          s.pool['mail.thread'].message_capable_models(
+                                          c, u, context=ctx).items()),
+                                      size=128, required=True),
         'message_ids': fields.many2many('mail.message', 'message_move_rel',
                                         'move_id', 'message_id',
                                         'Messages', readonly=True),
@@ -34,3 +35,11 @@ class MoveMessageWizard(osv.TransientModel):
     _defaults = {
         'leave_msg': True
     }
+
+    def default_get(self, cr, uid, fields_list, context=None):
+        values = super(MoveMessageWizard, self).default_get(
+            cr, uid, fields_list, context=context)
+        if 'message_ids' in fields_list:
+            values['message_ids'] = context.get('active_ids', [])
+        return values
+
