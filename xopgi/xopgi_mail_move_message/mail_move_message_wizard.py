@@ -11,6 +11,7 @@
 #
 # Created on 2015-03-10
 from openerp.osv import osv, fields
+from openerp.tools.translate import _
 
 
 class MoveMessageWizard(osv.TransientModel):
@@ -43,3 +44,28 @@ class MoveMessageWizard(osv.TransientModel):
             values['message_ids'] = context.get('active_ids', [])
         return values
 
+    def confirm(self, cr, uid, ids, context=None):
+        '''Create a new mail thread, remove original message if not
+        leave_msg  and open new thread on edit form.
+
+        '''
+        wiz = self.browse(cr, uid, ids[0], context=context)
+        msg_obj = self.pool['mail.message']
+        model = wiz.thread_id._name
+        res_id = wiz.thread_id.id
+        values = {'model': model, 'res_id': res_id}
+        if wiz.leave_msg:
+            for msg in wiz.message_ids:
+                msg_obj.copy(cr, uid, msg.id, values, context=context)
+        else:
+            msg_obj.write(cr, uid, wiz.message_ids._ids, values,
+                          context=context)
+        return {
+            'name': _('Copy/Move Messages'),
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': model,
+            'res_id': res_id,
+            'type': 'ir.actions.act_window',
+            'context': dict(context or {}, active_id=res_id)
+        }
