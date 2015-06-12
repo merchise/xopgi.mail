@@ -1,0 +1,73 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* xopgi_mail_move_message
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-06-12 14:54+0000\n"
+"PO-Revision-Date: 2015-06-12 14:54+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xopgi_mail_move_message
+#: view:move.message.wizard:xopgi_mail_move_message.move_message_wizard_view
+msgid "Are you sure you want to move/copy this messages."
+msgstr "¿Está usted seguro que desea mover/copiar estos mensajes?"
+
+#. module: xopgi_mail_move_message
+#: view:move.message.wizard:xopgi_mail_move_message.move_message_wizard_view
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: xopgi_mail_move_message
+#: help:move.message.wizard,leave_msg:0
+msgid "Check for no remove message from original thread."
+msgstr "Marcar para copiar los mensajes sin eliminarlos de la conversación "
+       "original."
+
+#. module: xopgi_mail_move_message
+#: view:move.message.wizard:xopgi_mail_move_message.move_message_wizard_view
+msgid "Confirm"
+msgstr "Confirmar"
+
+#. module: xopgi_mail_move_message
+#: code:addons/xopgi_mail_move_message/mail_move_message_wizard.py:81
+#: model:ir.actions.act_window,name:xopgi_mail_move_message.move_message_wizard_action
+#, python-format
+msgid "Copy/Move Messages"
+msgstr "Copiar/Mover Mensajes"
+
+#. module: xopgi_mail_move_message
+#. openerp-web
+#: code:addons/xopgi_mail_move_message/static/src/xml/mail_move_message.xml:7
+#, python-format
+msgid "Copy/Move Messages"
+msgstr "Copiar/Mover Mensajes"
+
+#. module: xopgi_mail_move_message
+#: field:move.message.wizard,thread_id:0
+msgid "Destination Mail Thread"
+msgstr "Conversación destino"
+
+#. module: xopgi_mail_move_message
+#: view:move.message.wizard:xopgi_mail_move_message.move_message_wizard_view
+#: field:move.message.wizard,message_ids:0
+msgid "Messages"
+msgstr "Mensajes"
+
+#. module: xopgi_mail_move_message
+#: field:move.message.wizard,leave_msg:0
+msgid "Preserve original messages"
+msgstr "Conservar los mensajes originales"
+
+#. module: xopgi_mail_move_message
+#: view:move.message.wizard:xopgi_mail_move_message.move_message_wizard_view
+msgid "or"
+msgstr "o"
+
