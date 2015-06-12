@@ -80,7 +80,7 @@ class SameOriginTransport(MailTransportRouter):
     def query(self, obj, cr, uid, message, context=None):
         return bool(self.servers(obj, cr, uid))
 
-    def prepare_message(self, obj, cr, uid, message, context=None):
+    def prepare_message(self, obj, cr, uid, message, data=None, context=None):
         import email
         from xoutil.string import safe_encode
         _, refs = self.get_message_objects(obj, cr, uid, message,
