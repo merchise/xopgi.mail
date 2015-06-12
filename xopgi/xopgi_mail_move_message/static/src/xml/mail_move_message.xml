@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<template>
+  <t t-extend="mail.thread.message">
+    <t t-jquery=".oe_msg_icons" t-operation="append">
+      <span class="oe_move_message">
+        <a title="Copy/Move Messages" class="oe_e">p</a>
+      </span>
+    </t>
+  </t>
+</template>

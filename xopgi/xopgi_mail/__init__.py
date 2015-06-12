@@ -46,4 +46,7 @@ class MailConfig(Model):
 
         'module_xopgi_mail_new_thread':
             fields.boolean('Add new mail thread management.'),
+        
+        'module_xopgi_mail_move_message':
+            fields.boolean('Add copy/move messages management.'),
     }

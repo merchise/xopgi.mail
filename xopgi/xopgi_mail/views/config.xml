@@ -26,6 +26,9 @@
             <br/>
             <field name="module_xopgi_mail_new_thread"/>
             <label for="module_xopgi_mail_new_thread"/>
+            <br/>
+            <field name="module_xopgi_mail_move_message"/>
+            <label for="module_xopgi_mail_move_message"/>
           </div>
         </xpath>
       </field>
