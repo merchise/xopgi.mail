@@ -15,7 +15,6 @@
 
 from __future__ import absolute_import as _py3_abs_imports
 
-from . import router  # noqa
-from . import transporter  # noqa
+from . import verp  # noqa
 from . import mail_mail  # noqa
 from . import mail_bounce_model  # noqa
