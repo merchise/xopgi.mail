@@ -30,17 +30,8 @@
     ],
     'description': '',
     'data': [
-        'views/mail_new_thread_wizard.xml', (
-            'views/assets.xml'
-            if ODOO_VERSION_INFO >= (8, 0)  # noqa
-            else 'views/dummy.xml'
-        ),
-    ],
-    'css': [
-        'static/src/css/mail_new_thread.css',
-    ],
-    'js': [
-        'static/src/js/mail_new_thread.js',
+        'views/mail_new_thread_wizard.xml',
+        'views/assets.xml',
     ],
     'qweb': [
         'static/src/xml/mail_new_thread.xml',
