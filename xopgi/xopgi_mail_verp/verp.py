@@ -47,7 +47,7 @@ CLASSICAL_REFERENCE_REGEX = re.compile(
 # Regular expression for the trailing part of bounce address.
 # You must have checked and stripped the "<bounce-alias>-" prefix.
 #
-# <message id>-<reference>+<encoded recipient>@<domain.com>
+# <message id>+<reference>+<encoded recipient>@<domain.com>
 #
 BOUNCE_ADDRESS_REGEXP = re.compile(
     r'(?P<messageid>\d+)-(?P<threadref>[^\+]+)\+(?P<failed_address>[^@]+)',
@@ -66,9 +66,16 @@ class BouncedMailRouter(MailRouter):
         bounce_alias = get_bounce_alias(obj.pool, cr, uid)
         if not bounce_alias:
             return None
-        prefix = bounce_alias + '-'
         recipient = decode_header(message, 'To')
-        if not recipient.startswith(prefix):
+        # We're now generating a different prefix, but we need to keep
+        # recognizing the old for a while.  This code is very ephemeral.
+        prefix = None
+        prefixes = [bounce_alias + '+', bounce_alias + '-']
+        while not prefix and prefixes:
+            prefix = prefixes.pop(0)
+            if not recipient.startswith(prefix):
+                prefix = None
+        if not prefix:
             return None
         recipient = cut_prefix(recipient, prefix)
         matches = BOUNCE_ADDRESS_REGEXP.search(recipient)
@@ -176,14 +183,14 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
         message = mail.mail_message_id
         ref = getattr(message, 'thread_index', None)
         if ref:
-            return '%s-%d-#%s+%s@%s' % (postmaster, message.id, ref, email_to,
+            return '%s+%d-#%s+%s@%s' % (postmaster, message.id, ref, email_to,
                                         domain)
         if mail.model and mail.res_id:
-            return '%s-%d-%s-%d+%s@%s' % (
+            return '%s+%d-%s-%d+%s@%s' % (
                 postmaster, message.id, mail.model, mail.res_id,
                 email_to, domain)
         else:
-            return '%s-%d+%s@%s' % (
+            return '%s+%d+%s@%s' % (
                 postmaster, message.id, email_to,
                 domain)
 
