@@ -41,6 +41,18 @@ class MailConfig(Model):
         'module_xopgi_mail_alias_project':
             fields.boolean('Several mail alias by project.'),
 
-        'module_xopgi_mail_verp': fields.boolean(
-            'Add VERP mail management.'),
+        'module_xopgi_mail_verp':
+            fields.boolean('Notify (if possible) authors about message '
+                           'bounces.'),
+
+        'module_xopgi_mail_new_thread':
+            fields.boolean('Allow to create an new object from an existing '
+                           'message.'),
+
+        'module_xopgi_mail_move_message':
+            fields.boolean('Allow to transfer messages.'),
+
+        'module_xopgi_thread_address':
+            fields.boolean('Generate a unique email address per thread.'),
+
     }

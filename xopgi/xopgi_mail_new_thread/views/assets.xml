@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <template id="assets_backend"
+	      name="xopgi mail new thread"
+	      inherit_id="mail.assets_backend">
+      <xpath expr="." position="inside">
+        <link rel="stylesheet"
+              href="/xopgi_mail_new_thread/static/src/css/mail_new_thread.css"/>
+        <script type="text/javascript"
+		            src="/xopgi_mail_new_thread/static/src/js/mail_new_thread.js"></script>
+      </xpath>
+    </template>
+  </data>
+</openerp>

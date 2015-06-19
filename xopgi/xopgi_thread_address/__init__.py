@@ -29,8 +29,12 @@ from openerp.addons.xopgi_mail_threads.utils import set_message_from
 from openerp.addons.xopgi_mail_threads.utils import set_message_sender
 
 
-# The default prefix for a Reply-To address.
-DEFAULT_REPLYTO_PREFIX = 'replyto'
+# The default prefix for a Reply-To address.  NOTICE: we suggest to use the
+# same as the mail.catchall.alias.  The Reply-To address is constructed as
+# ``<replyto alias>+<thread index>@<domain>``.  Notice we use the "+" to
+# separate the alias from the thread index, this allows some MTAs to fallback
+# to the alias should the entire address fail.
+DEFAULT_REPLYTO_PREFIX = 'catchall'
 
 
 class UniqueAddressTransport(MailTransportRouter):
@@ -73,11 +77,12 @@ class UniqueAddressTransport(MailTransportRouter):
     def _get_replyto_address(cls, obj, cr, uid, thread_index,
                              context=None):
         get_param = obj.pool['ir.config_parameter'].get_param
-        replyto = get_param(cr, uid, 'mail.replyto.alias',
-                            default=DEFAULT_REPLYTO_PREFIX, context=context)
+        replyto = get_param(cr, uid, 'mail.catchall.alias',
+                            default=DEFAULT_REPLYTO_PREFIX,
+                            context=context)
         domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
         if domain:
-            return '%s-%s@%s' % (replyto, thread_index, domain)
+            return '%s+%s@%s' % (replyto, thread_index, domain)
         else:
             return None
 
@@ -105,14 +110,15 @@ class UniqueAddressRouter(MailRouter):
             return None
         replyto = get_param(cr, uid, 'mail.replyto.alias',
                             default=DEFAULT_REPLYTO_PREFIX, context=context)
-        prefix, suffix = replyto + '-', '@' + domain
+        prefix, suffix = replyto + '+', '@' + domain
         found, model, thread_id = None, None, None
         Threads = obj.pool['mail.thread']
         while not found and recipients:
             res = recipients.pop(0)
             if res.startswith(prefix):
                 thread_index = cut_prefix(cut_suffix(res, suffix), prefix)
-                model, thread_id = Threads._threadref_by_index(cr, uid, thread_index)
+                model, thread_id = Threads._threadref_by_index(cr, uid,
+                                                               thread_index)
                 found = bool(model and thread_id)
         return (res, model, thread_id) if found else None
 

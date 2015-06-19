@@ -41,6 +41,7 @@ openerp.xopgi_mail_forward = function (instance) {
                 default_model: this.model,
                 default_res_id: this.res_id,
                 default_subject: subject.join(" "),
+                mail_post_autofollow: true
             };
 
             // Get the action data and execute it to open the composer wizard

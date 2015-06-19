@@ -1,0 +1,10 @@
+/* New Thread button */
+.openerp .oe_mail .oe_msg .oe_msg_icons .oe_move_message:hover a{
+    color: #BBBAFF;
+    text-shadow:
+        0px 1px #7C7BAD,
+        0px -1px #7C7BAD,
+        -1px 0px #7C7BAD,
+        1px 0px #7C7BAD,
+        0px 3px 3px rgba(0, 0, 0, 0.1);
+}
