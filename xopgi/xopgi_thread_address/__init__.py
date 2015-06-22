@@ -42,6 +42,8 @@ class UniqueAddressTransport(MailTransportRouter):
     def query(cls, obj, cr, uid, message, context=None):
         msg, _ = cls.get_message_objects(obj, cr, uid, message,
                                          context=context)
+        if msg and isinstance(msg, list):
+            msg = msg[0]
         if msg and msg.thread_index:
             address = cls._get_replyto_address(obj, cr, uid, msg.thread_index,
                                                context=context)
