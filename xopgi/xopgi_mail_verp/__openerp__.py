@@ -25,5 +25,5 @@ dict(
     description=('Allows to track email bounces and add them to the '
                  'proper thread.'),
     depends=['mail', 'xopgi_mail_threads'],
-    data=[],
+    data=['data/cron.xml', 'data/acl.xml'],
 )
