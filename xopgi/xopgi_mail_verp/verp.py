@@ -272,6 +272,9 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
 
         '''
         context = context if context else {}
+        bouncing = context.get('avoid_xopgi_verp', False)
+        if bouncing:
+            return False, None
         mail_id = context.get('mail_id', False) if context else False
         if not mail_id:
             return False, None
