@@ -19,9 +19,11 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
+from xoutil import logger as _logger
+
 from openerp import SUPERUSER_ID
 from openerp.osv import orm
-from xoutil import logger as _logger
+from xoeuf.osv.model_extensions import get_writer
 
 BOUNCE_MODEL = 'mail.bounce.model'
 
@@ -81,10 +83,6 @@ class MailBounce(orm.TransientModel):
         if not model:
             return
         context = kwargs.setdefault('context', {})
-        context.update(
-            mail_notify_noemail=True,
-            thread_model=model
-        )
         model_pool = self.pool[model]
         if not hasattr(model_pool, 'message_post'):
             context['thread_model'] = model
@@ -98,6 +96,13 @@ class MailBounce(orm.TransientModel):
                 pass
         message = self._get_message(cr, uid, int(message_id))
         self._build_bounce(cr, uid, message, recipient, kwargs)
+        context.update(
+            mail_notify_noemail=True,
+            thread_model=model,
+            partner_ids=[message.author_id.id] if message.author_id else [],
+            # Don't make the superuser a follower
+            mail_post_autofollow=False,
+        )
         msgid = model_pool.message_post(cr, uid, [thread_id], **kwargs)
         self.notify(cr, uid, msgid, message.author_id)
         return msgid
@@ -131,13 +136,15 @@ class MailBounce(orm.TransientModel):
             [('message_id', '=', message_id),
              ('partner_id', '=', originator.id),
              ('is_read', '=', False)],
-        ) or Notifications.update_message_notification(
-            cr,
-            SUPERUSER_ID,
-            [],
-            message_id,
-            [originator.id]
         )
+        if not notifications:
+            notifications = Notifications.update_message_notification(
+                cr,
+                SUPERUSER_ID,
+                [],
+                message_id,
+                [originator.id]
+            )
         if notifications:
             Notifications._notify_email(cr, uid, notifications, message_id,
                                         force_send=True)
