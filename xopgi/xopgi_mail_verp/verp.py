@@ -80,6 +80,12 @@ class BounceRecord(Model):
         message_id=fields.many2one(
             'mail.message',
             required=True,
+            # If the message is delete remove the bounce.  This happens for
+            # invitations, for instance, the message is create and the bounce
+            # is properly generated, but afterwards the message is removed.
+            # This make the bounce reference ephemeral for these cases, but if
+            # the message is lost we won't be able to know who to notify.
+            ondelete="cascade",
             help=('The message id originating this notification. This allows '
                   'to know who to notify about bounces.')
         ),
