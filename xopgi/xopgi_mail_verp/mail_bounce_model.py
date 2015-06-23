@@ -21,9 +21,8 @@ from __future__ import (division as _py3_division,
 
 from xoutil import logger as _logger
 
-from openerp import SUPERUSER_ID
 from openerp.osv import orm
-from xoeuf.osv.model_extensions import get_writer
+
 
 BOUNCE_MODEL = 'mail.bounce.model'
 
@@ -96,15 +95,15 @@ class MailBounce(orm.TransientModel):
                 pass
         message = self._get_message(cr, uid, int(message_id))
         self._build_bounce(cr, uid, message, recipient, kwargs)
+        partner_ids = [message.author_id.id] if message.author_id else []
         context.update(
-            mail_notify_noemail=True,
             thread_model=model,
-            partner_ids=[message.author_id.id] if message.author_id else [],
+            partner_ids=partner_ids,
+            forced_followers=partner_ids,
             # Don't make the superuser a follower
             mail_post_autofollow=False,
         )
         msgid = model_pool.message_post(cr, uid, [thread_id], **kwargs)
-        self.notify(cr, uid, msgid, message.author_id)
         return msgid
 
     def _build_bounce(self, cr, uid, message, recipient, params):
@@ -123,28 +122,16 @@ class MailBounce(orm.TransientModel):
     def _get_message(self, cr, uid, message_id):
         return self.pool['mail.message'].browse(cr, uid, message_id)
 
-    def notify(self, cr, uid, message_id, originator):
-        '''Notify the originator about the bounce.
 
-        No other followers are notified.
+class mail_notification(orm.Model):
+    _inherit = 'mail.notification'
 
-        '''
-        Notifications = self.pool['mail.notification']
-        notifications = Notifications.search(
-            cr,
-            SUPERUSER_ID,
-            [('message_id', '=', message_id),
-             ('partner_id', '=', originator.id),
-             ('is_read', '=', False)],
+    def update_message_notification(self, cr, uid, ids, message_id,
+                                    partner_ids, context=None):
+        # If the forced_followers is set, override the partner_ids.
+        forced_followers = context.pop('forced_followers', [])
+        if forced_followers:
+            partner_ids = forced_followers
+        return super(mail_notification, self).update_message_notification(
+            cr, uid, ids, message_id, partner_ids, context=context
         )
-        if not notifications:
-            notifications = Notifications.update_message_notification(
-                cr,
-                SUPERUSER_ID,
-                [],
-                message_id,
-                [originator.id]
-            )
-        if notifications:
-            Notifications._notify_email(cr, uid, notifications, message_id,
-                                        force_send=True)
