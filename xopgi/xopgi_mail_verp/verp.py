@@ -34,7 +34,11 @@ that is kept in a index and maps to:
    When processing a bounce message, we SHOULD NEVER fail.  This could be done
    at the MTA level, since a bounce should not contain a MAIL FROM.
 
+As noted in SRS_ does not scale.  But neither does Odoo.
+
+
 .. _VERP: https://en.wikipedia.org/wiki/Variable_envelope_return_path
+.. _SRS: https://en.wikipedia.org/wiki/Sender_Rewriting_Scheme
 
 '''
 
