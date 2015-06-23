@@ -19,8 +19,8 @@ form::
 
    <alias>+<unique bounce reference>
 
-The `unique bounce reference` is pseudo-random chain of chars and digits that
-is kept in a index an maps to:
+The `unique bounce reference` is a pseudo-random chain of chars and digits
+that is kept in a index and maps to:
 
 - The message being sent
 - The thread the message belongs to.
@@ -31,8 +31,10 @@ is kept in a index an maps to:
 
 .. warning:: Bounces should never fail.
 
-   When processing a bounce message, we should never fail.  This could be done
+   When processing a bounce message, we SHOULD NEVER fail.  This could be done
    at the MTA level, since a bounce should not contain a MAIL FROM.
+
+.. _VERP: https://en.wikipedia.org/wiki/Variable_envelope_return_path
 
 '''
 
@@ -80,11 +82,12 @@ class BounceRecord(Model):
         message_id=fields.many2one(
             'mail.message',
             required=True,
-            # If the message is delete remove the bounce.  This happens for
-            # invitations, for instance, the message is create and the bounce
-            # is properly generated, but afterwards the message is removed.
-            # This make the bounce reference ephemeral for these cases, but if
-            # the message is lost we won't be able to know who to notify.
+            # ondelete=cascade: If the message is delete remove the VERP
+            # address.  This happens for invitations, for instance.  The
+            # message is create and the bounce address is properly generated,
+            # but afterwards the message is removed.  This make the bounce
+            # reference ephemeral for these cases, but if the message is lost
+            # we won't be able to know who to notify.
             ondelete="cascade",
             help=('The message id originating this notification. This allows '
                   'to know who to notify about bounces.')
