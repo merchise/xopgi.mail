@@ -70,12 +70,16 @@ class MoveMessageWizard(osv.TransientModel):
         model = wiz.thread_id._name
         res_id = wiz.thread_id.id
         values = {'model': model, 'res_id': res_id}
+        new_ids = []
         if wiz.leave_msg:
             for msg in wiz.message_ids:
-                msg_obj.copy(cr, uid, msg.id, values, context=context)
+                new_ids.append(msg_obj.copy(cr, uid, msg.id, values,
+                                            context=context))
         else:
-            msg_obj.write(cr, uid, wiz.message_ids._ids, values,
-                          context=context)
+            new_ids = wiz.message_ids.ids
+            msg_obj.write(cr, uid, new_ids, values, context=context)
+        for new_id in new_ids:
+            msg_obj._notify(cr, uid, new_id, context=context)
         return {
             'name': _('Copy/Move Messages'),
             'view_type': 'form',
