@@ -20,10 +20,3 @@ from __future__ import (division as _py3_division,
 
 import unittest2
 from openerp.addons.mail.tests.common import TestMail
-
-
-class TestEncoding(unittest2.TestCase):
-    def test_encoding(self):
-        from xopgi.xopgi_mail_verp import verpcoder
-        address = 'some=thing=@=else.com'
-        assert verpcoder.decode(verpcoder.encode(address)) == address
