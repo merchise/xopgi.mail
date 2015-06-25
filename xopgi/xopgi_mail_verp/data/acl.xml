@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record id="xopgi_verp_record_acl" model="ir.model.access">
+      <field name="name">xopgi.verp.record.acl</field>
+      <field name="model_id" ref="xopgi_mail_verp.model_xopgi_verp_record"/>
+      <field name="group_id" ref="base.group_user"/>
+      <field name="perm_read" eval="1"/>
+      <field name="perm_create" eval="1"/>
+      <field name="perm_write" eval="0"/>
+      <field name="perm_unlink" eval="0"/>
+    </record>
+  </data>
+</openerp>

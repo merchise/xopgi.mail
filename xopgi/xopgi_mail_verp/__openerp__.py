@@ -16,7 +16,7 @@
 
 dict(
     name='xopgi_mail_verp',
-    version='1.4',
+    version='2.0',
     author='Merchise Autrement',
     category='mail',
     application=False,
@@ -25,5 +25,5 @@ dict(
     description=('Allows to track email bounces and add them to the '
                  'proper thread.'),
     depends=['mail', 'xopgi_mail_threads'],
-    data=[],
+    data=['data/cron.xml', 'data/acl.xml'],
 )

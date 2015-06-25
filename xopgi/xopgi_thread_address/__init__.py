@@ -47,8 +47,8 @@ class UniqueAddressTransport(MailTransportRouter):
             indexes = {m.thread_index for m in msg}
             if len(indexes) > 1:
                 from xoutil import logger
-                logger.error('More than one index retrieved for the same '
-                             'message %s: %r', message['Message-Id'], indexes)
+                logger.warn('More than one index retrieved for the same '
+                            'message %s: %r', message['Message-Id'], indexes)
             msg = msg[0]
         if msg and msg.thread_index:
             address = cls._get_replyto_address(obj, cr, uid, msg.thread_index,
