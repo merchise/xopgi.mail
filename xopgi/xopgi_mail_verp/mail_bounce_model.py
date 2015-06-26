@@ -132,7 +132,6 @@ class mail_notification(orm.Model):
         forced_followers = context.pop('forced_followers', [])
         if forced_followers:
             partner_ids = forced_followers
-        ctx = dict(context or {}, avoid_xopgi_verp=True)
         return super(mail_notification, self).update_message_notification(
-            cr, uid, ids, message_id, partner_ids, context=ctx
+            cr, uid, ids, message_id, partner_ids, context=context
         )

@@ -18,12 +18,17 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 
-import unittest2
-from openerp.addons.mail.tests.common import TestMail
+def test_ensure_bounce_address():
+    pass
 
 
-class TestEncoding(unittest2.TestCase):
-    def test_encoding(self):
-        from xopgi.xopgi_mail_verp import verpcoder
-        address = 'some=thing=@=else.com'
-        assert verpcoder.decode(verpcoder.encode(address)) == address
+def test_route_bounce():
+    pass
+
+
+def test_ignore_forged_bounces_by_heuritics():
+    pass
+
+
+def test_ignore_forged_bounces_by_db():
+    pass
