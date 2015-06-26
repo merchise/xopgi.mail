@@ -146,10 +146,12 @@ class BounceRecord(Model):
 class BouncedMailRouter(MailRouter):
     @classmethod
     def query(cls, obj, cr, uid, message, context=None):
+        from xoutil import logger
         route = cls._message_route_check_bounce(obj, cr, uid, message)
-        if route:
+        forged = cls._forged(obj, cr, uid, message)
+        if route and not forged:
             return bool(route), route
-        else:
+        elif forged:
             # If there's no clear bounce in our DB but the message seems to be
             # a bounce, we should accept this as a bounce to avoid the default
             # to happen (i.e create a Lead).
@@ -159,13 +161,10 @@ class BouncedMailRouter(MailRouter):
             # If the message['Return-Path'] is void this is most likely a
             # bounce.  Some broken MTA (MailerDaemon) include a broken
             # non-void Return-Path.
-            return_path = message['Return-Path']
-            if cls._void_return_path(return_path):
-                from .common import get_bounce_alias
-                recipient = decode_header(message, 'To')
-                bounce_alias = get_bounce_alias(obj.pool, cr, uid)
-                if recipient.startswith(bounce_alias + '+'):
-                    return True, None
+            origin = decode_header(message, 'From')
+            logger.warn('Forgery detected in message coming from %s', origin)
+            return True, None
+        else:
             return False
 
     @classmethod
@@ -196,31 +195,57 @@ class BouncedMailRouter(MailRouter):
         return res
 
     @classmethod
+    def _forged(cls, obj, cr, uid, message):
+        '''Return True if the bounce seems forged.
+
+        Currently we check:
+
+        - A single address should be in the To
+
+        - The Return-Path should be void, and not a single recipient should
+          look like a bounce.
+
+        '''
+        from email.utils import getaddresses
+        recipients = getaddresses([decode_header(message, 'To')])
+        return_path = not cls._void_return_path(
+            decode_header(message, 'Return-Path')
+        )
+        res = len(recipients) != 1 or return_path
+        return res
+
+    @classmethod
     def _message_route_check_bounce(self, obj, cr, uid, message):
         """Verify that the email_to is the bounce alias.
 
+        Notice this method will return any route matching a bounce address.
+        You should deal with forgery elsewhere.
+
         """
-        recipient = decode_header(message, 'To')
-        localpart, _ = recipient.rsplit('@', 1)
-        if '+' in localpart:
-            alias, reference = localpart.split('+', 1)
-            # TODO:  We need to make sure the sender of the bounce is the same
-            # server
-            found = search_browse(
-                obj.pool['xopgi.verp.record'],
-                cr, uid,
-                [('bounce_alias', '=', alias), ('reference', '=', reference)],
-                limit=1,
-                ensure_list=False
-            )
-            if found:
-                Threads = obj.pool['mail.thread']
-                model, thread_id = Threads._threadref_by_index(
-                    cr, SUPERUSER_ID, found.thread_index
+        from email.utils import getaddresses
+        recipients = getaddresses([decode_header(message, 'To')])
+        found = None
+        while not found and recipients:
+            _name, recipient = recipients.pop(0)
+            localpart, _ = recipient.rsplit('@', 1)
+            if '+' in localpart:
+                alias, reference = localpart.split('+', 1)
+                found = search_browse(
+                    obj.pool['xopgi.verp.record'],
+                    cr, uid,
+                    [('bounce_alias', '=', alias),
+                     ('reference', '=', reference)],
+                    limit=1,
+                    ensure_list=False
                 )
-                if model and thread_id:
-                    return (found.message_id, model, thread_id,
-                            found.recipient)
+                if found:
+                    Threads = obj.pool['mail.thread']
+                    model, thread_id = Threads._threadref_by_index(
+                        cr, SUPERUSER_ID, found.thread_index
+                    )
+                    if model and thread_id:
+                        return (found.message_id, model, thread_id,
+                                found.recipient)
         # Not a known bounce
         return None
 
