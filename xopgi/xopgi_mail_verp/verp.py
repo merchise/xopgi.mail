@@ -222,8 +222,12 @@ class BouncedMailRouter(MailRouter):
         You should deal with forgery elsewhere.
 
         """
+        def valid_email(name, email):
+            try:
+                return '@' in email
+            except:
+                return False
         from email.utils import getaddresses
-        valid_email = lambda name, email: email
         raw_recipients = decode_header(message, 'To')
         recipients = [
             addr for addr in getaddresses([raw_recipients])
