@@ -129,7 +129,7 @@ class mail_notification(orm.Model):
     def update_message_notification(self, cr, uid, ids, message_id,
                                     partner_ids, context=None):
         # If the forced_followers is set, override the partner_ids.
-        context = context.copy() if isinstance(context, frozendict) else context
+        context = dict(context or {})
         forced_followers = context.pop('forced_followers', [])
         if forced_followers:
             partner_ids = forced_followers
