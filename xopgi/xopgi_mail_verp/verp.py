@@ -279,7 +279,7 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
             return None
         get_param = obj.pool['ir.config_parameter'].get_param
         domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
-        if not domain:
+        if not domain or not message.thread_index:
             return None
         Records = obj.pool['xopgi.verp.record']
         reference = Records.create(
