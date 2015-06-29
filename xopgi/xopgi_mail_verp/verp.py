@@ -224,9 +224,9 @@ class BouncedMailRouter(MailRouter):
         """
         from email.utils import getaddresses
         valid_email = lambda name, email: email
+        raw_recipients = decode_header(message, 'To')
         recipients = [
-            addr
-            for addr in getaddresses([decode_header(message, 'To')])
+            addr for addr in getaddresses([raw_recipients])
             if valid_email(*addr)
         ]
         found = None
