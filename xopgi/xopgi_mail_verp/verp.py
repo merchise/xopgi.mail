@@ -223,7 +223,12 @@ class BouncedMailRouter(MailRouter):
 
         """
         from email.utils import getaddresses
-        recipients = getaddresses([decode_header(message, 'To')])
+        valid_email = lambda name, email: email
+        recipients = [
+            addr
+            for addr in getaddresses([decode_header(message, 'To')])
+            if valid_email(*addr)
+        ]
         found = None
         while not found and recipients:
             _name, recipient = recipients.pop(0)
@@ -279,7 +284,7 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
             return None
         get_param = obj.pool['ir.config_parameter'].get_param
         domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
-        if not domain:
+        if not domain or not message.thread_index:
             return None
         Records = obj.pool['xopgi.verp.record']
         reference = Records.create(
