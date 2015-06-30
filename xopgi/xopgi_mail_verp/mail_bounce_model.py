@@ -20,7 +20,7 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 from xoutil import logger as _logger
-
+from openerp.tools.misc import frozendict
 from openerp.osv import orm
 
 
@@ -129,10 +129,10 @@ class mail_notification(orm.Model):
     def update_message_notification(self, cr, uid, ids, message_id,
                                     partner_ids, context=None):
         # If the forced_followers is set, override the partner_ids.
+        context = dict(context or {})
         forced_followers = context.pop('forced_followers', [])
         if forced_followers:
             partner_ids = forced_followers
-        ctx = dict(context or {}, avoid_xopgi_verp=True)
         return super(mail_notification, self).update_message_notification(
-            cr, uid, ids, message_id, partner_ids, context=ctx
+            cr, uid, ids, message_id, partner_ids, context=context
         )
