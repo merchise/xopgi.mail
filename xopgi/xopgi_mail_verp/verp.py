@@ -71,6 +71,7 @@ def valid_email(name, email):
 
 def get_recipients(message, include_cc=False):
     'Return the list of (name, email) of the message recipients.'
+    # TODO: use openerp.tools.email_split(text)
     from email.utils import getaddresses
     raw_recipients = [decode_header(message, 'To')]
     if include_cc:
