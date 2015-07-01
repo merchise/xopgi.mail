@@ -74,6 +74,14 @@ class MailAlias(Model):
             s.pool, c, u, context=ctx)
     )
 
+    def fields_get(self, *args, **kargs):
+        # Hack to make alias_domain editable. I don't know why it's not!
+        result = super(MailAlias, self).fields_get(*args, **kargs)
+        alias_domain = result.get('alias_domain', None)
+        if alias_domain:
+            alias_domain['readonly'] = 0
+        return result
+
 
 class AliasMailRouter(MailRouter):
     @classmethod
