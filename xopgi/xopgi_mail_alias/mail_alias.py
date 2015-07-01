@@ -63,12 +63,6 @@ def get_default_alias_domain(pool, cr, uid, context=None):
 
 
 class MailAlias(Model):
-    '''An index for bounce address to message, thread and recipient.
-
-    This model encodes the same information of old VERP addresses but allow a
-    simpler address, like: ``bounces+nchH787dnccb@example.com``.
-
-    '''
     _inherit = 'mail.alias'
 
     _columns = dict(
@@ -89,19 +83,20 @@ class AliasMailRouter(MailRouter):
     @classmethod
     def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
         result = []
+        rcpt_tos = tools.email_split(
+            ','.join([decode_header(message, 'Delivered-To'),
+                      decode_header(message, 'To'),
+                      decode_header(message, 'Cc'),
+                      decode_header(message, 'Resent-To'),
+                      decode_header(message, 'Resent-Cc')])
+        )
         for route in routes:
             alias = route[-1] if len(route) == 5 else None
             if alias:
                 alias_mail = '%s@%s' % (alias.alias_name, alias.alias_domain)
-                rcpt_tos = tools.email_split(
-                    ','.join([decode_header(message, 'Delivered-To'),
-                              decode_header(message, 'To'),
-                              decode_header(message, 'Cc'),
-                              decode_header(message, 'Resent-To'),
-                              decode_header(message, 'Resent-Cc')])
-                )
                 if rcpt_tos and any(alias_mail == rcpt for rcpt in rcpt_tos):
                     result.append(route)
             else:
                 result.append(route)
-        return result
+        routes[:] = result
+        return routes
