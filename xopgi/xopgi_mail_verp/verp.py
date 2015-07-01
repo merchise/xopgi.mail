@@ -62,6 +62,27 @@ from openerp.addons.mail.mail_message import decode
 from .mail_bounce_model import BOUNCE_MODEL
 
 
+def valid_email(name, email):
+    try:
+        return '@' in email
+    except:
+        return False
+
+
+def get_recipients(message, include_cc=False):
+    'Return the list of (name, email) of the message recipients.'
+    # TODO: use openerp.tools.email_split(text)
+    from email.utils import getaddresses
+    raw_recipients = [decode_header(message, 'To')]
+    if include_cc:
+        raw_recipients.append(decode_header(message, 'Cc'))
+    recipients = [
+        addr for addr in getaddresses(raw_recipients)
+        if valid_email(*addr)
+    ]
+    return recipients
+
+
 class BounceRecord(Model):
     '''An index for bounce address to message, thread and recipient.
 
@@ -148,10 +169,10 @@ class BouncedMailRouter(MailRouter):
     def query(cls, obj, cr, uid, message, context=None):
         from xoutil import logger
         route = cls._message_route_check_bounce(obj, cr, uid, message)
-        forged = cls._forged(obj, cr, uid, message)
+        forged, probably_forged = cls._forged(obj, cr, uid, message)
         if route and not forged:
             return bool(route), route
-        elif forged:
+        elif probably_forged:
             # If there's no clear bounce in our DB but the message seems to be
             # a bounce, we should accept this as a bounce to avoid the default
             # to happen (i.e create a Lead).
@@ -196,23 +217,22 @@ class BouncedMailRouter(MailRouter):
 
     @classmethod
     def _forged(cls, obj, cr, uid, message):
-        '''Return True if the bounce seems forged.
-
-        Currently we check:
-
-        - A single address should be in the To
-
-        - The Return-Path should be void, and not a single recipient should
-          look like a bounce.
+        '''Return True if the message is 99% forged.
 
         '''
-        from email.utils import getaddresses
-        recipients = getaddresses([decode_header(message, 'To')])
-        return_path = not cls._void_return_path(
-            decode_header(message, 'Return-Path')
-        )
-        res = len(recipients) != 1 or return_path
-        return res
+        return False, False
+
+    @classmethod
+    def is_bouncelike(self, obj, cr, uid, rcpt, context=None):
+        from .common import get_bounce_alias
+        bounce_alias = get_bounce_alias(obj.pool, cr, uid, context=context)
+        if not bounce_alias:
+            return False
+        localpart, _ = rcpt.rsplit('@', 1)
+        if '+' in localpart:
+            alias, reference = localpart.split('+', 1)
+            return alias == bounce_alias
+        return False
 
     @classmethod
     def _message_route_check_bounce(self, obj, cr, uid, message):
@@ -222,17 +242,7 @@ class BouncedMailRouter(MailRouter):
         You should deal with forgery elsewhere.
 
         """
-        def valid_email(name, email):
-            try:
-                return '@' in email
-            except:
-                return False
-        from email.utils import getaddresses
-        raw_recipients = decode_header(message, 'To')
-        recipients = [
-            addr for addr in getaddresses([raw_recipients])
-            if valid_email(*addr)
-        ]
+        recipients = get_recipients(message)
         found = None
         while not found and recipients:
             _name, recipient = recipients.pop(0)

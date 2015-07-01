@@ -1,0 +1,7 @@
+Return-Path: <with@example.com>
+From: "Some fancy MTA 2" <mta@example.com>
+To: postmaster-odoo+6LvPNSnEJFaaOy2H@odoo.com
+Subject: Bouncing
+Date: Tue, 23 Jun 2015 17:38:59 -0400
+
+This message contains bounce address, but has a Return-Path.  Forged!
