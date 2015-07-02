@@ -30,6 +30,7 @@
     ],
     'description': '',
     'data': [
+        'security/security.xml',
         'views/mail_new_thread_wizard.xml',
         'views/assets.xml',
     ],

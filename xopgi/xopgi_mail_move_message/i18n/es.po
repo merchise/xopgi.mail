@@ -37,8 +37,9 @@ msgid "Confirm"
 msgstr "Confirmar"
 
 #. module: xopgi_mail_move_message
-#: code:addons/xopgi_mail_move_message/mail_move_message_wizard.py:81
 #: model:ir.actions.act_window,name:xopgi_mail_move_message.move_message_wizard_action
+#: model:res.groups,name:xopgi_mail_move_message.group_move_message
+#: code:addons/xopgi_mail_move_message/mail_move_message_wizard.py:0
 #, python-format
 msgid "Copy/Move Messages"
 msgstr "Copiar/Mover Mensajes"
@@ -71,3 +72,15 @@ msgstr "Conservar los mensajes originales"
 msgid "or"
 msgstr "o"
 
+#. module: xopgi_mail_move_message
+#: code:addons/xopgi_mail_move_message/mail_move_message_wizard.py:81
+#: model:ir.actions.act_window,name:xopgi_mail_move_message.move_message_wizard_action
+#, python-format
+msgid "Copy/Move Messages"
+msgstr "Copiar/Mover Mensajes"
+
+#. module: xopgi_mail_move_message
+#: code:addons/xopgi_mail_move_message/mail_move_message_wizard.py:0
+#, python-format
+msgid "Access denied."
+msgstr "Acceso denegado."

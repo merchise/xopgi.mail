@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record id="group_move_message" model="res.groups">
+      <field name="name">Copy/Move Messages</field>
+      <field name="category_id" ref="base.module_category_tools"/>
+    </record>
+  </data>
+</openerp>

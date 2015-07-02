@@ -23,9 +23,13 @@ class MoveMessageWizard(osv.TransientModel):
 
         """
         thread_obj = self.pool['mail.thread']
-        check = lambda model: (
-            self.pool[model].search(cr, uid, [], limit=1, context=context,
-                                    count=True))
+
+        def check(model):
+            try:
+                return self.pool[model].search(
+                    cr, uid, [], limit=1, context=context, count=True)
+            except:
+                return False
         translate = lambda source: (
             self.pool['ir.translation']._get_source(
                 cr, SUPERUSER_ID, None, ('model',),
@@ -52,6 +56,16 @@ class MoveMessageWizard(osv.TransientModel):
     _defaults = {
         'leave_msg': True
     }
+
+    def fields_view_get(self, cr, uid, view_id=None, view_type='form',
+                        context=None, toolbar=False, submenu=False):
+        if uid != SUPERUSER_ID and not self.pool['res.users'].has_group(
+                cr, uid, 'xopgi_mail_move_message.group_move_message'):
+            raise osv.except_osv(_('Error!'), _('Access denied.'))
+        result = super(MoveMessageWizard, self).fields_view_get(
+            cr, uid, view_id=view_id, view_type=view_type, context=context,
+            toolbar=toolbar, submenu=submenu)
+        return result
 
     def default_get(self, cr, uid, fields_list, context=None):
         values = super(MoveMessageWizard, self).default_get(
