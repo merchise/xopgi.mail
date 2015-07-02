@@ -30,11 +30,8 @@
     ],
     'description': '',
     'data': [
-        'views/mail_move_message_wizard.xml', (
-            'views/assets.xml'
-            if ODOO_VERSION_INFO >= (8, 0)  # noqa
-            else 'views/dummy.xml'
-        ),
+        'views/mail_move_message_wizard.xml',
+        'views/assets.xml',
     ],
     'css': [
         'static/src/css/mail_move_message.css',
