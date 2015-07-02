@@ -55,4 +55,7 @@ class MailConfig(Model):
         'module_xopgi_thread_address':
             fields.boolean('Generate a unique email address per thread.'),
 
+        'module_xopgi_mail_disclosure':
+            fields.boolean('Disclose recipients in outgoing emails.'),
+
     }
