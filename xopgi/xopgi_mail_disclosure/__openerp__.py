@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 # ---------------------------------------------------------------------
-# __init__
+# __openerp__
 # ---------------------------------------------------------------------
 # Copyright (c) 2015 Merchise Autrement and Contributors
 # All rights reserved.
@@ -10,10 +10,17 @@
 # terms of the LICENCE attached (see LICENCE file) in the distribution
 # package.
 #
-# Created on 2015-06-17
+# Created on 2015-07-01
 
-from __future__ import (division as _py3_division,
-                        print_function as _py3_print,
-                        absolute_import as _py3_abs_import)
-
-from . import disclose  # noqa
+dict(
+    name='xopgi_mail_disclosure',
+    version='1.0',
+    author='Merchise Autrement',
+    category='mail',
+    application=False,
+    installable=True,
+    summary='Disclose notified partners in notifications',
+    description=('Appends a Cc disclosing notified partners in outgoing '
+                 'emails.'),
+    depends=['mail', ],
+)
