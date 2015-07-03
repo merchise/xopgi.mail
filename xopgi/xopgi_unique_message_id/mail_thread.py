@@ -20,6 +20,8 @@ from openerp.addons.mail.mail_thread import decode_header, mail_header_msgid_re
 from .common import message_id_is_encoded
 
 
+# TODO: Why not a Router?  Remember that this will not be available to several
+# objects inheriting from mail.thread, if their addons are loaded first.
 class MailThread(AbstractModel):
     _name = str('mail.thread')
     _inherit = _name
