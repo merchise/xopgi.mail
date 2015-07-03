@@ -38,6 +38,10 @@
 
             <field name="module_xopgi_thread_address"/>
             <label for="module_xopgi_thread_address"/>
+            <br/>
+
+            <field name="module_xopgi_unique_message_id"/>
+            <label for="module_xopgi_unique_message_id"/>
 
           </div>
         </xpath>
