@@ -43,6 +43,10 @@
             <field name="module_xopgi_mail_disclosure"/>
             <label for="module_xopgi_mail_disclosure"/>
 
+            <br/>
+            <field name="module_xopgi_unique_message_id"/>
+            <label for="module_xopgi_unique_message_id"/>
+
           </div>
         </xpath>
       </field>
