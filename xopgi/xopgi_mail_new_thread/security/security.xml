@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record id="group_new_thread" model="res.groups">
+      <field name="name">Create new documents from existing messages</field>
+      <field name="category_id" ref="base.module_category_tools"/>
+    </record>
+  </data>
+</openerp>

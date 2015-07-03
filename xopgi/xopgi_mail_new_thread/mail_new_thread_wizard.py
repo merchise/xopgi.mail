@@ -56,6 +56,9 @@ class NewThreadWizard(osv.TransientModel):
     def fields_view_get(self, cr, uid, view_id=None, view_type='form',
                         context=None, toolbar=False, submenu=False):
         context = dict(context or {})
+        if uid != SUPERUSER_ID and not self.pool['res.users'].has_group(
+                cr, uid, 'xopgi_mail_new_thread.group_new_thread'):
+            raise osv.except_osv(_('Error!'), _('Access denied.'))
         if view_type == 'form':
             if (len(context.get('active_ids', [])) > 1
                     or not context.get('default_message_id', False)):

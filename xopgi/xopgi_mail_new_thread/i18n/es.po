@@ -43,6 +43,11 @@ msgid "Create New Document"
 msgstr "Crear un nuevo documento"
 
 #. module: xopgi_mail_new_thread
+#: model:res.groups,name:xopgi_mail_new_thread.group_new_thread
+msgid "Create new documents from existing messages"
+msgstr "Crear nuevos documentos desde mensajes existentes"
+
+#. module: xopgi_mail_new_thread
 #. openerp-web
 #: code:addons/xopgi_mail_new_thread/static/src/xml/mail_new_thread.xml:7
 #, python-format
@@ -64,6 +69,12 @@ msgstr "Modelo"
 #, python-format
 msgid "New Document from Mail Message"
 msgstr "Nuevo documento a partir de un mensaje."
+
+#. module: xopgi_mail_new_thread
+#: code:addons/xopgi_mail_new_thread/mail_new_thread_wizard.py:0
+#, python-format
+msgid "Access denied."
+msgstr "Acceso denegado."
 
 #. module: xopgi_mail_new_thread
 #: field:new.thread.wizard,leave_msg:0
