@@ -44,5 +44,3 @@ def message_id_is_encoded(self, cr, uid, message_id):
         _, original_part = message_id.split('+', 1)
         return '<%s' % original_part
     return False
-
-

@@ -41,5 +41,3 @@ class MailMessage(Model):
                                                       msg.message_id)
         return super(MailMessage, self).copy(cr, uid, id, default,
                                              context=context)
-
-
