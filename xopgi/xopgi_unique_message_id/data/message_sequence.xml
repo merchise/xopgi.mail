@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+    <data>
+      <record id="seq_type_message_id" model="ir.sequence.type">
+        <field name="name">Message ID Sequence</field>
+        <field name="code">mail.message.id.seq</field>
+      </record>
+      <record id="seq_message_id" model="ir.sequence">
+        <field name="name">Message ID Sequence</field>
+        <field name="code">mail.message.id.seq</field>
+        <field name="padding">6</field>
+      </record>
+    </data>
+</openerp>
