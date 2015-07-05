@@ -14,6 +14,9 @@ from openerp.osv import osv, fields
 from openerp.tools.translate import _
 from openerp import SUPERUSER_ID
 
+FIELDS2READ = ['type', 'message_id', 'subject', 'email_from', 'date',
+               'author_id', 'parent_id', 'body', 'attachment_ids']
+
 
 class NewThreadWizard(osv.TransientModel):
     _name = 'new.thread.wizard'
@@ -76,11 +79,11 @@ class NewThreadWizard(osv.TransientModel):
         '''
         wiz = self.browse(cr, uid, ids[0], context=context)
         msg_obj = self.pool['mail.message']
-        msg_dict = msg_obj.read(cr, uid, wiz.message_id.id,
-                                ['type', 'message_id', 'subject',
-                                 'email_from', 'date', 'author_id',
-                                 'parent_id', 'body', 'attachment_ids'],
-                                context=context)
+        msg_dict = {key: value
+                    for key, value in msg_obj.read(
+                        cr, uid, wiz.message_id.id, FIELDS2READ,
+                        context=context).iteritems()
+                    if value}
         msg_dict['from'] = msg_dict.get('email_from') if msg_dict else False
         if msg_dict and isinstance(msg_dict.get('author_id', False), tuple):
             msg_dict['author_id'] = msg_dict['author_id'][0]
