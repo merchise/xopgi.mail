@@ -96,12 +96,4 @@ class NewThreadWizard(osv.TransientModel):
                                 subtype='mail.mt_comment', **msg_dict)
         if not wiz.leave_msg:
             msg_obj.unlink(cr, SUPERUSER_ID, wiz.message_id.id, context=context)
-        return {
-            'name': _('New Document from Mail Message'),
-            'view_type': 'form',
-            'view_mode': 'form',
-            'res_model': wiz.model_id,
-            'res_id': thread_id,
-            'type': 'ir.actions.act_window',
-            'context': dict(context or {}, active_id=thread_id)
-        }
+        return {'type': 'ir.actions.client', 'tag': 'reload', }
