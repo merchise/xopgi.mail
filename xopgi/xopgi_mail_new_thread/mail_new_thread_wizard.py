@@ -85,7 +85,11 @@ class NewThreadWizard(osv.TransientModel):
                         cr, uid, wiz.message_id.id, FIELDS2READ,
                         context=context).iteritems()
                     if value}
+        #  Some models expect from and cc keys.
+        #  e.g. crm.lead, project.issue, ...
         msg_dict['from'] = msg_dict.get('email_from') if msg_dict else False
+        msg_dict['cc'] = msg_dict.get('email_cc') if msg_dict else False
+        #  Extract id from id, name tuple on author_id and parent_id values.
         if msg_dict and isinstance(msg_dict.get('author_id', False), tuple):
             msg_dict['author_id'] = msg_dict['author_id'][0]
         if msg_dict and isinstance(msg_dict.get('parent_id', False), tuple):
