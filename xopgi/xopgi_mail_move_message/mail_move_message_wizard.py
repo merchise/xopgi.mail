@@ -10,6 +10,7 @@
 # package.
 #
 # Created on 2015-03-10
+from openerp.exceptions import AccessError
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
 from openerp import SUPERUSER_ID
@@ -94,12 +95,16 @@ class MoveMessageWizard(osv.TransientModel):
             msg_obj.write(cr, uid, new_ids, values, context=context)
         for new_id in new_ids:
             msg_obj._notify(cr, uid, new_id, context=context)
-        return {
-            'name': _('Copy/Move Messages'),
-            'view_type': 'form',
-            'view_mode': 'form',
-            'res_model': model,
-            'res_id': res_id,
-            'type': 'ir.actions.act_window',
-            'context': dict(context or {}, active_id=res_id)
-        }
+        try:
+            self.pool[model].read(cr, uid, res_id, [], context=context)
+            return {
+                'name': _('Copy/Move Messages'),
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': model,
+                'res_id': res_id,
+                'type': 'ir.actions.act_window',
+                'context': dict(context or {}, active_id=res_id)
+            }
+        except AccessError:
+            return {'type': 'ir.actions.client', 'tag': 'reload', }
