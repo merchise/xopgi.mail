@@ -10,9 +10,6 @@
 # package.
 #
 # Created on 2015-07-02
-''' Avoid insert duplicated message_id on db.
-
-'''
 
 from __future__ import (division as _py3_division,
                         print_function as _py3_print,
@@ -20,28 +17,34 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 from openerp.addons.mail.mail_thread import decode_header, mail_header_msgid_re
-from openerp.models import Model
+from openerp.addons.xopgi_mail_threads import MailTransportRouter
+from openerp.addons.xopgi_mail_threads import TransportRouteData
 from .common import message_id_is_encoded
 
 
-# TODO:  Why this is not a transport?
-class IrMailServer(Model):
-    _inherit = str("ir.mail_server")
-
-    def send_email(self, cr, uid, message, ** kargs):
+class OriginalReferenceTransport(MailTransportRouter):
+    @classmethod
+    def query(cls, obj, cr, uid, message, context=None):
         ''' If Message-ID or any reference is encoded decode and add it to
         References to allow correct threading.
 
         '''
         references = mail_header_msgid_re.findall(
             decode_header(message, 'References') or '')
-        # TODO: review if this case is logic it happen.
         iter_references = references + [message.get('Message-ID')]
+        result = False
         if iter_references:
             for ref in iter_references:
-                original_ref = message_id_is_encoded(self, cr, uid, ref)
+                original_ref = message_id_is_encoded(obj, cr, uid, ref)
                 if original_ref and original_ref not in references:
                     references.append(original_ref)
-            del message['References']
-            message['References'] = ' '.join(references)
-        return super(IrMailServer, self).send_email(cr, uid, message, **kargs)
+                    result = True
+        return result, dict(references=' '.join(references))
+
+    def prepare_message(self, obj, cr, uid, message, data=None, context=None):
+        '''Replace message References by query method data result.
+
+        '''
+        del message['References']
+        message['References'] = data['references']
+        return TransportRouteData(message, {})

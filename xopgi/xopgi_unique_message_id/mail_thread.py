@@ -20,8 +20,6 @@ from openerp.addons.mail.mail_thread import decode_header, mail_header_msgid_re
 from .common import message_id_is_encoded
 
 
-# TODO: Why not a Router?  Remember that this will not be available to several
-# objects inheriting from mail.thread, if their addons are loaded first.
 class MailThread(AbstractModel):
     _name = str('mail.thread')
     _inherit = _name
@@ -35,6 +33,9 @@ class MailThread(AbstractModel):
         IrMailServer.send_email() method implemented on this module.
 
         '''
+        #  This better here and not on a Router to remove unwanted
+        # references before super's message_route call, else is possible to
+        # get a wrong route and miss the right one.
         references = decode_header(message, 'References')
         thread_references = references or ''
         msg_references = mail_header_msgid_re.findall(thread_references)

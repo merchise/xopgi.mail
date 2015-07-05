@@ -15,5 +15,5 @@ from __future__ import absolute_import as _py3_abs_imports
 
 from . import common  # noqa
 from . import mail_message  # noqa
-from . import ir_mail_server  # noqa
+from . import mail_transport  # noqa
 from . import mail_thread  # noqa
