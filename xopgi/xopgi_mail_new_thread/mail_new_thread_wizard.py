@@ -90,9 +90,9 @@ class NewThreadWizard(osv.TransientModel):
         if msg_dict and isinstance(msg_dict.get('parent_id', False), tuple):
             msg_dict['parent_id'] = msg_dict['parent_id'][0]
         thread_obj = self.pool[wiz.model_id]
-        thread_id = thread_obj.message_new(cr, uid, msg_dict, {},
+        thread_id = thread_obj.message_new(cr, SUPERUSER_ID, msg_dict, {},
                                            context=context)
-        thread_obj.message_post(cr, uid, [thread_id], context=context,
+        thread_obj.message_post(cr, SUPERUSER_ID, [thread_id], context=context,
                                 subtype='mail.mt_comment', **msg_dict)
         if not wiz.leave_msg:
             msg_obj.unlink(cr, SUPERUSER_ID, wiz.message_id.id, context=context)
