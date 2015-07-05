@@ -91,3 +91,9 @@ msgstr "Debe seleccionar uno y solo un mensaje."
 #: view:new.thread.wizard:xopgi_mail_new_thread.new_thread_wizard_view
 msgid "or"
 msgstr "o"
+
+#. module: xopgi_mail_new_thread
+#: code:addons/xopgi_mail_new_thread/mail_new_thread_wizard.py:62
+#, python-format
+msgid "Create from a mail message without subject."
+msgstr "Creado desde un mensaje de correo sin asunto."
