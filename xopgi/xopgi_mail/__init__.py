@@ -52,8 +52,12 @@ class MailConfig(Model):
         'module_xopgi_mail_move_message':
             fields.boolean('Allow to transfer messages.'),
 
-        'module_xopgi_thread_address':
-            fields.boolean('Generate a unique email address per thread.'),
+        'module_xopgi_thread_address': fields.boolean(
+            'Generate a unique email address per thread.'),
+
+        'module_xopgi_unique_message_id': fields.boolean(
+            'Generate a unique id per message on db.'),
+
 
         'module_xopgi_mail_disclosure':
             fields.boolean('Disclose recipients in outgoing emails.'),

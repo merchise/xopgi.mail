@@ -10,9 +10,13 @@
 # package.
 #
 # Created on 2015-03-10
+from openerp.exceptions import AccessError
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
 from openerp import SUPERUSER_ID
+
+FIELDS2READ = ['type', 'message_id', 'subject', 'email_from', 'date',
+               'author_id', 'parent_id', 'body', 'attachment_ids']
 
 
 class NewThreadWizard(osv.TransientModel):
@@ -76,29 +80,42 @@ class NewThreadWizard(osv.TransientModel):
         '''
         wiz = self.browse(cr, uid, ids[0], context=context)
         msg_obj = self.pool['mail.message']
-        msg_dict = msg_obj.read(cr, uid, wiz.message_id.id,
-                                ['type', 'message_id', 'subject',
-                                 'email_from', 'date', 'author_id',
-                                 'parent_id', 'body', 'attachment_ids'],
-                                context=context)
+        msg_dict = {key: value
+                    for key, value in msg_obj.read(
+                        cr, uid, wiz.message_id.id, FIELDS2READ,
+                        context=context).iteritems()
+                    if value}
+        #  Some models expect from and cc keys.
+        #  e.g. crm.lead, project.issue, ...
         msg_dict['from'] = msg_dict.get('email_from') if msg_dict else False
+        msg_dict['cc'] = msg_dict.get('email_cc') if msg_dict else False
+        #  Extract id from id, name tuple on author_id and parent_id values.
         if msg_dict and isinstance(msg_dict.get('author_id', False), tuple):
             msg_dict['author_id'] = msg_dict['author_id'][0]
         if msg_dict and isinstance(msg_dict.get('parent_id', False), tuple):
             msg_dict['parent_id'] = msg_dict['parent_id'][0]
+        custom_values = {}
+        if not msg_dict.get('subject', False):
+            custom_values['name'] = _(
+                'Create from a mail message without subject.')
         thread_obj = self.pool[wiz.model_id]
-        thread_id = thread_obj.message_new(cr, uid, msg_dict, {},
+        thread_id = thread_obj.message_new(cr, SUPERUSER_ID, msg_dict,
+                                           custom_values=custom_values,
                                            context=context)
-        thread_obj.message_post(cr, uid, [thread_id], context=context,
+        thread_obj.message_post(cr, SUPERUSER_ID, [thread_id], context=context,
                                 subtype='mail.mt_comment', **msg_dict)
         if not wiz.leave_msg:
             msg_obj.unlink(cr, SUPERUSER_ID, wiz.message_id.id, context=context)
-        return {
-            'name': _('New Document from Mail Message'),
-            'view_type': 'form',
-            'view_mode': 'form',
-            'res_model': wiz.model_id,
-            'res_id': thread_id,
-            'type': 'ir.actions.act_window',
-            'context': dict(context or {}, active_id=thread_id)
-        }
+        try:
+            thread_obj.read(cr, uid, thread_id, [], context=context)
+            return {
+                'name': _('New Document from Mail Message'),
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': wiz.model_id,
+                'res_id': thread_id,
+                'type': 'ir.actions.act_window',
+                'context': dict(context or {}, active_id=thread_id)
+            }
+        except AccessError:
+            return {'type': 'ir.actions.client', 'tag': 'reload', }
