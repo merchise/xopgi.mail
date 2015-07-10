@@ -51,7 +51,9 @@ class UniqueAddressTransport(MailTransportRouter):
                             'message %s: %r.  Refusing to dispatch the '
                             'message using a unique address and hoping for '
                             'the best.', message['Message-Id'], indexes)
-                return False, None
+                msg = None
+            else:
+                msg = msg[0]
         if msg and msg.thread_index:
             address = cls._get_replyto_address(obj, cr, uid, msg.thread_index,
                                                context=context)
