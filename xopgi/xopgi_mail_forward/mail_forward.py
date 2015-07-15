@@ -60,8 +60,3 @@ class mail_compose_forward(orm.TransientModel):
                     name, _('Re:'), _('Fwd:')
                 )
         return result
-
-    def send_mail(self, cr, uid, ids, context=None):
-        super(mail_compose_forward, self).send_mail(cr, uid, ids,
-                                                    context=context)
-        return {'type': 'ir.actions.client', 'tag': 'reload', }
