@@ -6,6 +6,11 @@ openerp.xopgi_mail_new_thread = function (instance) {
             this.$('.oe_new_thread').on('click', this.on_message_new_thread);
         },
 
+        init : function (parent, datasets, options){
+            this._super(parent, datasets, options);
+            this.can_new_thread = datasets.can_new_thread;
+        },
+
         on_message_new_thread: function() {
             // Get the action data and execute it to open the
             // new_thread_wizard

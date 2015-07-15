@@ -3,7 +3,8 @@
 <template>
   <t t-extend="mail.thread.message">
     <t t-jquery=".oe_msg_icons" t-operation="append">
-      <span class="oe_move_message">
+      <span class="oe_move_message"
+            t-if="widget.can_move">
         <a title="Copy/Move Messages" class="oe_e">p</a>
       </span>
     </t>
