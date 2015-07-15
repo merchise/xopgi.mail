@@ -3,7 +3,8 @@
 <template>
   <t t-extend="mail.thread.message">
     <t t-jquery=".oe_msg_icons" t-operation="append">
-      <span class="oe_new_thread">
+      <span class="oe_new_thread"
+            t-if="widget.can_new_thread">
         <a title="Create new document" class="oe_e">/</a>
       </span>
     </t>
