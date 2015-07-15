@@ -6,6 +6,11 @@ openerp.xopgi_mail_move_message = function (instance) {
             this.$('.oe_move_message').on('click', this.on_message_move_message);
         },
 
+        init: function (parent, datasets, options) {
+            this._super(parent, datasets, options);
+            this.can_move = datasets.can_move;
+        },
+
         on_message_move_message: function() {
             // Get the action data and execute it to open the
             // move_message_wizard
