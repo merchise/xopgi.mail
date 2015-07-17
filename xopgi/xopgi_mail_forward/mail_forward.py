@@ -60,29 +60,3 @@ class mail_compose_forward(orm.TransientModel):
                     name, _('Re:'), _('Fwd:')
                 )
         return result
-
-    def send_mail(self, cr, uid, ids, context=None):
-        super(mail_compose_forward, self).send_mail(cr, uid, ids,
-                                                    context=context)
-        return {'type': 'ir.actions.client', 'tag': 'reload', }
-"""
-{"default_attachment_ids": [],
-"default_model":
-   "project.task",
-"default_res_id": 3488,
-"default_subject": "Fwd: "
-                  "RE: "
-                  "EDUCTOUR VDM 2015"
-
-{
-"default_parent_id": 61947,
-"default_attachment_ids": [],
-
-"default_partner_ids": [],
-"default_is_log": false,
-"mail_post_autofollow":
-   true,
-"mail_post_autofollow_partner_ids": [],
-"is_private": false
-
-"""
