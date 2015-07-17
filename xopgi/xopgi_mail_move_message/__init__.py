@@ -24,5 +24,5 @@ class Message(osv.Model):
     def _message_read_dict(self, cr, uid, msg, parent_id=False, context=None):
         res = super(Message, self)._message_read_dict(
             cr, uid, msg, parent_id=parent_id, context=context)
-        res[FIELD_NAME] = msg.can_new_thread
+        res[FIELD_NAME] = getattr(msg, FIELD_NAME)
         return res
