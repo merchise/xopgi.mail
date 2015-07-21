@@ -170,6 +170,7 @@ class BouncedMailRouter(MailRouter):
         from xoutil import logger
         route = cls._message_route_check_bounce(obj, cr, uid, message)
         forged, probably_forged = cls._forged(obj, cr, uid, message)
+        assert not forged or probably_forged, "forget implies probably forged"
         if route and not forged:
             return bool(route), route
         elif probably_forged:
@@ -210,14 +211,17 @@ class BouncedMailRouter(MailRouter):
         'Indicates if this a bouncy Return-Path.'
         res = not return_path or return_path == "<>"
         if not res:
-            # Some broken MTAs like MDaemon include an address like
-            # "<MAILER-DAEMON>"
-            res = '@' not in return_path[1:-1]
+            # Some MTAs are place a "<MAILER-DAEMON>" return path upon
+            # delivery.
+            res = not valid_email(return_path[1:-1])
         return res
 
     @classmethod
     def _forged(cls, obj, cr, uid, message):
-        '''Return True if the message is 99% forged.
+        '''Return True if the message seems to be a forged bounce.
+
+        This returns two values: ``(forged, probably_forged)`` the first being
+        stronger, thus, ``forged`` implies ``probably_forged``.
 
         '''
         return False, False
@@ -279,8 +283,6 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
     Along with the router takes care of matching outgoing messages with
     bounces.
 
-    Done via a VERP scheme.
-
     '''
     @classmethod
     def _get_bounce_address(cls, obj, cr, uid, message, mail, email_to,
@@ -316,10 +318,13 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
 
     @classmethod
     def query(self, obj, cr, uid, message, context=None):
-        '''Apply on both OpenERP 7 and Odoo for any outbound message,
-        if context have mail_id key.
+        '''Test whether the `message` should be delivered with VERP.
 
-        If applicable, return ``(True, {'address': address})``.
+        Return ``(True, {'address': address})`` if test succeeds, otherwise
+        return ``(False, None)``.
+
+        The address in a positive result is the VERP address generated for the
+        message.
 
         '''
         context = context if context else {}
