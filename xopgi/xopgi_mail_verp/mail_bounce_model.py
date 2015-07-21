@@ -116,6 +116,8 @@ class MailBounce(orm.TransientModel):
             bounce=params['body'],
         )
         params['body'] = body
+        params['type'] = 'notification'
+        params['email_from'] = '<>'
         return params
 
     def _get_message(self, cr, uid, message_id):

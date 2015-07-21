@@ -288,6 +288,9 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
         '''Compute the bounce address.
 
         '''
+        if mail.email_from == '<>':
+            # This is probably a bounce notification, so don't VERPize
+            return None
         if not mail.mail_message_id:
             # I can't provide a VERP bounce address without a message id.
             return None
