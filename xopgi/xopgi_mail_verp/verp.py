@@ -158,7 +158,7 @@ class BounceRecord(Model):
               SELECT id, ((NOW() at time zone 'UTC') - create_date) AS age
               FROM xopgi_verp_record
            ) SELECT id FROM aged WHERE age >= %s
-        ''', ('7 days', ))
+        ''', ('10 days', ))
         elders = [row[0] for row in cr.fetchall()]
         if elders:
             self.unlink(cr, SUPERUSER_ID, elders, context=context)
