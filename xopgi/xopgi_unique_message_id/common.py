@@ -21,9 +21,6 @@ CATCHALL_DOMAIN = 'mail.catchall.domain'
 
 
 def encode_message_id(self, cr, uid, message_id):
-    '''
-
-    '''
     domain = self.pool['ir.config_parameter'].get_param(
         cr, uid, CATCHALL_DOMAIN)
     seq = self.pool['ir.sequence'].get(cr, uid, 'mail.message.id.seq')

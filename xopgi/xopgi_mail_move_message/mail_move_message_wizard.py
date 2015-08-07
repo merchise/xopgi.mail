@@ -10,10 +10,13 @@
 # package.
 #
 # Created on 2015-03-10
+
+from openerp import SUPERUSER_ID
 from openerp.exceptions import AccessError
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
-from openerp import SUPERUSER_ID
+
+from xoeuf.ui import RELOAD_UI
 
 
 class MoveMessageWizard(osv.TransientModel):
@@ -62,7 +65,7 @@ class MoveMessageWizard(osv.TransientModel):
                         context=None, toolbar=False, submenu=False):
         if uid != SUPERUSER_ID and not self.pool['res.users'].has_group(
                 cr, uid, 'xopgi_mail_move_message.group_move_message'):
-            raise osv.except_osv(_('Error!'), _('Access denied.'))
+            raise AccessError(_('Access denied.'))
         result = super(MoveMessageWizard, self).fields_view_get(
             cr, uid, view_id=view_id, view_type=view_type, context=context,
             toolbar=toolbar, submenu=submenu)
@@ -107,4 +110,4 @@ class MoveMessageWizard(osv.TransientModel):
                 'context': dict(context or {}, active_id=res_id)
             }
         except AccessError:
-            return {'type': 'ir.actions.client', 'tag': 'reload', }
+            return RELOAD_UI
