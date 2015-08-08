@@ -30,9 +30,8 @@ def str2dict(dict_str):
         return {}
 
 
-def _get_model_ids(cr, uid, model_names=[], context=None):
-    from openerp import pooler
-    model_obj = pooler.get_pool(cr.dbname)['ir.model']
+def _get_model_ids(pool, cr, uid, model_names=[], context=None):
+    model_obj = pool['ir.model']
     model_names = model_names if model_names else ['project.task',
                                                    'project.issue']
     return model_obj.search(cr, uid, [('model', 'in', model_names)],
@@ -48,7 +47,7 @@ class project_valias(Model):
     _name = 'project.valias'
 
     def _get_models(self, cr, uid, context=None):
-        model_ids = _get_model_ids(cr, uid, context=context)
+        model_ids = _get_model_ids(self.pool, cr, uid, context=context)
         return self.pool['ir.model'].name_get(cr, uid, model_ids,
                                               context=context)
 
@@ -137,7 +136,7 @@ class project_project(Model):
         return a list of alias_ids per section_id.
         """
         alias_obj = self.pool.get("mail.alias")
-        model_ids = _get_model_ids(cr, uid, context=context)
+        model_ids = _get_model_ids(self.pool, cr, uid, context=context)
         alias_ids = alias_obj.search(cr, uid,
                                      [('alias_model_id', 'in', model_ids)],
                                      context=context)
@@ -210,13 +209,15 @@ class project_project(Model):
                 return vals
             project = self.browse(cr, uid, project_id, context=context)
             if (not project.use_issues and
-                model_id == _get_model_ids(cr, uid, ['project.issue'],
+                model_id == _get_model_ids(self.pool, cr, uid,
+                                           ['project.issue'],
                                            context=context)):
                 raise osv.except_osv(_('Warning!'), _(
                     "This project not use issues then cant alias with"
                     "project.issue object creation."))
             if (not project.use_tasks and
-                model_id == _get_model_ids(cr, uid, ['project.task'],
+                model_id == _get_model_ids(self.pool, cr, uid,
+                                           ['project.task'],
                                            context=context)):
                 raise osv.except_osv(_('Warning!'), _(
                     "This project not use tasks then cant alias with"
