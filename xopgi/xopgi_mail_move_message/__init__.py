@@ -12,7 +12,7 @@ class Message(osv.Model):
     def _get_can_move(self, cr, uid, ids, field_name, args, context=None):
         result = {}
         has_group = self.pool['res.users'].has_group(
-            cr, uid, 'xopgi_mail_new_thread.group_new_thread')
+            cr, uid, 'xopgi_mail_move_message.group_move_message')
         for msg in self.browse(cr, uid, ids, context=context):
             result[msg.id] = (msg.type != 'notification' and
                               (uid == SUPERUSER_ID or has_group))
@@ -24,5 +24,5 @@ class Message(osv.Model):
     def _message_read_dict(self, cr, uid, msg, parent_id=False, context=None):
         res = super(Message, self)._message_read_dict(
             cr, uid, msg, parent_id=parent_id, context=context)
-        res[FIELD_NAME] = msg.can_new_thread
+        res[FIELD_NAME] = getattr(msg, FIELD_NAME)
         return res
