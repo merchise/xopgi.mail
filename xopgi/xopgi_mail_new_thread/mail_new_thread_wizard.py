@@ -14,9 +14,11 @@ from openerp.exceptions import AccessError
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
 from openerp import SUPERUSER_ID
+from openerp.addons.xopgi_mail_threads.mail_messages import RAW_EMAIL_ATTR
 
 FIELDS2READ = ['type', 'message_id', 'subject', 'email_from', 'date',
-               'author_id', 'parent_id', 'body', 'attachment_ids']
+               'author_id', 'parent_id', 'body', 'attachment_ids',
+               RAW_EMAIL_ATTR]
 
 
 class NewThreadWizard(osv.TransientModel):
