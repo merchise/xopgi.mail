@@ -25,7 +25,9 @@ Email Templating (extended version of OpenERP's Email Templates).
 Adds translations.
 
     """,
-    'data': [],
+    'data': [
+        'views/mail_compose_message_view.xml'
+    ],
     'demo': [],
     'installable': True,
     'auto_install': True,
