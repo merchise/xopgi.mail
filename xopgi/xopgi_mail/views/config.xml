@@ -47,6 +47,9 @@
             <field name="module_xopgi_unique_message_id"/>
             <label for="module_xopgi_unique_message_id"/>
 
+            <br/>
+            <field name="module_xopgi_mail_url_attachments"/>
+            <label for="module_xopgi_mail_url_attachments"/>
           </div>
         </xpath>
       </field>
