@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------
-# xopgi_email_template.template
+# xopgi_email_template.wizards.mail_compose_message
 # ---------------------------------------------------------------------
 # Copyright (c) 2013-2015 Merchise Autrement
 # All rights reserved.
@@ -10,6 +10,7 @@
 # package.
 #
 # @created: 2015-08-21
+
 from lxml import etree
 from lxml.html.diff import htmldiff
 
