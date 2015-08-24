@@ -14,8 +14,7 @@
 from lxml import etree
 from lxml.html.diff import htmldiff
 
-from openerp import api, exceptions, models
-
+from openerp import api, exceptions, models, _
 
 FIND_CLASS_XPATH_EXPRESSION = (
     "descendant-or-self::*[@class and "
