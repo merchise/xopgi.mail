@@ -90,6 +90,7 @@ class MailComposeMessage(models.TransientModel):
         if result_nodes:
             for node in result_nodes:
                 node.attrib.pop('style', False)
+                node.attrib.pop('class', False)
             self.body = etree.tostring(result, method='html')
 
     @api.model
@@ -99,7 +100,8 @@ class MailComposeMessage(models.TransientModel):
         '''
         if self._validate_template_restrictions():
             return super(MailComposeMessage, self).send_mail()
-        raise exceptions.ValidationError('modificaste áreas no editables')
+        raise exceptions.ValidationError(
+            _('Non-editable items were modified.'))
 
     @api.multi
     def save_as_template(self):
