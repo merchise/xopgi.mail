@@ -11,8 +11,7 @@
 #
 # @created: 2015-08-21
 
-from lxml import etree
-from lxml.html.diff import htmldiff
+from lxml.html import fromstring, tostring
 
 from openerp import api, fields, exceptions, models, _
 
@@ -44,16 +43,15 @@ class MailComposeMessage(models.TransientModel):
             template_id, composition_mode, model, res_id)
         body = result.get('value', {}).get('body', '')
         if body and template_id:
-            doc = etree.HTML(body)
-            read_only_elements = doc.xpath(FIND_CLASS_XPATH_EXPRESSION %
-                                           'readonly')
+            doc = fromstring(body)
+            read_only_elements = doc.find_class('readonly')
             for node in read_only_elements:
                 node.set('style', "border: solid; "
                                   "background-color: darkgrey; "
                                   "color: #4C4C4C")
             result['value'].update(
                 body_readonly_elements=bool(read_only_elements),
-                body=etree.tostring(doc, method='html'))
+                body=tostring(doc))
         return result
 
     def _validate_template_restrictions(self):
@@ -68,9 +66,9 @@ class MailComposeMessage(models.TransientModel):
         template_body = template_dict.get('body_html', False)
         if not template_body:
             return True
-        template = etree.HTML(template_body)
-        result = etree.HTML(self.body)
-        result_nodes = result.xpath(FIND_CLASS_XPATH_EXPRESSION % 'readonly')
+        template = fromstring(template_body)
+        result = fromstring(self.body)
+        result_nodes = result.find_class('readonly')
 
         def _find_similar(node, candidates):
             '''Find a candidate similar with node, remove it and return
@@ -78,13 +76,11 @@ class MailComposeMessage(models.TransientModel):
 
             '''
             for n in candidates:
-                diff = etree.HTML(htmldiff(node, n))
-                if not (diff.xpath('descendant-or-self::ins') or
-                        diff.xpath('descendant-or-self::del')):
+                if node.text_content() == n.text_content():
                     candidates.remove(n)
                     return True
             return False
-        for node in template.xpath(FIND_CLASS_XPATH_EXPRESSION % 'readonly'):
+        for node in template.find_class('readonly'):
             if not (result_nodes and _find_similar(node, result_nodes)):
                 return False
         self._remove_readonly_style()
@@ -97,13 +93,13 @@ class MailComposeMessage(models.TransientModel):
 
         '''
         #  TODO: distinguish readonly style and keep rest
-        result = etree.HTML(self.body)
-        result_nodes = result.xpath(FIND_CLASS_XPATH_EXPRESSION % 'readonly')
+        result = fromstring(self.body)
+        result_nodes = result.find_class('readonly')
         if result_nodes:
             for node in result_nodes:
                 node.attrib.pop('style', False)
                 node.attrib.pop('class', False)
-            self.body = etree.tostring(result, method='html')
+            self.body = tostring(result)
 
     @api.model
     def send_mail(self):
