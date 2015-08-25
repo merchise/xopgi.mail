@@ -14,7 +14,7 @@
 from lxml import etree
 from lxml.html.diff import htmldiff
 
-from openerp import api, exceptions, models, _
+from openerp import api, fields, exceptions, models, _
 
 FIND_CLASS_XPATH_EXPRESSION = (
     "descendant-or-self::*[@class and "
@@ -27,6 +27,13 @@ FIND_CLASS_XPATH_EXPRESSION = (
 class MailComposeMessage(models.TransientModel):
     _inherit = 'mail.compose.message'
 
+    def _have_body_readonly_elements(self):
+        return True
+
+    body_readonly_elements = fields.Boolean()
+    template_subject_readonly = fields.Boolean(
+        related="template_id.use_default_subject")
+
     @api.multi
     def onchange_template_id(self, template_id, composition_mode, model,
                              res_id):
@@ -38,11 +45,15 @@ class MailComposeMessage(models.TransientModel):
         body = result.get('value', {}).get('body', '')
         if body and template_id:
             doc = etree.HTML(body)
-            for node in doc.xpath(FIND_CLASS_XPATH_EXPRESSION % 'readonly'):
+            read_only_elements = doc.xpath(FIND_CLASS_XPATH_EXPRESSION %
+                                           'readonly')
+            for node in read_only_elements:
                 node.set('style', "border: solid; "
                                   "background-color: darkgrey; "
                                   "color: #4C4C4C")
-            result['value']['body'] = etree.tostring(doc, method='html')
+            result['value'].update(
+                body_readonly_elements=bool(read_only_elements),
+                body=etree.tostring(doc, method='html'))
         return result
 
     def _validate_template_restrictions(self):
@@ -51,10 +62,10 @@ class MailComposeMessage(models.TransientModel):
         '''
         if not self.template_id:
             return True
-        template_body = self.pool['email.template'].generate_email_batch(
+        template_dict = self.pool['email.template'].generate_email_batch(
             self.env.cr, self.env.uid, self.template_id.id, [self.res_id],
-            fields=['body_html'], context=self._context)
-        template_body = template_body.get(self.res_id, {}).get('body_html')
+            context=self._context).get(self.res_id, {})
+        template_body = template_dict.get('body_html', False)
         if not template_body:
             return True
         template = etree.HTML(template_body)
@@ -77,6 +88,8 @@ class MailComposeMessage(models.TransientModel):
             if not (result_nodes and _find_similar(node, result_nodes)):
                 return False
         self._remove_readonly_style()
+        if self.template_id.use_default_subject:
+            self.subject = template_dict.get('subject', self.subject)
         return True
 
     def _remove_readonly_style(self):

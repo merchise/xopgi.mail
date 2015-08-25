@@ -27,7 +27,8 @@ Allow add readonly elements on email templates.
 
     """,
     'data': [
-        'views/mail_compose_message_view.xml'
+        'views/mail_compose_message_view.xml',
+        'views/email_template_view.xml'
     ],
     'demo': [],
     'installable': True,
