@@ -171,7 +171,13 @@ class BouncedMailRouter(MailRouter):
         route = cls._message_route_check_bounce(obj, cr, uid, message)
         forged, probably_forged = cls._forged(obj, cr, uid, message)
         assert not forged or probably_forged, "forget implies probably forged"
-        if route and not forged:
+        if route and cls._is_auto_responded(obj, cr, uid, message):
+            # If the message is an auto-responded (e.g Out of Office) message
+            # it will be also delivered to the bounce VERP address, but we
+            # should not treat it as bounce and let it be placed according to
+            # In-Reply-To.
+            return False
+        elif route and not forged:
             return bool(route), route
         elif probably_forged:
             # If there's no clear bounce in our DB but the message seems to be
@@ -205,6 +211,35 @@ class BouncedMailRouter(MailRouter):
             # anything.
             routes[:] = []
         return routes
+
+    @classmethod
+    def _is_auto_responded(cls, obj, cr, uid, message):
+        '''Check if the message seems to be an auto-responded message and not
+        actually a bounce.
+
+        You should review the RFC 3834, for better understanding this method.
+        However, we have found that some MTAs (even Google's) divert a bit
+        from the recommended use in this RFC.
+
+        .. warning:: You should only call this method if the `message` is sent
+           to VERP address.
+
+        We don't follow (much) RFC 5436 as it the semantics of Auto-Submitted
+        cause haven't witnessed this behavior.
+
+        '''
+        replied = 'In-Reply-To' in message
+        how = message['Auto-Submitted']
+        if how == 'auto-replied':
+            # Bounces SHOULD NOT have an In-Reply-To, but SHOULD have an
+            # Auto-Submitted.
+            return replied
+        elif message['X-Autoreply'] == 'yes':
+            # Some MTAs also include this, but I will refuse them unless an
+            # In-Reply-To is provided.
+            return replied
+        # Not considered cases are assumed to be bounces.
+        return False
 
     @classmethod
     def _void_return_path(cls, return_path):
@@ -291,7 +326,9 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
 
         '''
         if mail.email_from == '<>':
-            # This is probably a bounce notification, so don't VERPize
+            # This is a bounce notification, so don't VERPize but make it
+            # visible.
+            message['Auto-Submitted'] = 'auto-replied'
             return None
         if not mail.mail_message_id:
             # I can't provide a VERP bounce address without a message id.
