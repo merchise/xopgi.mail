@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------
-# xopgi_email_template.__openerp__
+# xopgi_email_template.wizards
 # ---------------------------------------------------------------------
 # Copyright (c) 2013-2015 Merchise Autrement
 # All rights reserved.
@@ -11,4 +11,4 @@
 #
 # @created: 2015-08-21
 
-from . import wizards  # noqa
+from . import mail_compose_message  # noqa

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------
-# xopgi_email_template.__openerp__
+# xopgi_mail_url_attachments.__openerp__
 # ---------------------------------------------------------------------
 # Copyright (c) 2013-2015 Merchise Autrement
 # All rights reserved.
@@ -9,28 +9,18 @@
 # terms of the LICENCE attached (see LICENCE file) in the distribution
 # package.
 #
-# @created: 2013-04-11
+# @created: 2015-08-23
 
 
 {
-    'name': "Merchise Autrement's Email Templates",
-    'version': '1.4',
+    'name': "Add URL attachments",
+    'version': '1.0',
     'author': 'Merchise Autrement',
     'category': 'Marketing',
-    'depends': ['email_template'],
-    'description': """
-Email Templating (extended version of OpenERP's Email Templates).
-==============================================================================
-
-Adds translations.
-Allow add readonly elements on email templates.
-
-    """,
-    'data': [
-        'views/mail_compose_message_view.xml'
-    ],
+    'depends': ['xopgi_mail_threads'],
+    'description': "Add URL attachments from links on messages body.",
+    'data': [],
     'demo': [],
     'installable': True,
-    'auto_install': True,
     'images': [],
 }

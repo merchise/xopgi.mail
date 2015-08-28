@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------
-# xopgi_email_template.__openerp__
+# xopgi_mail_url_attachments.models
 # ---------------------------------------------------------------------
 # Copyright (c) 2013-2015 Merchise Autrement
 # All rights reserved.
@@ -9,6 +9,6 @@
 # terms of the LICENCE attached (see LICENCE file) in the distribution
 # package.
 #
-# @created: 2015-08-21
+# @created: 2015-08-23
 
-from . import wizards  # noqa
+from . import mail_thread  # noqa

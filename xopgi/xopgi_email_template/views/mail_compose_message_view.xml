@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record model="ir.ui.view"
+            id="email_compose_message_wizard_inherit_form2">
+      <field name="name">mail.compose.message.form</field>
+      <field name="model">mail.compose.message</field>
+      <field name="inherit_id"
+             ref="email_template.email_compose_message_wizard_inherit_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='body']" position="before">
+          <label from="body" string="No edit text with this style."
+                 style="border: solid; background-color: darkgrey"
+                 attrs="{'invisible': [('template_id','=', False)]}"/>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</openerp>
