@@ -218,8 +218,6 @@ class BouncedMailRouter(MailRouter):
         actually a bounce.
 
         You should review the RFC 3834, for better understanding this method.
-        However, we have found that some MTAs (even Google's) divert a bit
-        from the recommended use in this RFC.
 
         .. warning:: You should only call this method if the `message` is sent
            to VERP address.
