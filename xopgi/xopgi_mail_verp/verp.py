@@ -222,9 +222,6 @@ class BouncedMailRouter(MailRouter):
         .. warning:: You should only call this method if the `message` is sent
            to VERP address.
 
-        We don't follow (much) RFC 5436 as it the semantics of Auto-Submitted
-        cause haven't witnessed this behavior.
-
         '''
         replied = 'In-Reply-To' in message
         how = message['Auto-Submitted']
