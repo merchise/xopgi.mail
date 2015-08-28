@@ -31,9 +31,61 @@ from openerp import tools, SUPERUSER_ID
 from openerp.models import Model
 
 
-def first(iterable, howmany=25):
-    from six.moves import zip, range
-    return (item for item, _ in zip(iterable, range(howmany)))
+class ForcedStopIteration(StopIteration):
+    '''A StopIteration that means more items were left in the iterable.
+
+    '''
+    pass
+
+
+def first(iterable, many=40):
+    '''Return the first `many` items of an iterable.
+
+    This return a generator that stops with a normal StopIteration if all
+    items of `iterable` were consumed, and ForcedStopIteration if items were
+    left behind.
+
+    .. warning:: When `iterable` has more items that requested, at least,
+       another item will be consumed (but not returned) from it.
+
+    '''
+    count, iterable = 0, iter(iterable)
+    while count < many:
+        yield next(iterable)  # StopIteration may be raised here
+        count += 1
+    try:
+        next(iterable)  # Do we have more items?
+    except StopIteration:
+        raise
+    else:
+        raise ForcedStopIteration
+
+
+def joinfirst(iterable, sep, many=40, suffix=''):
+    '''Returns the join of the first `many` items in `iterable` using `sep`.
+
+    If there are more items in the iterable that were not included in the
+    joined string, the `suffix` is added at the end.
+    '''
+    class _nonlocal:
+        forced = False
+        stop = False
+
+    res = first(iterable, many=many)
+
+    def fetchone():
+        try:
+            return next(res)
+        except StopIteration as error:
+            _nonlocal.forced = isinstance(error, ForcedStopIteration)
+            _nonlocal.stop = True
+
+    chunks = []
+    while not _nonlocal.stop:
+        item = fetchone()
+        if not _nonlocal.stop:
+            chunks.append(item)
+    return sep.join(chunks) + (suffix if _nonlocal.forced else '')
 
 
 # XXX: For now, we simply replace the entire function in the signature...
@@ -58,11 +110,10 @@ class Notification(Model):
                                                   signature, plaintext=False)
         if res_model and res_id:
             message = self.pool[res_model].browse(cr, SUPERUSER_ID, res_id)
-            recipients = ', '.join(
-                first(partner.name
-                      for partner in message.message_follower_ids
-                      if partner and partner.name)
-            ) + '...'
+            partners = (partner.name
+                        for partner in message.message_follower_ids
+                        if partner and partner.name)
+            recipients = joinfirst(partners, sep=', ', suffix=', ...')
             if recipients:
                 footer += '<br/>'
                 disclosed = 'Cc: ' + recipients + '<br/>'
