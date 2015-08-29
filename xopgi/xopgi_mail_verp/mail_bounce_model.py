@@ -25,18 +25,6 @@ from openerp.osv import orm
 
 BOUNCE_MODEL = 'mail.bounce.model'
 
-BOUNCE_TEMPLATE = (
-    '''
-    <p>The recipient <strong>%(recipient)s</strong> did not get your
-    message.</p>
-    <hr/>
-    <p>The original message was:</p>
-    <quote>%(message)s</quote>
-    <p>The bounce message was:</p>
-    <quote>%(bounce)s</quote>
-    '''
-)
-
 
 class MailBounce(orm.TransientModel):
     _name = BOUNCE_MODEL
@@ -110,12 +98,6 @@ class MailBounce(orm.TransientModel):
 
         '''
         params['subject'] = 'Undelivered Mail Returned to Sender'
-        body = BOUNCE_TEMPLATE % dict(
-            recipient=recipient,
-            message=message.body,
-            bounce=params['body'],
-        )
-        params['body'] = body
         params['type'] = 'notification'
         params['email_from'] = '<>'
         context = params.setdefault('context', {})
