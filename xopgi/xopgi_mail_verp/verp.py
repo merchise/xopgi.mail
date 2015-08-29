@@ -241,8 +241,7 @@ class BouncedMailRouter(MailRouter):
         'Indicates if this a bouncy Return-Path.'
         res = not return_path or return_path == "<>"
         if not res:
-            # Some MTAs are place a "<MAILER-DAEMON>" return path upon
-            # delivery.
+            # Some MTAs place "<MAILER-DAEMON>" return path upon delivery.
             res = not valid_email(return_path[1:-1])
         return res
 

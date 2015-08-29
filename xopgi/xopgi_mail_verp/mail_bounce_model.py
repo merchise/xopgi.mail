@@ -118,6 +118,8 @@ class MailBounce(orm.TransientModel):
         params['body'] = body
         params['type'] = 'notification'
         params['email_from'] = '<>'
+        context = params.setdefault('context', {})
+        context['auto_submitted'] = 'auto-replied'
         return params
 
     def _get_message(self, cr, uid, message_id):
@@ -137,3 +139,21 @@ class mail_notification(orm.Model):
         return super(mail_notification, self).update_message_notification(
             cr, uid, ids, message_id, partner_ids, context=context
         )
+
+
+class mail_mail(orm.Model):
+    _inherit = 'mail.mail'
+
+    def create(self, cr, uid, values, context=None):
+        from six import string_types
+        if context:
+            auto_submitted = context.get('auto_submitted')
+        else:
+            auto_submitted = None
+        if auto_submitted:
+            headers = values.get('headers', {})
+            if isinstance(headers, string_types):
+                headers = eval(headers)
+            headers['Auto-Submitted'] = auto_submitted
+            values['headers'] = str(headers)
+        return super(mail_mail, self).create(cr, uid, values, context=context)
