@@ -22,10 +22,10 @@
     'application': False,
     'installable': True,
     'summary': 'Several extensions to OpenERP Messaging System',
+    'description': 'Provides a configurable interface to Messaging Extensions',
     'depends': ['mail', 'web'],
     'data': [
         'views/config.xml',
     ],
-    'description': '',
     'auto_install': True,
 }
