@@ -322,7 +322,6 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
         if mail.email_from == '<>':
             # This is a bounce notification, so don't VERPize but make it
             # visible.
-            message['Auto-Submitted'] = 'auto-replied'
             return None
         if not mail.mail_message_id:
             # I can't provide a VERP bounce address without a message id.
