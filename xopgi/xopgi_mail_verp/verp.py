@@ -319,9 +319,10 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
         '''Compute the bounce address.
 
         '''
-        if mail.email_from == '<>':
-            # This is a bounce notification, so don't VERPize but make it
-            # visible.
+        from .common import VOID_EMAIL_ADDRESS
+        if mail.email_from == VOID_EMAIL_ADDRESS:
+            # This is a bounce notification, so don't we should not generate a
+            # VERP address.
             return None
         if not mail.mail_message_id:
             # I can't provide a VERP bounce address without a message id.

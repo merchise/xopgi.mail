@@ -31,6 +31,14 @@ MAIL_BOUNCE_VERP_ALIAS_PARAM = 'mail.bounce.verp.alias'
 # The default alias.
 DEFAULT_BOUNCE_ALIAS = 'postmaster-odoo'
 
+# The name of the internal model to deal with bounces received by Odoo.  This
+# is rather internal stuff.
+BOUNCE_MODEL = 'mail.bounce.model'
+
+# A void email address should as the argument to a MAIL FROM when bouncing a
+# message.  This is such void address.
+VOID_EMAIL_ADDRESS = '<>'
+
 
 def get_bounce_alias(pool, cr, uid, context=None):
     '''Return the alias for building bouncing addresses.
