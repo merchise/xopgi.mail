@@ -218,14 +218,9 @@ class BouncedMailRouter(MailRouter):
         actually a bounce.
 
         You should review the RFC 3834, for better understanding this method.
-        However, we have found that some MTAs (even Google's) divert a bit
-        from the recommended use in this RFC.
 
         .. warning:: You should only call this method if the `message` is sent
            to VERP address.
-
-        We don't follow (much) RFC 5436 as it the semantics of Auto-Submitted
-        cause haven't witnessed this behavior.
 
         '''
         replied = 'In-Reply-To' in message
@@ -246,8 +241,7 @@ class BouncedMailRouter(MailRouter):
         'Indicates if this a bouncy Return-Path.'
         res = not return_path or return_path == "<>"
         if not res:
-            # Some MTAs are place a "<MAILER-DAEMON>" return path upon
-            # delivery.
+            # Some MTAs place "<MAILER-DAEMON>" return path upon delivery.
             res = not valid_email(return_path[1:-1])
         return res
 
