@@ -239,7 +239,8 @@ class BouncedMailRouter(MailRouter):
     @classmethod
     def _void_return_path(cls, return_path):
         'Indicates if this a bouncy Return-Path.'
-        res = not return_path or return_path == "<>"
+        from .common import VOID_EMAIL_ADDRESS
+        res = not return_path or return_path == VOID_EMAIL_ADDRESS
         if not res:
             # Some MTAs place "<MAILER-DAEMON>" return path upon delivery.
             res = not valid_email(return_path[1:-1])
