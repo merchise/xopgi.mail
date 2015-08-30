@@ -222,6 +222,15 @@ class BouncedMailRouter(MailRouter):
         .. warning:: You should only call this method if the `message` is sent
            to VERP address.
 
+        In the sense of this method "Auto responded" messages include:
+
+        - Any sort of message that is sent automatically in reply to a
+          message.  Example is a "vacation" notification.  RFC 3234.
+
+        - Any sort of message indicating the disposition of another message.
+          Example is a notification of a message being read by any of its
+          recipients.  RFC 3798.
+
         '''
         replied = 'In-Reply-To' in message
         how = message['Auto-Submitted']
@@ -233,7 +242,15 @@ class BouncedMailRouter(MailRouter):
             # Some MTAs also include this, but I will refuse them unless an
             # In-Reply-To is provided.
             return replied
-        # Not considered cases are assumed to be bounces.
+        content_type = message.get('Content-Type', '')
+        if content_type.startswith('message/report'):
+            # Disposition notifications should not be considered bounces.
+            # However they SHOULD be delivered to the Return-Path, so we need
+            # to deal with them.  They are not (strictly speaking) auto
+            # responded replies in the sense of RFC 3834, but since we're
+            # trying to actually determine if this is a bounce, let's Not
+            # considered cases are assumed to be bounces.
+            return 'report-type=disposition-notification' in content_type
         return False
 
     @classmethod
@@ -380,6 +397,12 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
         '''Add the bounce address to the message.
 
         '''
+        address = data['address']
         del message['Return-Path']  # Ensure a single Return-Path
-        message['Return-Path'] = data['address']
+        message['Return-Path'] = address
+        if message['Disposition-Notification-To']:
+            # Any disposition request will be invalid after the Return-Path is
+            # changed.  See RFC 3798 section 2.1.
+            del message['Disposition-Notification-To']
+            message = address
         return TransportRouteData(message, {})
