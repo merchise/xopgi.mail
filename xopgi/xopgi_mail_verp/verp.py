@@ -248,7 +248,7 @@ class BouncedMailRouter(MailRouter):
             # However they SHOULD be delivered to the Return-Path, so we need
             # to deal with them.  They are not (strictly speaking) auto
             # responded replies in the sense of RFC 3834, but since we're
-            # trying to actually determine if this is a bounce, let's Not
+            # trying to actually determine if this is a bounce, let's not
             # considered cases are assumed to be bounces.
             return 'report-type=disposition-notification' in content_type
         return False
