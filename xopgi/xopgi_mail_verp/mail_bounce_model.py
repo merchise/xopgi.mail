@@ -22,20 +22,7 @@ from __future__ import (division as _py3_division,
 from xoutil import logger as _logger
 from openerp.osv import orm
 
-
-BOUNCE_MODEL = 'mail.bounce.model'
-
-BOUNCE_TEMPLATE = (
-    '''
-    <p>The recipient <strong>%(recipient)s</strong> did not get your
-    message.</p>
-    <hr/>
-    <p>The original message was:</p>
-    <quote>%(message)s</quote>
-    <p>The bounce message was:</p>
-    <quote>%(bounce)s</quote>
-    '''
-)
+from .common import BOUNCE_MODEL, VOID_EMAIL_ADDRESS
 
 
 class MailBounce(orm.TransientModel):
@@ -110,14 +97,10 @@ class MailBounce(orm.TransientModel):
 
         '''
         params['subject'] = 'Undelivered Mail Returned to Sender'
-        body = BOUNCE_TEMPLATE % dict(
-            recipient=recipient,
-            message=message.body,
-            bounce=params['body'],
-        )
-        params['body'] = body
         params['type'] = 'notification'
-        params['email_from'] = '<>'
+        params['email_from'] = VOID_EMAIL_ADDRESS
+        context = params.setdefault('context', {})
+        context['auto_submitted'] = 'auto-replied'
         return params
 
     def _get_message(self, cr, uid, message_id):
@@ -137,3 +120,21 @@ class mail_notification(orm.Model):
         return super(mail_notification, self).update_message_notification(
             cr, uid, ids, message_id, partner_ids, context=context
         )
+
+
+class mail_mail(orm.Model):
+    _inherit = 'mail.mail'
+
+    def create(self, cr, uid, values, context=None):
+        from six import string_types
+        if context:
+            auto_submitted = context.get('auto_submitted')
+        else:
+            auto_submitted = None
+        if auto_submitted:
+            headers = values.get('headers', {})
+            if isinstance(headers, string_types):
+                headers = eval(headers)
+            headers['Auto-Submitted'] = auto_submitted
+            values['headers'] = str(headers)
+        return super(mail_mail, self).create(cr, uid, values, context=context)

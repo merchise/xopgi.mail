@@ -171,7 +171,13 @@ class BouncedMailRouter(MailRouter):
         route = cls._message_route_check_bounce(obj, cr, uid, message)
         forged, probably_forged = cls._forged(obj, cr, uid, message)
         assert not forged or probably_forged, "forget implies probably forged"
-        if route and not forged:
+        if route and cls._is_auto_responded(obj, cr, uid, message):
+            # If the message is an auto-responded (e.g Out of Office) message
+            # it will be also delivered to the bounce VERP address, but we
+            # should not treat it as bounce and let it be placed according to
+            # In-Reply-To.
+            return False
+        elif route and not forged:
             return bool(route), route
         elif probably_forged:
             # If there's no clear bounce in our DB but the message seems to be
@@ -207,12 +213,53 @@ class BouncedMailRouter(MailRouter):
         return routes
 
     @classmethod
+    def _is_auto_responded(cls, obj, cr, uid, message):
+        '''Check if the message seems to be an auto-responded message and not
+        actually a bounce.
+
+        You should review the RFC 3834, for better understanding this method.
+
+        .. warning:: You should only call this method if the `message` is sent
+           to VERP address.
+
+        In the sense of this method "Auto responded" messages include:
+
+        - Any sort of message that is sent automatically in reply to a
+          message.  Example is a "vacation" notification.  RFC 3234.
+
+        - Any sort of message indicating the disposition of another message.
+          Example is a notification of a message being read by any of its
+          recipients.  RFC 3798.
+
+        '''
+        replied = 'In-Reply-To' in message
+        how = message['Auto-Submitted']
+        if how == 'auto-replied':
+            # Bounces SHOULD NOT have an In-Reply-To, but SHOULD have an
+            # Auto-Submitted.
+            return replied
+        elif message['X-Autoreply'] == 'yes':
+            # Some MTAs also include this, but I will refuse them unless an
+            # In-Reply-To is provided.
+            return replied
+        content_type = message.get('Content-Type', '')
+        if content_type.startswith('message/report'):
+            # Disposition notifications should not be considered bounces.
+            # However they SHOULD be delivered to the Return-Path, so we need
+            # to deal with them.  They are not (strictly speaking) auto
+            # responded replies in the sense of RFC 3834, but since we're
+            # trying to actually determine if this is a bounce, let's Not
+            # considered cases are assumed to be bounces.
+            return 'report-type=disposition-notification' in content_type
+        return False
+
+    @classmethod
     def _void_return_path(cls, return_path):
         'Indicates if this a bouncy Return-Path.'
-        res = not return_path or return_path == "<>"
+        from .common import VOID_EMAIL_ADDRESS
+        res = not return_path or return_path == VOID_EMAIL_ADDRESS
         if not res:
-            # Some MTAs are place a "<MAILER-DAEMON>" return path upon
-            # delivery.
+            # Some MTAs place "<MAILER-DAEMON>" return path upon delivery.
             res = not valid_email(return_path[1:-1])
         return res
 
@@ -290,8 +337,10 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
         '''Compute the bounce address.
 
         '''
-        if mail.email_from == '<>':
-            # This is probably a bounce notification, so don't VERPize
+        from .common import VOID_EMAIL_ADDRESS
+        if mail.email_from == VOID_EMAIL_ADDRESS:
+            # This is a bounce notification, so don't we should not generate a
+            # VERP address.
             return None
         if not mail.mail_message_id:
             # I can't provide a VERP bounce address without a message id.
@@ -348,6 +397,12 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
         '''Add the bounce address to the message.
 
         '''
+        address = data['address']
         del message['Return-Path']  # Ensure a single Return-Path
-        message['Return-Path'] = data['address']
+        message['Return-Path'] = address
+        if message['Disposition-Notification-To']:
+            # Any disposition request will be invalid after the Return-Path is
+            # changed.  See RFC 3798 section 2.1.
+            del message['Disposition-Notification-To']
+            message = address
         return TransportRouteData(message, {})
