@@ -46,6 +46,7 @@ openerp.xopgi_mail_forward = function (instance) {
 
             // Get the action data and execute it to open the composer wizard
             var do_action = this.do_action;
+            var self = this;
             this.rpc(
                 "/web/action/load",
                 {
@@ -53,7 +54,9 @@ openerp.xopgi_mail_forward = function (instance) {
                 }
             ).done(function(action) {
                 action.context = context;
-                do_action(action);
+                do_action(action, {'on_close': function(){
+                    self.parent_thread.message_fetch()
+                }});
             });
         }
     });
