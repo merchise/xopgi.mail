@@ -13,12 +13,12 @@
 
 from __future__ import (division as _py3_division,
                         print_function as _py3_print,
-                        unicode_literals as _py3_unicode,
                         absolute_import as _py3_abs_import)
 
 from openerp.addons.mail.mail_thread import decode_header, mail_header_msgid_re
 from openerp.addons.xopgi_mail_threads import MailTransportRouter
 from openerp.addons.xopgi_mail_threads import TransportRouteData
+
 from .common import message_id_is_encoded
 
 

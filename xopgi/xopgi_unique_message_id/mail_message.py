@@ -16,8 +16,8 @@
 
 from __future__ import (division as _py3_division,
                         print_function as _py3_print,
-                        unicode_literals as _py3_unicode,
                         absolute_import as _py3_abs_import)
+
 from openerp.models import Model
 from .common import encode_message_id
 
