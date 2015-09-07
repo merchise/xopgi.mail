@@ -9,9 +9,18 @@
              ref="email_template.email_compose_message_wizard_inherit_form"/>
       <field name="arch" type="xml">
         <xpath expr="//field[@name='body']" position="before">
+          <field name="body_readonly_elements" invisible="1"/>
+          <field name="template_subject_readonly" invisible="1"/>
           <label from="body" string="No edit text with this style."
                  style="border: solid; background-color: darkgrey"
-                 attrs="{'invisible': [('template_id','=', False)]}"/>
+                 attrs="{'invisible': [('body_readonly_elements','=', False)]}"/>
+        </xpath>
+        <xpath expr="//field[@name='subject']" position="attributes">
+          <attribute name="required">0</attribute>
+          <attribute name="attrs">
+            {'readonly':[('template_subject_readonly', '=', True)],
+             'required':[('template_subject_readonly', '!=', True)]}
+          </attribute>
         </xpath>
       </field>
     </record>

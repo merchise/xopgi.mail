@@ -1,17 +1,14 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------
-# xopgi_unique_message_id
+# xopgi_email_template.models.email_template
 # ---------------------------------------------------------------------
-# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
+# Copyright (c) 2013-2015 Merchise Autrement
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
 # terms of the LICENCE attached (see LICENCE file) in the distribution
 # package.
 #
-# Created on 2015-07-02
+# @created: 2015-08-21
 
-from __future__ import absolute_import as _py3_abs_imports
-
-from . import common  # noqa
-from . import unique_id  # noqa
+from . import email_template  # noqa

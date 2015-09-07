@@ -11,4 +11,5 @@
 #
 # @created: 2015-08-21
 
+from . import models  # noqa
 from . import wizards  # noqa

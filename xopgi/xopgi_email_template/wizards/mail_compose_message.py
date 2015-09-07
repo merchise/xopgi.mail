@@ -11,10 +11,9 @@
 #
 # @created: 2015-08-21
 
-from lxml import etree
-from lxml.html.diff import htmldiff
+from lxml.html import fromstring, tostring
 
-from openerp import api, exceptions, models, _
+from openerp import api, fields, exceptions, models, _
 
 FIND_CLASS_XPATH_EXPRESSION = (
     "descendant-or-self::*[@class and "
@@ -27,6 +26,13 @@ FIND_CLASS_XPATH_EXPRESSION = (
 class MailComposeMessage(models.TransientModel):
     _inherit = 'mail.compose.message'
 
+    def _have_body_readonly_elements(self):
+        return True
+
+    body_readonly_elements = fields.Boolean()
+    template_subject_readonly = fields.Boolean(
+        related="template_id.use_default_subject")
+
     @api.multi
     def onchange_template_id(self, template_id, composition_mode, model,
                              res_id):
@@ -37,12 +43,15 @@ class MailComposeMessage(models.TransientModel):
             template_id, composition_mode, model, res_id)
         body = result.get('value', {}).get('body', '')
         if body and template_id:
-            doc = etree.HTML(body)
-            for node in doc.xpath(FIND_CLASS_XPATH_EXPRESSION % 'readonly'):
+            doc = fromstring(body)
+            read_only_elements = doc.find_class('readonly')
+            for node in read_only_elements:
                 node.set('style', "border: solid; "
                                   "background-color: darkgrey; "
                                   "color: #4C4C4C")
-            result['value']['body'] = etree.tostring(doc, method='html')
+            result['value'].update(
+                body_readonly_elements=bool(read_only_elements),
+                body=tostring(doc))
         return result
 
     def _validate_template_restrictions(self):
@@ -51,15 +60,15 @@ class MailComposeMessage(models.TransientModel):
         '''
         if not self.template_id:
             return True
-        template_body = self.pool['email.template'].generate_email_batch(
+        template_dict = self.pool['email.template'].generate_email_batch(
             self.env.cr, self.env.uid, self.template_id.id, [self.res_id],
-            fields=['body_html'], context=self._context)
-        template_body = template_body.get(self.res_id, {}).get('body_html')
+            context=self._context).get(self.res_id, {})
+        template_body = template_dict.get('body_html', False)
         if not template_body:
             return True
-        template = etree.HTML(template_body)
-        result = etree.HTML(self.body)
-        result_nodes = result.xpath(FIND_CLASS_XPATH_EXPRESSION % 'readonly')
+        template = fromstring(template_body)
+        result = fromstring(self.body)
+        result_nodes = result.find_class('readonly')
 
         def _find_similar(node, candidates):
             '''Find a candidate similar with node, remove it and return
@@ -67,16 +76,16 @@ class MailComposeMessage(models.TransientModel):
 
             '''
             for n in candidates:
-                diff = etree.HTML(htmldiff(node, n))
-                if not (diff.xpath('descendant-or-self::ins') or
-                        diff.xpath('descendant-or-self::del')):
+                if node.text_content() == n.text_content():
                     candidates.remove(n)
                     return True
             return False
-        for node in template.xpath(FIND_CLASS_XPATH_EXPRESSION % 'readonly'):
+        for node in template.find_class('readonly'):
             if not (result_nodes and _find_similar(node, result_nodes)):
                 return False
         self._remove_readonly_style()
+        if self.template_id.use_default_subject:
+            self.subject = template_dict.get('subject', self.subject)
         return True
 
     def _remove_readonly_style(self):
@@ -84,13 +93,13 @@ class MailComposeMessage(models.TransientModel):
 
         '''
         #  TODO: distinguish readonly style and keep rest
-        result = etree.HTML(self.body)
-        result_nodes = result.xpath(FIND_CLASS_XPATH_EXPRESSION % 'readonly')
+        result = fromstring(self.body)
+        result_nodes = result.find_class('readonly')
         if result_nodes:
             for node in result_nodes:
                 node.attrib.pop('style', False)
                 node.attrib.pop('class', False)
-            self.body = etree.tostring(result, method='html')
+            self.body = tostring(result)
 
     @api.model
     def send_mail(self):
