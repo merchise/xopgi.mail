@@ -10,7 +10,21 @@
 # package.
 #
 # Created on 2015-07-02
-''' Avoid insert duplicated message_id on db.
+
+'''Avoid insert duplicated message_id on db.
+
+Problem: When a message is received and routed to several objects it gets
+duplicated.  Transports may then have trouble trying to find the unique
+message they are delivering if they find more than one message with the same
+Message-Id in the DB.
+
+This addon will ensure that newly created messages have unique ids.  We simply
+search for a clash and enumerate them.
+
+In order for this to work we must also re-insert the original Message-Id when
+delivering a mail, so that the user may related to the original message.  We
+send both Message-Ids so that replies (containing both ids) are properly
+found.
 
 '''
 
