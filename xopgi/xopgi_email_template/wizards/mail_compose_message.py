@@ -108,8 +108,9 @@ class MailComposeMessage(models.TransientModel):
         '''
         if self._validate_template_restrictions():
             return super(MailComposeMessage, self).send_mail()
-        raise exceptions.ValidationError(
-            _('Non-editable items were modified.'))
+        else:
+            raise exceptions.ValidationError(
+                _('Non-editable items were modified.'))
 
     @api.multi
     def save_as_template(self):
