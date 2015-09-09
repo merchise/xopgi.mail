@@ -117,5 +117,7 @@ class MailComposeMessage(models.TransientModel):
         ''' Remove added style from readonly tokens.
 
         '''
+        # FIXME: _remove_readonly_style access self.body, it's not decorated
+        # with @api.one, though.  It may break.
         self._remove_readonly_style()
         return super(MailComposeMessage, self).save_as_template()
