@@ -108,13 +108,16 @@ class MailComposeMessage(models.TransientModel):
         '''
         if self._validate_template_restrictions():
             return super(MailComposeMessage, self).send_mail()
-        raise exceptions.ValidationError(
-            _('Non-editable items were modified.'))
+        else:
+            raise exceptions.ValidationError(
+                _('Non-editable items were modified.'))
 
     @api.multi
     def save_as_template(self):
         ''' Remove added style from readonly tokens.
 
         '''
+        # FIXME: _remove_readonly_style access self.body, it's not decorated
+        # with @api.one, though.  It may break.
         self._remove_readonly_style()
         return super(MailComposeMessage, self).save_as_template()

@@ -75,9 +75,9 @@ class MailThread(AbstractModel):
         IrMailServer.send_email() method implemented on this module.
 
         '''
-        #  This better here and not on a Router to remove unwanted
-        # references before super's message_route call, else is possible to
-        # get a wrong route and miss the right one.
+        # This better here and not on a Router to remove unwanted references
+        # before super's message_route call, or else it is possible to get a
+        # wrong route and miss the right one.
         references = decode_header(message, 'References')
         thread_references = references or ''
         msg_references = mail_header_msgid_re.findall(thread_references)
