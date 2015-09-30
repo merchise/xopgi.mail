@@ -1,6 +1,31 @@
-*.egg-info/
+# Python + Eclipse
 *.pyc
+*.pyo
+*.*~
+*.*~*
+.project
+.pydevproject
+.settings/
+build/
+dist/
+*\#
+.\#*
+*.cfg
 .tox/
 bin/
 develop-eggs/
-.*.cfg
+
+# Python Coverage files generate by nose
+.coverage
+
+# Ditz stuff
+.ditz-config
+
+# Git cacharra
+*.orig
+
+# sqlite3
+*.db
+
+# Paquetes .egg-info
+*.egg-info/
