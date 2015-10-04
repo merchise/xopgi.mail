@@ -85,6 +85,7 @@ class MoveMessageWizard(osv.TransientModel):
         '''
         wiz = self.browse(cr, uid, ids[0], context=context)
         msg_obj = self.pool['mail.message']
+        att_obj = self.pool['ir.attachment']
         model = wiz.thread_id._name
         res_id = wiz.thread_id.id
         values = {'model': model, 'res_id': res_id}
@@ -93,9 +94,14 @@ class MoveMessageWizard(osv.TransientModel):
             for msg in wiz.message_ids:
                 new_ids.append(msg_obj.copy(cr, uid, msg.id, values,
                                             context=context))
+                for att in msg.attachment_ids:
+                    att_obj.copy(cr, uid, att.id, values, context=context)
         else:
             new_ids = wiz.message_ids.ids
             msg_obj.write(cr, uid, new_ids, values, context=context)
+            for msg in wiz.message_ids:
+                for att in msg.attachment_ids:
+                    att_obj.write(cr, uid, att.id, values, context=context)
         for new_id in new_ids:
             msg_obj._notify(cr, uid, new_id, context=context)
         try:
