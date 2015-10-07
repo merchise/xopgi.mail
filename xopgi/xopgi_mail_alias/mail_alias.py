@@ -11,44 +11,13 @@
 #
 # Created on 2015-03-10
 
-'''A MailRouter for bounced messages.
-
-
-For each outgoing message we create unique bounce address (VERP_) of the
-form::
-
-   <alias>+<unique bounce reference>
-
-The `unique bounce reference` is a pseudo-random chain of chars and digits
-that is kept in a index and maps to:
-
-- The message being sent
-- The thread the message belongs to.
-- The recipient to which this bounce reference was generated.
-
-  .. note:: A single message may be sent to several recipients.  However, we
-     generate an email per recipient.
-
-.. warning:: Bounces should never fail.
-
-   When processing a bounce message, we SHOULD NEVER fail.  This could be done
-   at the MTA level, since a bounce should not contain a MAIL FROM.
-
-As noted in SRS_ does not scale.  But neither does Odoo.
-
-
-.. _VERP: https://en.wikipedia.org/wiki/Variable_envelope_return_path
-.. _SRS: https://en.wikipedia.org/wiki/Sender_Rewriting_Scheme
-
-'''
-
 from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
 from openerp.models import Model
 from openerp.osv import fields
-from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
+from openerp.addons.xopgi_mail_threads import MailRouter
 from openerp.addons.mail.mail_thread import decode_header
 from openerp import tools
 

@@ -20,7 +20,6 @@
     'category': 'Social Network',
     'application': False,
     'installable': True,
-    'auto_install': True,
     'summary': 'Add an option to move/mopy existing messages to other mail '
                'threads.',
     'depends': [

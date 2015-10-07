@@ -48,9 +48,11 @@ class UniqueAddressTransport(MailTransportRouter):
             if len(indexes) > 1:
                 from xoutil import logger
                 logger.warn('More than one index retrieved for the same '
-                            'message %s: %r.  Refusing to dispatch the '
+                            'message.  Refusing to dispatch the '
                             'message using a unique address and hoping for '
-                            'the best.', message['Message-Id'], indexes)
+                            'the best.', extra=dict(
+                                message_id=message['Message-Id'],
+                                indexes=indexes))
                 msg = None
             else:
                 msg = msg[0]

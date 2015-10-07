@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # ---------------------------------------------------------------------
-# xopgi_unique_message_id.__openerp__
+# xopgi_directory_mail.__openerp__
 # ---------------------------------------------------------------------
 # Copyright (c) 2014, 2015 Merchise Autrement and Contributors
 # All rights reserved.
@@ -9,18 +9,19 @@
 # terms of the LICENCE attached (see LICENCE file) in the distribution
 # package.
 #
-# Created on 2015-07-02
+# Created on 2015-09-30
 
 
 dict(
-    name='xopgi_unique_message_id',
+    name='xopgi_directory_mail',
     version='1.0',
     author='Merchise Autrement',
     category='mail',
     application=False,
     installable=True,
-    summary='Mail Hotfix.',
-    description=('Avoid Duplicated Message Id on db.'),
-    depends=['mail', 'xopgi_mail_threads'],
-    data=['data/message_sequence.xml'],
+    auto_install=True,
+    summary='Mail extensions for directory.',
+    description='Get fake and real partners con mail management',
+    depends=['mail', 'xopgi_directory'],
+    data=['views/mail_compose_message_view.xml'],
 )

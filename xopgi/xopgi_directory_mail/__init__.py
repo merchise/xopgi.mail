@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # ---------------------------------------------------------------------
-# xopgi_unique_message_id.__openerp__
+# xopgi_directory_mail
 # ---------------------------------------------------------------------
 # Copyright (c) 2014, 2015 Merchise Autrement and Contributors
 # All rights reserved.
@@ -9,18 +9,8 @@
 # terms of the LICENCE attached (see LICENCE file) in the distribution
 # package.
 #
-# Created on 2015-07-02
+# Created on 2015-09-30
 
+from __future__ import absolute_import as _py3_abs_imports
 
-dict(
-    name='xopgi_unique_message_id',
-    version='1.0',
-    author='Merchise Autrement',
-    category='mail',
-    application=False,
-    installable=True,
-    summary='Mail Hotfix.',
-    description=('Avoid Duplicated Message Id on db.'),
-    depends=['mail', 'xopgi_mail_threads'],
-    data=['data/message_sequence.xml'],
-)
+from . import common  # noqa
