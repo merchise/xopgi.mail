@@ -50,6 +50,11 @@
             <br/>
             <field name="module_xopgi_mail_url_attachments"/>
             <label for="module_xopgi_mail_url_attachments"/>
+
+            <br/>
+            <field name="module_xopgi_mail_alias"/>
+            <label for="module_xopgi_mail_alias"/>
+
           </div>
         </xpath>
       </field>

@@ -21,9 +21,8 @@ dict(
     category='mail',
     application=False,
     installable=True,
-    auto_install=True,
     summary='Mail Alias Extension.',
-    description=('Allow to user edit alis domain and check for it '
+    description=('Allow to user edit alias domain and check for it '
                  'on income message routing.'),
     depends=['mail', 'xopgi_mail_threads'],
     data=[],
