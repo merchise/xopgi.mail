@@ -94,16 +94,23 @@ class MoveMessageWizard(osv.TransientModel):
             for msg in wiz.message_ids:
                 ids = []
                 for att in msg.attachment_ids:
-                    ids.append(att_obj.copy(cr, uid, att.id, {'name': att.name,'res_model': model, 'res_id': res_id}, context=context))
+                    ids.append(att_obj.copy(cr, uid, att.id, {
+                        'name': att.name, 'res_model': model,
+                        'res_id': res_id}, context=context))
                 if msg.attachment_ids:
-                   new_ids.append(msg_obj.copy(cr, uid, msg.id, {'model': model, 'res_id': res_id, 'attachment_ids': [RPC_R(*ids)]},context=context))
+                    new_ids.append(msg_obj.copy(cr, uid, msg.id, {
+                        'model': model, 'res_id': res_id,
+                        'attachment_ids': [RPC_R(*ids)]}, context=context))
         else:
             new_ids = wiz.message_ids.ids
-            msg_obj.write(cr, uid, new_ids, {'model': model, 'res_id': res_id}, context=context)
+            msg_obj.write(cr, uid, new_ids,
+                          {'model': model, 'res_id': res_id}, context=context)
             for msg in wiz.message_ids:
                 if msg.attachment_ids:
                     for att in msg.attachment_ids:
-                        att_obj.write(cr, uid, att.id, {'res_model': model, 'res_id': res_id}, context=context)
+                        att_obj.write(cr, uid, att.id,
+                                      {'res_model': model, 'res_id': res_id},
+                                      context=context)
         for new_id in new_ids:
             msg_obj._notify(cr, uid, new_id, context=context)
         try:
