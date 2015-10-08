@@ -89,14 +89,12 @@ class MoveMessageWizard(osv.TransientModel):
         from xoeuf.osv.orm import REPLACEWITH_RELATED as RPC_R
         model = wiz.thread_id._name
         res_id = wiz.thread_id.id
-        ids = []
         new_ids = []
         if wiz.leave_msg:
             for msg in wiz.message_ids:
+                ids = []
                 for att in msg.attachment_ids:
-                    if msg.attachment_ids:
-                        ids.append(att_obj.copy(cr, uid, att.id, {'name': att.name,'res_model': model, 'res_id': res_id}, context=context))
-            for msg in wiz.message_ids:
+                    ids.append(att_obj.copy(cr, uid, att.id, {'name': att.name,'res_model': model, 'res_id': res_id}, context=context))
                 if msg.attachment_ids:
                    new_ids.append(msg_obj.copy(cr, uid, msg.id, {'model': model, 'res_id': res_id, 'attachment_ids': [RPC_R(*ids)]},context=context))
         else:
