@@ -16,7 +16,7 @@ from openerp.exceptions import AccessError
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
 
-from xoeuf.osv.orm import REPLACEWITH_RELATED as RPC_R
+from xoeuf.osv.orm import REPLACEWITH_RELATED
 from xoeuf.ui import RELOAD_UI
 
 
@@ -101,7 +101,8 @@ class MoveMessageWizard(osv.TransientModel):
                 if ids:
                     new_ids.append(msg_obj.copy(
                         cr, uid, msg.id,
-                        dict(msg_values, attachment_ids=[RPC_R(*ids)]),
+                        dict(msg_values,
+                             attachment_ids=[REPLACEWITH_RELATED(*ids)]),
                         context=context))
         else:
             new_ids = wiz.message_ids.ids

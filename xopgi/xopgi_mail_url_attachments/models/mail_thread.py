@@ -64,4 +64,3 @@ class MailThread(models.AbstractModel):
                                                 if f != 'name']):
                     attachment.create(values)
         return msg_id
-
