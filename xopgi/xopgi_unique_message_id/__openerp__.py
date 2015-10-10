@@ -19,7 +19,6 @@ dict(
     category='mail',
     application=False,
     installable=True,
-    # auto_install=True,
     summary='Mail Hotfix.',
     description=('Avoid Duplicated Message Id on db.'),
     depends=['mail', 'xopgi_mail_threads'],
