@@ -64,7 +64,12 @@ class MailConfig(Model):
         'module_xopgi_mail_disclosure':
             fields.boolean('Disclose recipients in outgoing emails.'),
 
+
+        'module_xopgi_desabilitate_followers':
+            fields.boolean('Desactivate option Share with my followers.'),
+
         'module_xopgi_mail_alias':
             fields.boolean('Check aliases domains when receiving messages'),
+
 
     }
