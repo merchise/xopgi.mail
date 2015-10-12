@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
-    <template id="assets_backend" name="xopgi desabilitate assets"
+    <template id="assets_backend" name="mail fixes"
 	      inherit_id="mail.assets_backend">
       <xpath expr="." position="inside">
         <link rel="stylesheet"
-	      href="/xopgi_desabilitate_followers/static/src/css/mail.css"/>
+	      href="/xopgi_mail_nowall_forward/static/src/css/fixes.css"/>
       </xpath>
     </template>
   </data>

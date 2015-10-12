@@ -51,14 +51,13 @@
             <field name="module_xopgi_mail_url_attachments"/>
             <label for="module_xopgi_mail_url_attachments"/>
 
-            <br/>
-
-            <field name="module_xopgi_desabilitate_followers"/>
-            <label for="module_xopgi_desabilitate_followers"/>
-
+	    <br/>
             <field name="module_xopgi_mail_alias"/>
             <label for="module_xopgi_mail_alias"/>
 
+            <br/>
+            <field name="module_xopgi_mail_nowall"/>
+            <label for="module_xopgi_mail_nowall"/>
 
           </div>
         </xpath>
