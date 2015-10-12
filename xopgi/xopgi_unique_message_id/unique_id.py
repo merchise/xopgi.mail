@@ -64,7 +64,7 @@ class MailThread(AbstractModel):
         original and encoded.
 
         It only happen when is replying a message treated on
-        IrMailServer.send_email() method implemented on this module.
+        OriginalReferenceTransport implemented on this module.
 
         '''
         # This better here and not on a Router to remove unwanted references
