@@ -67,4 +67,6 @@ class MailConfig(Model):
         'module_xopgi_mail_alias':
             fields.boolean('Check aliases domains when receiving messages'),
 
+        'module_xopgi_mail_nowall':
+            fields.boolean('Disallow replying from the Message Wall.'),
     }

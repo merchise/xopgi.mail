@@ -1,0 +1,7 @@
+.oe_msg .oe_msg_icons .oe_reply {
+    display: none;
+}
+
+.oe_form .oe_msg .oe_msg_icons .oe_reply {
+    display: inline;
+}
