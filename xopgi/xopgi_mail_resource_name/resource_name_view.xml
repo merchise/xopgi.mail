@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+  <data>
+    <record id="xopgi_mail_message_view" model="ir.ui.view">
+      <field name="name">xopgi.mail_resource_name.mail.message.form
+      </field>
+      <field name="model">mail.message</field>
+      <field name="inherit_id" ref="mail.view_message_form" />
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='res_id']" position="after">
+          <label for="record_name"
+                 attrs="{'invisible': [('record_name','=', False)]}"/>
+          <button type="object" name="get_resource_action"
+                  class="oe_link"
+                  attrs="{'invisible': [('record_name','=', False)]}">
+            <field name="record_name"/>
+          </button>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</openerp>
