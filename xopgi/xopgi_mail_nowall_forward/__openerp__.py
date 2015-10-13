@@ -1,6 +1,6 @@
 dict(
     # Internal addon, it should be auto-installed when both no-wall and
-    # forward are installed.x
+    # forward are installed.
     auto_install=True,
     depends=['xopgi_mail_nowall', 'xopgi_mail_foward'],
     name='xopgi_mail_nowall_forward',
