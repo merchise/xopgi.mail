@@ -8,6 +8,10 @@
 
 
 /* Disallow "Sharing with my followers" */
-.oe_compact_inbox {
+.oe_msg.oe_msg_composer_compact, .oe_compact_inbox {
     display: none;
+}
+
+.oe_form .oe_msg.oe_msg_composer_compact {
+    display: block;
 }
