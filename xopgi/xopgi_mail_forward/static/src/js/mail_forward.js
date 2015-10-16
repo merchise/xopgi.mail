@@ -30,8 +30,8 @@ openerp.xopgi_mail_forward = function (instance) {
                 subject.push(this.record_name);
                 subject_parent.push(this.record_name);
             } else {
-                subject = []
-                subject_parent = []
+                subject.push(this.record_name);
+                subject_parent.push(this.record_name);
             }
 
             body = (
