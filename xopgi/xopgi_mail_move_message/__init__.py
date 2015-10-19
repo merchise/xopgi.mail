@@ -1,4 +1,22 @@
-from . import mail_move_message_wizard # noqa
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+# ---------------------------------------------------------------------
+# xopgi_mail_move_message
+# ---------------------------------------------------------------------
+# Copyright (c) 2015 Merchise Autrement and Contributors
+# All rights reserved.
+#
+# This is free software; you can redistribute it and/or modify it under the
+# terms of the LICENCE attached (see LICENCE file) in the distribution
+# package.
+#
+# Created on 2015-10-10
+
+from __future__ import (division as _py3_division,
+                        print_function as _py3_print,
+                        absolute_import as _py3_abs_import)
+
+from . import mail_move_message_wizard  # noqa
 from openerp import SUPERUSER_ID
 from openerp.osv import osv, fields
 

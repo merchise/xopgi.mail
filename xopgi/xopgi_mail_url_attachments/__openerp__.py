@@ -13,7 +13,7 @@
 
 
 {
-    'name': "Add URL attachments",
+    'name': "Add URL attachments from incoming messages.",
     'version': '1.0',
     'author': 'Merchise Autrement',
     'category': 'Marketing',

@@ -1,0 +1,8 @@
+/* Don't show the forward icon unless in forms */
+.oe_msg .oe_msg_icons .oe_forward {
+    display: none;
+}
+
+.oe_form .oe_msg .oe_msg_icons .oe_forward {
+    display: inline;
+}

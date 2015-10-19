@@ -16,7 +16,7 @@ dict(
     name='xopgi_directory_mail',
     version='1.0',
     author='Merchise Autrement',
-    category='mail',
+    category='Hidden',
     application=False,
     installable=True,
     auto_install=True,

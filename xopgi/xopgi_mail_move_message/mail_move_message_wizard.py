@@ -16,6 +16,7 @@ from openerp.exceptions import AccessError
 from openerp.osv import osv, fields
 from openerp.tools.translate import _
 
+from xoeuf.osv.orm import REPLACEWITH_RELATED
 from xoeuf.ui import RELOAD_UI
 
 
@@ -85,17 +86,31 @@ class MoveMessageWizard(osv.TransientModel):
         '''
         wiz = self.browse(cr, uid, ids[0], context=context)
         msg_obj = self.pool['mail.message']
+        att_obj = self.pool['ir.attachment']
         model = wiz.thread_id._name
         res_id = wiz.thread_id.id
-        values = {'model': model, 'res_id': res_id}
+        msg_values = dict(model=model, res_id=res_id)
+        att_values = dict(res_model=model, res_id=res_id)
         new_ids = []
         if wiz.leave_msg:
             for msg in wiz.message_ids:
-                new_ids.append(msg_obj.copy(cr, uid, msg.id, values,
-                                            context=context))
+                ids = [att_obj.copy(cr, uid, att.id,
+                                    dict(att_values, name=att.name),
+                                    context=context)
+                       for att in msg.attachment_ids]
+                if ids:
+                    new_ids.append(msg_obj.copy(
+                        cr, uid, msg.id,
+                        dict(msg_values,
+                             attachment_ids=[REPLACEWITH_RELATED(*ids)]),
+                        context=context))
         else:
             new_ids = wiz.message_ids.ids
-            msg_obj.write(cr, uid, new_ids, values, context=context)
+            msg_obj.write(cr, uid, new_ids, msg_values, context=context)
+            for msg in wiz.message_ids:
+                if msg.attachment_ids:
+                    att_obj.write(cr, uid, msg.attachment_ids.ids, att_values,
+                                  context=context)
         for new_id in new_ids:
             msg_obj._notify(cr, uid, new_id, context=context)
         try:
