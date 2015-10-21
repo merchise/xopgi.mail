@@ -53,14 +53,6 @@ class MailMessage(Model):
         id = super(MailMessage, self).create(cr, uid, values, context=context)
         return id
 
-    def copy(self, cr, uid, id, default=None, context=None):
-        if 'message_id' not in default:
-            msg = self.browse(cr, uid, id, context=context)
-            default['message_id'] = encode_message_id(self, cr, uid,
-                                                      msg.message_id)
-        return super(MailMessage, self).copy(cr, uid, id, default,
-                                             context=context)
-
 
 class MailThread(AbstractModel):
     _name = str('mail.thread')
@@ -72,7 +64,7 @@ class MailThread(AbstractModel):
         original and encoded.
 
         It only happen when is replying a message treated on
-        IrMailServer.send_email() method implemented on this module.
+        OriginalReferenceTransport implemented on this module.
 
         '''
         # This better here and not on a Router to remove unwanted references

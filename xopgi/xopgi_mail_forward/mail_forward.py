@@ -23,7 +23,7 @@ from xoutil.string import cut_prefixes
 
 from openerp.osv import orm
 from openerp.tools.translate import _
-
+from openerp import tools
 
 class mail_compose_forward(orm.TransientModel):
     """Allow forwarding a message.
@@ -42,7 +42,7 @@ class mail_compose_forward(orm.TransientModel):
             cr, uid, fields, context=context
         )
         result['subject'] = (
-            result.get('subject') or context.get('default_subject')
+            context.get('default_subject') or result.get('subject')
         )
         # Fix unclosed HTML tags.
         body = result.get('body', '')
@@ -60,3 +60,4 @@ class mail_compose_forward(orm.TransientModel):
                     name, _('Re:'), _('Fwd:')
                 )
         return result
+
