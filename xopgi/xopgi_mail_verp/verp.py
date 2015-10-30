@@ -233,8 +233,8 @@ class BouncedMailRouter(MailRouter):
 
         '''
         replied = 'In-Reply-To' in message
-        how = message['Auto-Submitted']
-        if how == 'auto-replied':
+        how = message.get('Auto-Submitted', '')
+        if how.startswith('auto-replied'):
             # Bounces SHOULD NOT have an In-Reply-To, but SHOULD have an
             # Auto-Submitted.
             return replied
