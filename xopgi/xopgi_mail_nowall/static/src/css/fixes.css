@@ -5,7 +5,9 @@
 .oe_form .oe_msg .oe_msg_icons .oe_reply {
     display: inline;
 }
-
+.oe_model_mail_group .oe_msg_icons .oe_reply {
+    display: inline;
+}
 
 /* Disallow "Sharing with my followers" */
 .oe_msg.oe_msg_composer_compact, .oe_compact_inbox {
