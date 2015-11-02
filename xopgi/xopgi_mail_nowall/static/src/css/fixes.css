@@ -5,7 +5,9 @@
 .oe_form .oe_msg .oe_msg_icons .oe_reply {
     display: inline;
 }
-
+table.oe_model_mail_group ~ div .oe_model_mail_group .oe_msg_icons .oe_reply {
+    display: inline;
+}
 
 /* Disallow "Sharing with my followers" */
 .oe_msg.oe_msg_composer_compact, .oe_compact_inbox {
@@ -15,3 +17,12 @@
 .oe_form .oe_msg.oe_msg_composer_compact {
     display: block;
 }
+
+table.oe_model_mail_group  ~ div .oe_compact_inbox {
+    display: block;
+}
+
+table.oe_model_mail_group ~ div .oe_msg.oe_msg_composer_compact {
+    display: block;
+}
+
