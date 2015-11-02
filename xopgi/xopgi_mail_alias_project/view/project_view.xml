@@ -27,6 +27,7 @@
                 <field name="project_id" invisible="1"/>
                 <field name="user_id" invisible="1"/>
                 <field name="alias_name"/>
+                <field name="alias_domain"/>
                 <field name="alias_force_thread_id"/>
                 <field name="alias_defaults" widget="char"/>
               </tree>
