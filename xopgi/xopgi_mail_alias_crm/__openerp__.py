@@ -22,7 +22,7 @@
     'application': False,
     'installable': True,
     'summary': 'Extend crm module to relate many alias per sale team.',
-    'depends': ['crm', 'xopgi_mail'],
+    'depends': ['crm', 'xopgi_mail_alias'],
     'data': [
         (
             'view/8/crm_view.xml'

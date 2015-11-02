@@ -19,6 +19,8 @@ from openerp.osv.orm import Model
 from openerp.osv import fields, osv
 from openerp.tools.translate import _
 from openerp.release import version_info as ODOO_VERSION_INFO
+from openerp.addons.xopgi_mail_alias.mail_alias import \
+    get_default_alias_domain
 
 from xoeuf.osv.orm import get_modelname
 
@@ -46,6 +48,13 @@ class crm_valias(Model):
                 help=("The name of the email alias, e.g. 'jobs' if "
                       "you want to catch emails "
                       "for <jobs@example.my.openerp.com>")),
+        'alias_domain':
+            fields.char(
+                'Domain',
+                required=True,
+                help=("The domain of the email alias, e.g. "
+                      "'example.my.openerp.com' if you want to catch emails "
+                      "for <jobs@example.my.openerp.com>")),
         'alias_defaults':
             fields.text(
                 'Default Values',
@@ -69,6 +78,10 @@ class crm_valias(Model):
         'section_id': fields.many2one('crm.case.section', 'Sale Team'),
         'user_id': fields.many2one('res.users', 'Team Leader'),
     }
+
+    _defaults = dict(
+        alias_domain=lambda s, c, u, ctx: get_default_alias_domain(
+            s.pool, c, u, context=ctx))
 
     def read(self, cr, uid, ids, fields=None, context=None,
              load='_classic_read'):
