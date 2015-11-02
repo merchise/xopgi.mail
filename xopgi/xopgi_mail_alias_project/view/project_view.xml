@@ -10,6 +10,10 @@
       <field name="inherit_id" ref="project.edit_project"/>
       <field name="priority" eval="8"/>
       <field name="arch" type="xml">
+        <xpath expr="//label[@for='alias_name']" position="replace"/>
+        <xpath expr="//div[@name='alias_def']" position="attributes">
+          <attribute name="invisible">1</attribute>
+        </xpath>
         <xpath expr="//notebook" position="inside">
           <page string="Mail Aliases">
             <label for="alias_ids"
@@ -27,6 +31,7 @@
                 <field name="project_id" invisible="1"/>
                 <field name="user_id" invisible="1"/>
                 <field name="alias_name"/>
+                <field name="alias_domain"/>
                 <field name="alias_force_thread_id"/>
                 <field name="alias_defaults" widget="char"/>
               </tree>

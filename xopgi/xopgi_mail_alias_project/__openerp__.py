@@ -23,7 +23,7 @@
     'installable': True,
     'summary': 'Extend project module to relate many alias per project to '
                'do different thinks.',
-    'depends': ['project', 'project_issue', 'xopgi_mail'],
+    'depends': ['project', 'project_issue', 'xopgi_mail_alias'],
     'data': [
         'view/project_view.xml'
     ],

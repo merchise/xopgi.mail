@@ -21,6 +21,8 @@ from openerp.tools.translate import _
 
 from xoeuf.osv.orm import get_modelname
 from openerp.addons.project.project import project as _base
+from openerp.addons.xopgi_mail_alias.mail_alias import \
+    get_default_alias_domain
 
 
 def str2dict(dict_str):
@@ -60,6 +62,13 @@ class project_valias(Model):
                       "you want to catch emails "
                       "for <jobs@example.my.openerp.com>")
             ),
+        'alias_domain':
+            fields.char(
+                'Domain',
+                required=True,
+                help=("The domain of the email alias, e.g. "
+                      "'example.my.openerp.com' if you want to catch emails "
+                      "for <jobs@example.my.openerp.com>")),
         'alias_defaults':
             fields.text(
                 'Default Values',
@@ -91,6 +100,10 @@ class project_valias(Model):
         'project_id': fields.many2one('project.project', 'Project'),
         'user_id': fields.many2one('res.users', 'Project Manager'),
     }
+
+    _defaults = dict(
+        alias_domain=lambda s, c, u, ctx: get_default_alias_domain(
+            s.pool, c, u, context=ctx))
 
     def read(self, cr, uid, ids, fields=None, context=None,
              load='_classic_read'):
