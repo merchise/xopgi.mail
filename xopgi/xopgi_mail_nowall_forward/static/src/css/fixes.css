@@ -6,3 +6,7 @@
 .oe_form .oe_msg .oe_msg_icons .oe_forward {
     display: inline;
 }
+
+table.oe_model_mail_group ~ div .oe_model_mail_group .oe_msg_icons .oe_forward {
+    display: inline;
+}
