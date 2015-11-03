@@ -375,10 +375,17 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
         The address in a positive result is the VERP address generated for the
         message.
 
+        If the message contains the 'Auto-Submitted' header, no VERP will be
+        performed.  The rationale for this, is that automatic responders won't
+        get any useful information from a bounce.
+
         '''
         context = context if context else {}
         mail_id = context.get('mail_id', False) if context else False
         if not mail_id:
+            return False, None
+        automatic = message['Auto-Submitted']
+        if automatic:
             return False, None
         msg, _ = self.get_message_objects(obj, cr, uid, message,
                                           context=context)
