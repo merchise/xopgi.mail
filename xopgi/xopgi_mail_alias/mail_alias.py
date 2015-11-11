@@ -34,8 +34,36 @@ def get_default_alias_domain(pool, cr, uid, context=None):
 class MailAlias(Model):
     _inherit = 'mail.alias'
 
+    def _get_alias_domain(self, cr, uid, ids, name, args, context=None):
+        default_domain = get_default_alias_domain(self.pool, cr, uid,
+                                                  context=context)
+        res = dict.fromkeys(ids, default_domain or "")
+        cr.execute(
+            'SELECT id, custom_domain FROM mail_alias WHERE id in %s',
+            (tuple(ids),))
+        res.update({_id: domain for _id, domain in cr.fetchall()
+                    if domain})
+        return res
+
+    def _search_alias_domain(self, cr, uid, obj, name, args, context):
+        res = []
+        for cond in args:
+            new_arg = cond
+            if len(new_arg) == 3 and new_arg[0] == 'alias_domain':
+                new_arg = ['custom_domain'] + list(cond)[1:]
+            res.append(new_arg)
+        return res
+
+    def _set_alias_domain(self, cr, uid, ids, name, value, arg, context=None):
+        self.write(cr, uid, ids, {'custom_domain': value}, context=context)
+
     _columns = dict(
-        alias_domain=fields.char('Alias domain')
+        custom_domain=fields.char('Alias domain'),
+        alias_domain=fields.function(_get_alias_domain,
+                                     fnct_inv=_set_alias_domain,
+                                     fnct_search=_search_alias_domain,
+                                     string="Alias domain",
+                                     type='char'),
     )
 
     _defaults = dict(
