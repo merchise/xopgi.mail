@@ -25,6 +25,7 @@
                'do different thinks.',
     'depends': ['project', 'project_issue', 'xopgi_mail_alias'],
     'data': [
-        'view/project_view.xml'
+        'view/project_view.xml',
+        'security/security.xml'
     ],
 }
