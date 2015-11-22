@@ -24,13 +24,14 @@ from openerp.addons.xopgi_mail_threads.utils import set_message_sender
 
 DEFAULT_REPLYTO_PREFIX = 'catchall'
 
+
 class BreakingCyclesTransport(MailTransportRouter):
     @classmethod
     def query(self, obj, cr, uid, message, context=None):
         msg, _ = self.get_message_objects(obj, cr, uid, message,
-                                         context=context)
+                                          context=context)
         address = self._get_replyto(obj, cr, uid, msg.thread_index,
-                                               context=context)
+                                    context=context)
         if message['Auto-Submitted']:
             address = 'breaking-cycles+8jfh764@lahavane.com'
             return bool(address), dict(thread_index=msg.thread_index,
@@ -43,14 +44,14 @@ class BreakingCyclesTransport(MailTransportRouter):
     def prepare_message(self, obj, cr, uid, message, data=None, context=None):
         address = data['replyto_address']
         self._set_replyto(obj, cr, uid, message, address,
-                                  context=context)
+                          context=context)
         del message['Return-Path']
         message['Return-Path'] = address
         return TransportRouteData(message, {})
 
     @classmethod
     def _set_replyto(cls, obj, cr, uid, message, address,
-                             context=None):
+                     context=None):
         del message['Reply-To']
         message['Reply-To'] = address
         set_message_sender(message, address)
@@ -58,7 +59,7 @@ class BreakingCyclesTransport(MailTransportRouter):
 
     @classmethod
     def _get_replyto(cls, obj, cr, uid, thread_index,
-                             context=None):
+                     context=None):
         get_param = obj.pool['ir.config_parameter'].get_param
         replyto = get_param(cr, uid, 'mail.catchall.alias',
                             default=DEFAULT_REPLYTO_PREFIX,
@@ -68,6 +69,7 @@ class BreakingCyclesTransport(MailTransportRouter):
             return '%s+%s@%s' % (replyto, thread_index, domain)
         else:
             return None
+
 
 class BreakingCyclesRouter(MailRouter):
     @classmethod
