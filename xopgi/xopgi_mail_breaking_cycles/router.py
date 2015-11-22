@@ -33,6 +33,7 @@ class BreakingCyclesTransport(MailTransportRouter):
         address = self._get_replyto(obj, cr, uid, msg.thread_index,
                                     context=context)
         if message['Auto-Submitted']:
+            # FIXME: Cortar el cable.
             address = 'breaking-cycles+8jfh764@lahavane.com'
             return bool(address), dict(thread_index=msg.thread_index,
                                        replyto_address=address)
