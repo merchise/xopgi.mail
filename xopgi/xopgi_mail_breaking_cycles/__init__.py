@@ -111,7 +111,7 @@ class BreakingCyclesRouter(MailRouter):
             # 1. Party A sends an auto-submitted message
             # 2. Odoo resends that message to Party B.
             # 3. Party B does not auto-respond, and that's just fine.
-            # 4. Later Party B replies but uses the address in the
+            # 4. Later Party B (the human) replies but uses the address in the
             #    auto-submitted message to do it.
             #
             # In this, although the address would be a breaking cycle is not
