@@ -225,7 +225,7 @@ class BouncedMailRouter(MailRouter):
         In the sense of this method "Auto responded" messages include:
 
         - Any sort of message that is sent automatically in reply to a
-          message.  Example is a "vacation" notification.  RFC 3234.
+          message.  Example is a "vacation" notification.  RFC 3834.
 
         - Any sort of message indicating the disposition of another message.
           Example is a notification of a message being read by any of its
