@@ -289,6 +289,8 @@ class project_project(Model):
                                                        context=context)
             values['alias_id'] = temp_alias
             values.pop('alias_name', None)
+        elif not values.get('alias_name', False):
+            values['alias_name'] = values.get('name', 'project')
         res = super(project_project, self).create(cr, uid, values, context=context)
         if temp_alias:
             alias_ids = self._get_alias(cr, uid, [res], context=context)[res]
