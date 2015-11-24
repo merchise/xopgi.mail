@@ -128,7 +128,8 @@ class SameOriginTransport(MailTransportRouter):
             authors = getaddresses([message['From']])
         else:
             _logger.warn(
-                'No From address for message %s', message['Message-Id']
+                'No From address for message %s', message['Message-Id'],
+                extra=dict(headers=dict(message.items()))
             )
             authors = []
         return tuple(address for _, address in authors if address)
