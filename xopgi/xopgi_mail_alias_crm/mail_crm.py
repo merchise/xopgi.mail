@@ -274,6 +274,8 @@ class crm_case_section(Model):
             values.pop('alias_name', None)
         else:
             temp_alias = False
+            if not values.get('alias_name', False):
+                values['alias_name'] = values.get('name', 'sale_team')
         res = super(crm_case_section, self).create(cr, uid, values,
                                                    context=context)
         if temp_alias:
