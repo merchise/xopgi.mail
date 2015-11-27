@@ -9,7 +9,13 @@
              ref="email_template.email_compose_message_wizard_inherit_form"/>
       <field name="arch" type="xml">
         <xpath expr="//field[@name='partner_ids']" position="attributes">
-          <attribute name="context">{'include_fake': True}</attribute>
+          <attribute name="context">
+            {
+                'include_fake': True,
+                'force_email':True,
+                'show_email':True
+            }
+          </attribute>
         </xpath>
       </field>
     </record>
