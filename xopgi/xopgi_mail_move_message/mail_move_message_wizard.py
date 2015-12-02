@@ -91,6 +91,9 @@ class MoveMessageWizard(osv.TransientModel):
         res_id = wiz.thread_id.id
         msg_values = dict(model=model, res_id=res_id)
         att_values = dict(res_model=model, res_id=res_id)
+        record_name = msg_obj._get_record_name(cr, uid, msg_values,
+                                               context=context)
+        msg_values.update(record_name=record_name)
         new_ids = []
         if wiz.leave_msg:
             for msg in wiz.message_ids:
