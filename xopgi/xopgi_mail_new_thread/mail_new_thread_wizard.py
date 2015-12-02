@@ -94,8 +94,8 @@ class NewThreadWizard(osv.TransientModel):
         #  Extract id from id, name tuple on author_id and parent_id values.
         if msg_dict and isinstance(msg_dict.get('author_id', False), tuple):
             msg_dict['author_id'] = msg_dict['author_id'][0]
-        if msg_dict and isinstance(msg_dict.get('parent_id', False), tuple):
-            msg_dict['parent_id'] = msg_dict['parent_id'][0]
+        # When new thread is created, parent is irrelevant
+        msg_dict.pop('parent_id', None)
         custom_values = {}
         if not msg_dict.get('subject', False):
             custom_values['name'] = _(
