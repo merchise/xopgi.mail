@@ -98,12 +98,11 @@ class MoveMessageWizard(osv.TransientModel):
                                     dict(att_values, name=att.name),
                                     context=context)
                        for att in msg.attachment_ids]
-                if ids:
-                    new_ids.append(msg_obj.copy(
-                        cr, uid, msg.id,
-                        dict(msg_values,
-                             attachment_ids=[REPLACEWITH_RELATED(*ids)]),
-                        context=context))
+                new_ids.append(msg_obj.copy(
+                    cr, uid, msg.id,
+                    dict(msg_values,
+                         attachment_ids=[REPLACEWITH_RELATED(*ids)]),
+                    context=context))
         else:
             new_ids = wiz.message_ids.ids
             msg_obj.write(cr, uid, new_ids, msg_values, context=context)
