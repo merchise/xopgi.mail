@@ -65,9 +65,9 @@ class BreakingCyclesTransport(MailTransportRouter):
             return bool(address), address
         return False, None
 
-    def prepare_message(self, obj, cr, uid, message, address=None,
+    def prepare_message(self, obj, cr, uid, message, data=None,
                         context=None):
-        assert address
+        address = data  # data is always a keyword argument.
         self._set_headers(obj, cr, uid, message, address,
                           context=context)
         return TransportRouteData(message, {})
