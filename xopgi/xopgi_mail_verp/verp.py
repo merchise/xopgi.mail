@@ -138,7 +138,8 @@ class BounceRecord(Model):
         from openerp.addons.mail.xopgi.index import generate_reference
         reference = generate_reference(
             lambda r: self.search(cr, uid, [('reference', '=', r)]),
-            start=2
+            start=3,
+            lower=True
         )
         assert reference
         vals.update(reference=reference)
