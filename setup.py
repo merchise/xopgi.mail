@@ -53,6 +53,7 @@ setup(name=project_name,
           'xoutil',
           'lxml',
           'xopgi.mail_threads',
+          'flufl.bounce>=2.3'
       ],
       entry_points="""
       [xoeuf.addons]

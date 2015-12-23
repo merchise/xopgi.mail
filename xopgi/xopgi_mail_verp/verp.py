@@ -47,6 +47,8 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 
+from xoutil import logger as _logger
+
 from xoeuf.osv.model_extensions import search_browse
 
 from openerp import SUPERUSER_ID
@@ -168,7 +170,6 @@ class BounceRecord(Model):
 class BouncedMailRouter(MailRouter):
     @classmethod
     def query(cls, obj, cr, uid, message, context=None):
-        from xoutil import logger
         route = cls._message_route_check_bounce(obj, cr, uid, message)
         forged, probably_forged = cls._forged(obj, cr, uid, message)
         assert not forged or probably_forged, "forget implies probably forged"
@@ -191,10 +192,23 @@ class BouncedMailRouter(MailRouter):
             # bounce.  Some broken MTA (MailerDaemon) include a broken
             # non-void Return-Path.
             origin = decode_header(message, 'From')
-            logger.warn('Forgery detected in message coming from %s', origin)
+            _logger.warn('Forgery detected in message coming from %s', origin)
             return True, None
         else:
-            return False
+            from flufl.bounce import scan_message
+            # Some fucked MTAs send bounce messages to the From address
+            # instead of the Return Path.  Let's pretend all delivery-status
+            # are bounces or if the scan_message finds any failed address...
+            #
+            # We can't find the right thread though.
+            content_type = message.get('Content-Type', '')
+            delivery_status = (content_type.startswith('message/report') and
+                               'report-type=delivery-status' in content_type)
+            bounce = delivery_status or bool(scan_message(message))
+            if bounce:
+                _logger.warn('Silly MTA found',
+                             extra=dict(message=message.items()))
+            return bounce, None
 
     @classmethod
     def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
