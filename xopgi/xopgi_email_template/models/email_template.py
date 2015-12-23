@@ -10,6 +10,11 @@
 # package.
 #
 # @created: 2015-08-21
+
+from __future__ import (division as _py3_division,
+                        print_function as _py3_print,
+                        absolute_import as _py3_abs_import)
+
 from lxml.html import fromstring
 
 from openerp import api, fields, models

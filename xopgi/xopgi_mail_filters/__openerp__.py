@@ -29,7 +29,7 @@
         'views/mail_message_search.xml',
         (
             'views/8/search.xml'
-            if ODOO_VERSION_INFO >= (8, )
+            if ODOO_VERSION_INFO >= (8, )   # noqa
             else 'dummy.xml'
         ),
     ],

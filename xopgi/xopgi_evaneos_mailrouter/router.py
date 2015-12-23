@@ -22,7 +22,6 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 
-from openerp.release import version_info as VERSION_INFO
 from openerp.addons.xopgi_mail_threads import MailRouter
 
 
