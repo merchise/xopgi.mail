@@ -171,29 +171,12 @@ class BouncedMailRouter(MailRouter):
     @classmethod
     def query(cls, obj, cr, uid, message, context=None):
         route = cls._message_route_check_bounce(obj, cr, uid, message)
-        forged, probably_forged = cls._forged(obj, cr, uid, message)
-        assert not forged or probably_forged, "forget implies probably forged"
         if route and cls._is_auto_responded(obj, cr, uid, message):
             # If the message is an auto-responded (e.g Out of Office) message
             # it will be also delivered to the bounce VERP address, but we
             # should not treat it as bounce and let it be placed according to
             # In-Reply-To.
             return False
-        elif route and not forged:
-            return bool(route), route
-        elif probably_forged:
-            # If there's no clear bounce in our DB but the message seems to be
-            # a bounce, we should accept this as a bounce to avoid the default
-            # to happen (i.e create a Lead).
-            #
-            # According to the RFC 2822, when bouncing, a MTA should not
-            # provide a valid address in the MAIL FROM but a void one "<>".
-            # If the message['Return-Path'] is void this is most likely a
-            # bounce.  Some broken MTA (MailerDaemon) include a broken
-            # non-void Return-Path.
-            origin = decode_header(message, 'From')
-            _logger.warn('Forgery detected in message coming from %s', origin)
-            return True, None
         else:
             from flufl.bounce import scan_message
             # Some fucked MTAs send bounce messages to the From address
@@ -277,16 +260,6 @@ class BouncedMailRouter(MailRouter):
             # Some MTAs place "<MAILER-DAEMON>" return path upon delivery.
             res = not valid_email(return_path[1:-1])
         return res
-
-    @classmethod
-    def _forged(cls, obj, cr, uid, message):
-        '''Return True if the message seems to be a forged bounce.
-
-        This returns two values: ``(forged, probably_forged)`` the first being
-        stronger, thus, ``forged`` implies ``probably_forged``.
-
-        '''
-        return False, False
 
     @classmethod
     def is_bouncelike(self, obj, cr, uid, rcpt, context=None):
