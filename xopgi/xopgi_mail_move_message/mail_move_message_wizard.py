@@ -89,7 +89,7 @@ class MoveMessageWizard(osv.TransientModel):
         att_obj = self.pool['ir.attachment']
         model = wiz.thread_id._name
         res_id = wiz.thread_id.id
-        ms_ids = msg_obj.search(cr, uid, [('thread_id', '=', res_id),
+        ms_ids = msg_obj.search(cr, uid, [('res_id', '=', res_id),
                                           ('model', '=', model),
                                           ('parent_id', '=', False)])
         parent_id = ms_ids[0] if ms_ids else False
