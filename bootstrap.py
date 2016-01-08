@@ -12,6 +12,8 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
+# flake8: noqa
+
 """Bootstrap a buildout-based project
 
 Simply run this script in a directory containing a buildout.cfg.

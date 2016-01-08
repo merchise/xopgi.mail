@@ -1,15 +1,15 @@
-  # -*- encoding: utf-8 -*-
-  # ----------------------------------------------------------------------
-  # post-001-write-alias-domain
-  # ----------------------------------------------------------------------
-  # Copyright (c) 2015 Merchise Autrement and Contributors
-  # All rights reserved.
-  #
-  # This is free software; you can redistribute it and/or modify it under the
-  # terms of the LICENCE attached (see LICENCE file) in the distribution
-  # package.
-  #
-  # Created on 2015-07-01
+# -*- encoding: utf-8 -*-
+# ----------------------------------------------------------------------
+# post-001-write-alias-domain
+# ----------------------------------------------------------------------
+# Copyright (c) 2015 Merchise Autrement and Contributors
+# All rights reserved.
+#
+# This is free software; you can redistribute it and/or modify it under the
+# terms of the LICENCE attached (see LICENCE file) in the distribution
+# package.
+#
+# Created on 2015-07-01
 
 '''Update Alias Domain values.
 
@@ -29,6 +29,7 @@ def migrate(self, cr, version):
     from openerp.modules.registry import RegistryManager as manager
     self.pool = manager.get(cr.dbname)
     self.create_crons(cr)
+
 
 @modulemethod
 def create_crons(self, cr):

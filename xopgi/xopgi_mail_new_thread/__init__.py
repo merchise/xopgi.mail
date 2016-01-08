@@ -1,4 +1,4 @@
-from . import mail_new_thread_wizard # noqa
+from . import mail_new_thread_wizard  # noqa
 from openerp import SUPERUSER_ID
 from openerp.osv import osv, fields
 

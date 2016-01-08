@@ -282,11 +282,12 @@ class project_project(Model):
         temp_alias = False
         alias_obj = self.pool.get("mail.alias")
         if values.get('alias_ids', False):
-            temp_alias = alias_obj.create_unique_alias(cr, uid,
-                                                       {'alias_name':
-                                                            'project+temp-alias'},
-                                                       model_name="project.task",
-                                                       context=context)
+            temp_alias = alias_obj.create_unique_alias(
+                cr, uid,
+                {'alias_name': 'project+temp-alias'},
+                model_name="project.task",
+                context=context
+            )
             values['alias_id'] = temp_alias
             values.pop('alias_name', None)
         elif not values.get('alias_name', False):

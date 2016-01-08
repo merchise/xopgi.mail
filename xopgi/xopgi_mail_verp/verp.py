@@ -47,6 +47,8 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 
+from xoutil import logger as _logger
+
 from xoeuf.osv.model_extensions import search_browse
 
 from openerp import SUPERUSER_ID
@@ -138,7 +140,8 @@ class BounceRecord(Model):
         from openerp.addons.mail.xopgi.index import generate_reference
         reference = generate_reference(
             lambda r: self.search(cr, uid, [('reference', '=', r)]),
-            start=2
+            start=3,
+            lower=True
         )
         assert reference
         vals.update(reference=reference)
@@ -167,33 +170,28 @@ class BounceRecord(Model):
 class BouncedMailRouter(MailRouter):
     @classmethod
     def query(cls, obj, cr, uid, message, context=None):
-        from xoutil import logger
         route = cls._message_route_check_bounce(obj, cr, uid, message)
-        forged, probably_forged = cls._forged(obj, cr, uid, message)
-        assert not forged or probably_forged, "forget implies probably forged"
         if route and cls._is_auto_responded(obj, cr, uid, message):
             # If the message is an auto-responded (e.g Out of Office) message
             # it will be also delivered to the bounce VERP address, but we
             # should not treat it as bounce and let it be placed according to
             # In-Reply-To.
             return False
-        elif route and not forged:
-            return bool(route), route
-        elif probably_forged:
-            # If there's no clear bounce in our DB but the message seems to be
-            # a bounce, we should accept this as a bounce to avoid the default
-            # to happen (i.e create a Lead).
-            #
-            # According to the RFC 2822, when bouncing, a MTA should not
-            # provide a valid address in the MAIL FROM but a void one "<>".
-            # If the message['Return-Path'] is void this is most likely a
-            # bounce.  Some broken MTA (MailerDaemon) include a broken
-            # non-void Return-Path.
-            origin = decode_header(message, 'From')
-            logger.warn('Forgery detected in message coming from %s', origin)
-            return True, None
         else:
-            return False
+            from flufl.bounce import scan_message
+            # Some fucked MTAs send bounce messages to the From address
+            # instead of the Return Path.  Let's pretend all delivery-status
+            # are bounces or if the scan_message finds any failed address...
+            #
+            # We can't find the right thread though.
+            content_type = message.get('Content-Type', '')
+            delivery_status = (content_type.startswith('message/report') and
+                               'report-type=delivery-status' in content_type)
+            bounce = delivery_status or bool(scan_message(message))
+            if bounce:
+                _logger.warn('Silly MTA found',
+                             extra=dict(message=message.items()))
+            return bounce, None
 
     @classmethod
     def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
@@ -262,16 +260,6 @@ class BouncedMailRouter(MailRouter):
             # Some MTAs place "<MAILER-DAEMON>" return path upon delivery.
             res = not valid_email(return_path[1:-1])
         return res
-
-    @classmethod
-    def _forged(cls, obj, cr, uid, message):
-        '''Return True if the message seems to be a forged bounce.
-
-        This returns two values: ``(forged, probably_forged)`` the first being
-        stronger, thus, ``forged`` implies ``probably_forged``.
-
-        '''
-        return False, False
 
     @classmethod
     def is_bouncelike(self, obj, cr, uid, rcpt, context=None):

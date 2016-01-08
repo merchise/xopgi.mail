@@ -11,6 +11,10 @@
 #
 # @created: 2015-08-23
 
+from __future__ import (division as _py3_division,
+                        print_function as _py3_print,
+                        absolute_import as _py3_abs_import)
+
 from lxml import etree
 from openerp import api, models
 from openerp.addons.mail.mail_thread import mail_thread as _base_mail_thread
