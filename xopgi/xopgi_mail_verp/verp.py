@@ -48,6 +48,7 @@ from __future__ import (division as _py3_division,
 
 
 from xoutil import logger as _logger
+from xoutil.string import safe_encode
 
 from xoeuf.osv.model_extensions import search_browse
 
@@ -349,7 +350,11 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
                 bounce_alias=bounce_alias,
                 message_id=message.id,
                 thread_index=message.thread_index,
-                recipient=decode(mail.email_to or email_to)),
+                recipient=decode(
+                    # decode assumes str, but mail.email_to may yield unicode
+                    safe_encode(mail.email_to or email_to)
+                )
+            ),
             context=context)
         return '%s+%s@%s' % (bounce_alias, reference, domain)
 
