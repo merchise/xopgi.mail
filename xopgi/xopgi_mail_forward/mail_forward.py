@@ -23,7 +23,7 @@ from xoutil.string import cut_prefixes
 
 from openerp.osv import orm
 from openerp.tools.translate import _
-from openerp import tools
+
 
 class mail_compose_forward(orm.TransientModel):
     """Allow forwarding a message.
@@ -60,4 +60,3 @@ class mail_compose_forward(orm.TransientModel):
                     name, _('Re:'), _('Fwd:')
                 )
         return result
-

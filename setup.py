@@ -1,5 +1,6 @@
 #!python
 # -*- encoding: utf-8 -*-
+# flake8: noqa
 from __future__ import absolute_import, print_function
 
 import os
@@ -52,6 +53,7 @@ setup(name=project_name,
           'xoutil',
           'lxml',
           'xopgi.mail_threads',
+          'flufl.bounce>=2.3'
       ],
       entry_points="""
       [xoeuf.addons]
