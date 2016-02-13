@@ -25,7 +25,8 @@
     'depends': [
         'mail',
         'web',
-        'xopgi_mail_threads'
+        'xopgi_mail_threads',
+        'xopgi_move_copy_msg_commons'
     ],
     'description': '',
     'data': [
