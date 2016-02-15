@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 # --------------------------------------------------------------------------
-# xopgi_mail_expand
+# xopgi_mail_move_message
 # --------------------------------------------------------------------------
-# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
+# Copyright (c) 2014 -2016 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # Author: Eddy Ernesto del Valle Pino <eddy@merchise.org>
@@ -25,7 +25,8 @@
     'depends': [
         'mail',
         'web',
-        'xopgi_mail_threads'
+        'xopgi_mail_threads',
+        'xopgi_move_copy_msg_commons'
     ],
     'description': '',
     'data': [
