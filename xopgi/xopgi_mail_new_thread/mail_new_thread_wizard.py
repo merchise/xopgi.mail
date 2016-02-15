@@ -64,18 +64,25 @@ class NewThreadWizard(models.TransientModel):
             'view_mode': 'form',
             'res_model': self.model_id,
             'type': 'ir.actions.act_window',
-            'context': dict(self._context,
-                            new_thread_from_mail_msg=True,
-                            message_id=self.message_id.id,
-                            leave_msg=self.leave_msg)
+            'context': dict(
+                new_thread_from_mail_msg=True, thread_model=self.model_id)
         }
 
 
 @signals.receiver(signals.post_create)
 def move_message(self, signal, result, values):
+    """If a mail thread is created from an active new.thread.wizard the
+    selected message is moved/copied and the new.thread.wizard is deleted.
+
+    """
     if self._context.get('new_thread_from_mail_msg', False) and \
-            self._name in self.env['mail.thread'].message_capable_models():
-        message = self.env['mail.message'].browse(
-            self._context.get('message_id', False))
-        message.do_move_message(self._name, result.id,
-            self._context.get('leave_msg', True))
+            self._name == self._context.get('thread_model', ''):
+        if self._context.get('active_id', False):
+            wizard = self.env['new.thread.wizard'].search(
+                [('id', '=', self._context['active_id'])])
+        else:
+            wizard = False
+        if wizard:
+            wizard.message_id.do_move_message(
+                self._name, result.id, wizard.leave_msg)
+            wizard.unlink()
