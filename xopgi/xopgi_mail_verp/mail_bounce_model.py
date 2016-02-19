@@ -20,7 +20,9 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 from xoutil import logger as _logger
+
 from openerp.osv import orm
+from openerp.tools.translate import _
 
 from .common import BOUNCE_MODEL, VOID_EMAIL_ADDRESS
 
@@ -96,7 +98,7 @@ class MailBounce(orm.TransientModel):
         '''Rewrites the bounce email.
 
         '''
-        params['subject'] = 'Undelivered Mail Returned to Sender'
+        params['subject'] = _('Mail Returned to Sender')
         params['type'] = 'notification'
         params['email_from'] = VOID_EMAIL_ADDRESS
         context = params.setdefault('context', {})
