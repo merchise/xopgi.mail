@@ -172,12 +172,18 @@ class BouncedMailRouter(MailRouter):
     @classmethod
     def query(cls, obj, cr, uid, message, context=None):
         route = cls._message_route_check_bounce(obj, cr, uid, message)
-        if route and cls._is_auto_responded(obj, cr, uid, message):
-            # If the message is an auto-responded (e.g Out of Office) message
-            # it will be also delivered to the bounce VERP address, but we
-            # should not treat it as bounce and let it be placed according to
-            # In-Reply-To.
-            return False
+        if route:
+            if cls._is_auto_responded(obj, cr, uid, message):
+                # If the message is an auto-responded (e.g Out of Office)
+                # message it will be also delivered to the bounce VERP
+                # address, but we should not treat it as bounce and let it be
+                # placed according to In-Reply-To.
+                return False
+            else:
+                # Some mailers send auto-responses to the Return-Path address
+                # correctly but fail to include the Auto-Submitted header.
+                # However is too hard to find out if this is the case...
+                return True, route
         else:
             from flufl.bounce import scan_message
             # Some fucked MTAs send bounce messages to the From address
