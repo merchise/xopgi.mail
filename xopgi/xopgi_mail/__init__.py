@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------
 # xopgi_mail
 # ---------------------------------------------------------------------
-# Copyright (c) 2015 Merchise Autrement and Contributors
+# Copyright (c) 2015, 2016 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -20,9 +20,13 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
+from xoutil import logger as _logger
 
 from openerp.osv.orm import Model
 from openerp.osv import fields
+
+from openerp.signals import receiver
+from openerp.addons.mail.xopgi import unlink_thread
 
 
 class MailConfig(Model):
@@ -70,3 +74,32 @@ class MailConfig(Model):
         'module_xopgi_mail_nowall':
             fields.boolean('Disallow replying from the Message Wall.'),
     }
+
+
+@receiver(unlink_thread)
+def log_thread_removal(sender, signal, **kwargs):
+    name_get = getattr(sender, 'name_get')
+    if name_get:
+        which = name_get()
+    else:
+        which = sender
+    messages_deleted = [_message_trace(message)
+                        for message in sender.message_ids]
+    _logger.warn('Removing thread %s', which,
+                 extra=dict(
+                     messages_deleted=messages_deleted,
+                     messages_deleted_count=len(messages_deleted),
+                 ))
+
+
+def _message_trace(message):
+    from xoutil.string import safe_encode
+    result = 'from={from_}, at={at}, id={id}'
+    if message.email_from:
+        from_ = safe_encode(message.email_from)
+    elif message.author_id:
+        from_ = safe_encode(message.author_id.email)
+    else:
+        from_ = '?'
+    return result.format(from_=from_, at=message.create_date,
+                         id=safe_encode(message.message_id))

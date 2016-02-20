@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # xopgi_mail_verp.mail_bounce_model
 # ---------------------------------------------------------------------
-# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
+# Copyright (c) 2014-2016 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -20,7 +20,9 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 from xoutil import logger as _logger
+
 from openerp.osv import orm
+from openerp.tools.translate import _
 
 from .common import BOUNCE_MODEL, VOID_EMAIL_ADDRESS
 
@@ -96,7 +98,7 @@ class MailBounce(orm.TransientModel):
         '''Rewrites the bounce email.
 
         '''
-        params['subject'] = 'Undelivered Mail Returned to Sender'
+        params['subject'] = _('Mail Returned to Sender')
         params['type'] = 'notification'
         params['email_from'] = VOID_EMAIL_ADDRESS
         context = params.setdefault('context', {})
