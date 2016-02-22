@@ -25,8 +25,16 @@ from xoutil import logger as _logger
 from openerp.osv.orm import Model
 from openerp.osv import fields
 
-from openerp.signals import receiver
-from openerp.addons.mail.xopgi import unlink_thread
+try:
+    from openerp.signals import receiver
+    from openerp.addons.mail.xopgi import unlink_thread
+except ImportError:
+    # Safely fallback to doing nothing while signals are not deployed on
+    # production.
+    unlink_thread = None
+
+    def receiver(*args, **kw):
+        return lambda f: f
 
 
 class MailConfig(Model):
