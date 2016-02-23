@@ -194,11 +194,19 @@ class BouncedMailRouter(MailRouter):
             content_type = message.get('Content-Type', '')
             delivery_status = (content_type.startswith('message/report') and
                                'report-type=delivery-status' in content_type)
-            bounce = delivery_status or bool(scan_message(message))
+            failed_addresses = scan_message(message)
+            bounce = delivery_status or bool(failed_addresses)
             if bounce:
-                _logger.warn('Silly MTA found',
-                             extra=dict(message=message.items()))
-            return bounce, None
+                _logger.warn('Possible bounce: %s, %s, %s',
+                             content_type,
+                             delivery_status,
+                             failed_addresses,
+                             extra=dict(
+                                 message_details=message.items(),
+                                 delivery_status=delivery_status,
+                                 failed_addresses=failed_addresses
+                             ))
+            return False, None
 
     @classmethod
     def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
