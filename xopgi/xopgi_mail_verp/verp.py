@@ -245,10 +245,15 @@ class BouncedMailRouter(MailRouter):
 
         '''
         replied = 'In-Reply-To' in message
-        how = message.get('Auto-Submitted', '')
+        how = message.get('Auto-Submitted', '').lower()
         if how.startswith('auto-replied'):
             # Bounces SHOULD NOT have an In-Reply-To, but SHOULD have an
             # Auto-Submitted.
+            return replied
+        elif how.startswith('auto-generated'):
+            # Some MTAs are using the auto-generated instead of the
+            # auto-replied.  I split this case from the standard so that is
+            # easier to look out and fix if needed.
             return replied
         elif message['X-Autoreply'] == 'yes':
             # Some MTAs also include this, but I will refuse them unless an
