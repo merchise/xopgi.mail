@@ -197,10 +197,9 @@ class BouncedMailRouter(MailRouter):
             failed_addresses = scan_message(message)
             bounce = delivery_status or bool(failed_addresses)
             if bounce:
-                _logger.warn('Possible bounce: %s, %s, %s',
-                             content_type,
-                             delivery_status,
-                             failed_addresses,
+                message_id = message['Message-Id']
+                _logger.warn('Possible bounce: %s',
+                             message_id,
                              extra=dict(
                                  message_details=message.items(),
                                  delivery_status=delivery_status,
