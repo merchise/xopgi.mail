@@ -93,11 +93,12 @@ def log_thread_removal(sender, signal, **kwargs):
         which = sender
     messages_deleted = [_message_trace(message)
                         for message in sender.message_ids]
-    _logger.warn('Removing thread %s', which,
-                 extra=dict(
-                     messages_deleted=messages_deleted,
-                     messages_deleted_count=len(messages_deleted),
-                 ))
+    if messages_deleted:
+        _logger.warn('Removing thread %s', which,
+                     extra=dict(
+                         messages_deleted=messages_deleted,
+                         messages_deleted_count=len(messages_deleted),
+                     ))
 
 
 def _message_trace(message):
