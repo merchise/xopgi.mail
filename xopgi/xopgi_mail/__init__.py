@@ -84,7 +84,7 @@ class MailConfig(Model):
     }
 
 
-@receiver(unlink_thread)
+# @receiver(unlink_thread)
 def log_thread_removal(sender, signal, **kwargs):
     name_get = getattr(sender, 'name_get')
     if name_get:
