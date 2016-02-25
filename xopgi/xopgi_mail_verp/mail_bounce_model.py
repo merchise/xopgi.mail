@@ -19,6 +19,7 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
+from xoutil import Unset
 from xoutil import logger as _logger
 
 from openerp.osv import orm
@@ -83,7 +84,13 @@ class MailBounce(orm.TransientModel):
                 pass
         message = self._get_message(cr, uid, int(message_id))
         self._build_bounce(cr, uid, message, recipient, kwargs)
-        partner_ids = [message.author_id.id] if message.author_id else []
+        if message.author_id and any(message.author_id.user_ids):
+            # Notify to the author of the original email IF AND ONLY IF it
+            # is a 'res_user'. This is to avoid notifying third parties about
+            # recipients they probably don't know about.
+            partner_ids = [message.author_id.id]
+        else:
+            partner_ids = []
         context.update(
             thread_model=model,
             partner_ids=partner_ids,
@@ -116,8 +123,8 @@ class mail_notification(orm.Model):
                                     partner_ids, context=None):
         # If the forced_followers is set, override the partner_ids.
         context = dict(context or {})
-        forced_followers = context.pop('forced_followers', [])
-        if forced_followers:
+        forced_followers = context.pop('forced_followers', Unset)
+        if forced_followers is not Unset:
             partner_ids = forced_followers
         return super(mail_notification, self).update_message_notification(
             cr, uid, ids, message_id, partner_ids, context=context
