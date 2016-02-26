@@ -22,6 +22,7 @@ from __future__ import (division as _py3_division,
 from xoutil import Unset
 from xoutil import logger as _logger
 
+from openerp import tools
 from openerp.osv import orm
 from openerp.tools.translate import _
 
@@ -62,12 +63,14 @@ class MailBounce(orm.TransientModel):
         mails.
 
         .. note:: The `ids` is expected to be a single item with a tuple with
-           ``(mail_id, model, thread_id)``, being the `mail_id` the mail id
-           that bounced, `model` the model to which the message belongs and
-           `thread_id` of the object (from model) that identifies the thread.
+           ``(message_id, model, thread_id, failed_recipient, raw_message)``,
+           being the `message_id` the id of the message that bounced, `model`
+           the model to which the message belongs, `thread_id` of the object
+           (from model) that identifies the thread, `failed_recipient` the
+           email address that bounced, and `raw_message` the bounce message.
 
         '''
-        message_id, model, thread_id, recipient = ids[0]
+        message_id, model, thread_id, recipient, rfc_message = ids[0]
         if not model:
             return
         context = kwargs.setdefault('context', {})
@@ -83,7 +86,7 @@ class MailBounce(orm.TransientModel):
             except ValueError:
                 pass
         message = self._get_message(cr, uid, int(message_id))
-        self._build_bounce(cr, uid, message, recipient, kwargs)
+        self._build_bounce(cr, uid, rfc_message, message, recipient, kwargs)
         if message.author_id and any(message.author_id.user_ids):
             # Notify to the author of the original email IF AND ONLY IF it
             # is a 'res_user'. This is to avoid notifying third parties about
@@ -101,15 +104,23 @@ class MailBounce(orm.TransientModel):
         msgid = model_pool.message_post(cr, uid, [thread_id], **kwargs)
         return msgid
 
-    def _build_bounce(self, cr, uid, message, recipient, params):
+    def _build_bounce(self, cr, uid, rfc_message, message, recipient, params):
         '''Rewrites the bounce email.
-
         '''
-        params['subject'] = _('Mail Returned to Sender')
+        params['subject'] = rfc_message['subject'] or _('Mail Returned to Sender')
         params['type'] = 'notification'
         params['email_from'] = VOID_EMAIL_ADDRESS
         context = params.setdefault('context', {})
         context['auto_submitted'] = 'auto-replied'
+        part = find_part(rfc_message)
+        if part:
+            encoding = part.get_content_charset()  # None if attachment
+            params['body'] = tools.append_content_to_html(
+                '',
+                tools.ustr(part.get_payload(decode=True),
+                           encoding, errors='replace'),
+                preserve=True
+            )
         return params
 
     def _get_message(self, cr, uid, message_id):
@@ -147,3 +158,17 @@ class mail_mail(orm.Model):
             headers['Auto-Submitted'] = auto_submitted
             values['headers'] = str(headers)
         return super(mail_mail, self).create(cr, uid, values, context=context)
+
+
+def find_part(msg, type='text/plain'):
+    from email.message import Message
+    if msg.get_content_type() == type:
+        return msg
+    if msg.is_multipart:
+        for part in msg.get_payload():
+            if not isinstance(part, Message):
+                continue
+            ret = find_part(part)
+            if ret:
+                return ret
+    return None

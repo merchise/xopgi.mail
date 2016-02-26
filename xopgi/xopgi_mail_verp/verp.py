@@ -322,7 +322,7 @@ class BouncedMailRouter(MailRouter):
                     )
                     if model and thread_id:
                         return (found.message_id, model, thread_id,
-                                found.recipient)
+                                found.recipient, message)
         # Not a known bounce
         return None
 
