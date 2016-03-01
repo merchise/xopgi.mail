@@ -46,8 +46,6 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-
-from xoutil import logger as _logger
 from xoutil.string import safe_encode
 
 from xoeuf.osv.model_extensions import search_browse
@@ -162,27 +160,6 @@ class BouncedMailRouter(MailRouter):
                 # correctly but fail to include the Auto-Submitted header.
                 # However is too hard to find out if this is the case...
                 return True, route
-        else:
-            from flufl.bounce import scan_message
-            # Some fucked MTAs send bounce messages to the From address
-            # instead of the Return Path.  Let's pretend all delivery-status
-            # are bounces or if the scan_message finds any failed address...
-            #
-            # We can't find the right thread though.
-            content_type = message.get('Content-Type', '')
-            delivery_status = (content_type.startswith('message/report') and
-                               'report-type=delivery-status' in content_type)
-            failed_addresses = scan_message(message)
-            bounce = delivery_status or bool(failed_addresses)
-            if bounce:
-                message_id = message['Message-Id']
-                _logger.warn('Possible bounce: %s',
-                             message_id,
-                             extra=dict(
-                                 message_details=message.items(),
-                                 delivery_status=delivery_status,
-                                 failed_addresses=failed_addresses
-                             ))
             return False, None
 
     @classmethod
