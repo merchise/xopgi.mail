@@ -86,14 +86,20 @@ class MailBounce(orm.TransientModel):
                 thread_id = int(thread_id)
             except ValueError:
                 _logger.warn('Invalid thread while bounce %s', thread_id)
-        message = self._get_message(cr, uid, int(message_id))
+        if message_id:
+            message = self._get_message(cr, uid, int(message_id))
+        else:
+            # This means we recognized this message as 'rogue bounce' which
+            # could not find the message that bounced.
+            message = None
         self._build_bounce(cr, uid, rfc_message, message, recipient, kwargs)
-        if message.author_id and any(message.author_id.user_ids):
+        if message and message.author_id and any(message.author_id.user_ids):
             # Notify to the author of the original email IF AND ONLY IF it
             # is a 'res_user'. This is to avoid notifying third parties about
             # recipients they probably don't know about.
             partner_ids = [message.author_id.id]
         else:
+            # TODO:  Notify internal users.
             partner_ids = []
         context.update(
             thread_model=model,
