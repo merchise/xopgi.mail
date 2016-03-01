@@ -79,12 +79,13 @@ class MailBounce(orm.TransientModel):
             context['thread_model'] = model
             model_pool = self.pool['mail.thread']
         if thread_id:
-            # thread_id must time will be an integer but on few cases can
-            # be an str (virtual Id) Ej: recurrent events
+            # TODO: Prove this happens by inspecting the log.
+            # thread_id must time will be an integer but on a few cases can be
+            # a str (virtual id) e.g. recurrent events
             try:
                 thread_id = int(thread_id)
             except ValueError:
-                pass
+                _logger.warn('Invalid thread while bounce %s', thread_id)
         message = self._get_message(cr, uid, int(message_id))
         self._build_bounce(cr, uid, rfc_message, message, recipient, kwargs)
         if message.author_id and any(message.author_id.user_ids):
