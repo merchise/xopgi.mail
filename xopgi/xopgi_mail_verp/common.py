@@ -55,3 +55,34 @@ def get_bounce_alias(pool, cr, uid, context=None):
     res = get_param(cr, uid, MAIL_BOUNCE_VERP_ALIAS_PARAM, default=bounce,
                     context=context)
     return res
+
+
+def valid_email(name, email):
+    try:
+        return '@' in email
+    except:
+        return False
+
+
+def get_recipients(message, include_cc=False):
+    'Return the list of (name, email) of the message recipients.'
+    # TODO: use openerp.tools.email_split(text)
+    from email.utils import getaddresses
+    from openerp.addons.mail.mail_thread import decode_header
+    raw_recipients = [decode_header(message, 'To')]
+    if include_cc:
+        raw_recipients.append(decode_header(message, 'Cc'))
+    recipients = [
+        addr for addr in getaddresses(raw_recipients)
+        if valid_email(*addr)
+    ]
+    return recipients
+
+
+def is_void_return_path(return_path):
+    'Indicates if this a bouncy Return-Path.'
+    res = not return_path or return_path == VOID_EMAIL_ADDRESS
+    if not res:
+        # Some MTAs place "<MAILER-DAEMON>" return path upon delivery.
+        res = not valid_email(return_path[1:-1])
+    return res

@@ -59,31 +59,9 @@ from openerp.osv import fields
 
 from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
 from openerp.addons.xopgi_mail_threads import TransportRouteData
-from openerp.addons.mail.mail_thread import decode_header
 from openerp.addons.mail.mail_message import decode
 
 from .mail_bounce_model import BOUNCE_MODEL
-
-
-def valid_email(name, email):
-    try:
-        return '@' in email
-    except:
-        return False
-
-
-def get_recipients(message, include_cc=False):
-    'Return the list of (name, email) of the message recipients.'
-    # TODO: use openerp.tools.email_split(text)
-    from email.utils import getaddresses
-    raw_recipients = [decode_header(message, 'To')]
-    if include_cc:
-        raw_recipients.append(decode_header(message, 'Cc'))
-    recipients = [
-        addr for addr in getaddresses(raw_recipients)
-        if valid_email(*addr)
-    ]
-    return recipients
 
 
 class BounceRecord(Model):
@@ -290,6 +268,7 @@ class BouncedMailRouter(MailRouter):
         You should deal with forgery elsewhere.
 
         """
+        from .common import get_recipients
         recipients = get_recipients(message)
         found = None
         while not found and recipients:
