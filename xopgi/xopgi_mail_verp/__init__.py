@@ -16,5 +16,6 @@
 from __future__ import absolute_import as _py3_abs_imports
 
 from . import verp  # noqa
+from . import rogue  # noqa
 from . import mail_mail  # noqa
 from . import mail_bounce_model  # noqa

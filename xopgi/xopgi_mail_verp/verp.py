@@ -46,8 +46,6 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-
-from xoutil import logger as _logger
 from xoutil.string import safe_encode
 
 from xoeuf.osv.model_extensions import search_browse
@@ -59,31 +57,9 @@ from openerp.osv import fields
 
 from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
 from openerp.addons.xopgi_mail_threads import TransportRouteData
-from openerp.addons.mail.mail_thread import decode_header
 from openerp.addons.mail.mail_message import decode
 
 from .mail_bounce_model import BOUNCE_MODEL
-
-
-def valid_email(name, email):
-    try:
-        return '@' in email
-    except:
-        return False
-
-
-def get_recipients(message, include_cc=False):
-    'Return the list of (name, email) of the message recipients.'
-    # TODO: use openerp.tools.email_split(text)
-    from email.utils import getaddresses
-    raw_recipients = [decode_header(message, 'To')]
-    if include_cc:
-        raw_recipients.append(decode_header(message, 'Cc'))
-    recipients = [
-        addr for addr in getaddresses(raw_recipients)
-        if valid_email(*addr)
-    ]
-    return recipients
 
 
 class BounceRecord(Model):
@@ -184,27 +160,6 @@ class BouncedMailRouter(MailRouter):
                 # correctly but fail to include the Auto-Submitted header.
                 # However is too hard to find out if this is the case...
                 return True, route
-        else:
-            from flufl.bounce import scan_message
-            # Some fucked MTAs send bounce messages to the From address
-            # instead of the Return Path.  Let's pretend all delivery-status
-            # are bounces or if the scan_message finds any failed address...
-            #
-            # We can't find the right thread though.
-            content_type = message.get('Content-Type', '')
-            delivery_status = (content_type.startswith('message/report') and
-                               'report-type=delivery-status' in content_type)
-            failed_addresses = scan_message(message)
-            bounce = delivery_status or bool(failed_addresses)
-            if bounce:
-                message_id = message['Message-Id']
-                _logger.warn('Possible bounce: %s',
-                             message_id,
-                             extra=dict(
-                                 message_details=message.items(),
-                                 delivery_status=delivery_status,
-                                 failed_addresses=failed_addresses
-                             ))
             return False, None
 
     @classmethod
@@ -271,16 +226,6 @@ class BouncedMailRouter(MailRouter):
         return False
 
     @classmethod
-    def _void_return_path(cls, return_path):
-        'Indicates if this a bouncy Return-Path.'
-        from .common import VOID_EMAIL_ADDRESS
-        res = not return_path or return_path == VOID_EMAIL_ADDRESS
-        if not res:
-            # Some MTAs place "<MAILER-DAEMON>" return path upon delivery.
-            res = not valid_email(return_path[1:-1])
-        return res
-
-    @classmethod
     def is_bouncelike(self, obj, cr, uid, rcpt, context=None):
         from .common import get_bounce_alias
         bounce_alias = get_bounce_alias(obj.pool, cr, uid, context=context)
@@ -300,6 +245,7 @@ class BouncedMailRouter(MailRouter):
         You should deal with forgery elsewhere.
 
         """
+        from .common import get_recipients
         recipients = get_recipients(message)
         found = None
         while not found and recipients:
