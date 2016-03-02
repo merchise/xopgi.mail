@@ -404,10 +404,9 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
             msg = msg[0] if isinstance(msg, list) else msg
             mail = obj.pool['mail.mail'].browse(cr, uid, mail_id,
                                                 context=context)
-            address = self._get_bounce_address(obj, cr, uid, msg, mail,
-                                               mail.email_to
-                                               or message['To'],
-                                               context=context)
+            address = self._get_bounce_address(
+                obj, cr, uid, msg, mail, mail.email_to or message['To'],
+                context=context)
             return bool(address), dict(address=address)
         return False, None
 

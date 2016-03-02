@@ -259,7 +259,7 @@ class project_project(Model):
         return 1
 
     _columns = {
-        'alias_ids': fields.function(_get_alias,  fnct_inv=_set_alias,
+        'alias_ids': fields.function(_get_alias, fnct_inv=_set_alias,
                                      method=True, relation='project.valias',
                                      string='Mail Aliases',
                                      type='one2many',

@@ -7,7 +7,7 @@ dict(
     summary=('Disallows replying from the wall, effectively disallowing '
              'replying to direct emails before converting them to '
              'proper object'),
-    data = [
+    data=[
         'views/assets.xml',
     ]
 )

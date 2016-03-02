@@ -15,7 +15,7 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp import api, fields, models, SUPERUSER_ID, _
+from openerp import api, exceptions, fields, models, SUPERUSER_ID, _
 from openerp.addons.xopgi_mail_threads.mail_messages import RAW_EMAIL_ATTR
 from openerp.addons.xopgi_move_copy_msg_commons import get_model_selection
 from xoeuf import signals
@@ -41,11 +41,11 @@ class NewThreadWizard(models.TransientModel):
         context = dict(context or {})
         if uid != SUPERUSER_ID and not self.pool['res.users'].has_group(
                 cr, uid, 'xopgi_mail_new_thread.group_new_thread'):
-            raise osv.except_osv(_('Error!'), _('Access denied.'))
+            raise exceptions.AccessDenied()
         if view_type == 'form':
-            if (len(context.get('active_ids', [])) > 1
-                    or not context.get('default_message_id', False)):
-                raise osv.except_osv(_('Error!'), _(
+            if (len(context.get('active_ids', [])) > 1 or not context.get(
+                    'default_message_id', False)):
+                raise exceptions.ValidationError(_(
                     'You should select one and only one message.'))
         result = super(NewThreadWizard, self).fields_view_get(
             cr, uid, view_id=view_id, view_type=view_type, context=context,
