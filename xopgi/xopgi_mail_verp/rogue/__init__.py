@@ -42,7 +42,10 @@ from . import _probes
 class RogueBounceProber(MailRouter):
     @classmethod
     def _iter_probes(cls):
-        for name in dir(_probes):
+        probes = getattr(_probes, '__all__', None)
+        if not probes:
+            probes = dir(_probes)
+        for name in probes:
             probe = getattr(_probes, name, None)
             if isinstance(probe, type) and hasattr(probe, '__call__'):
                 yield probe
