@@ -84,5 +84,17 @@ def is_void_return_path(return_path):
     res = not return_path or return_path == VOID_EMAIL_ADDRESS
     if not res:
         # Some MTAs place "<MAILER-DAEMON>" return path upon delivery.
-        res = not valid_email(return_path[1:-1])
+        res = not valid_email('', return_path[1:-1])
     return res
+
+
+def has_void_return_path(msg, missing_is_void=True):
+    return_path = msg['Return-Path']
+    if return_path:
+        return is_void_return_path(return_path)
+    else:
+        return missing_is_void
+
+
+def is_dsn(msg):
+    return msg.get_content_type() == 'multipart/report'
