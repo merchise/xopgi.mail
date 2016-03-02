@@ -58,14 +58,23 @@ class NewThreadWizard(models.TransientModel):
         message if not leave_msg and open new thread on edit form.
 
         '''
+        thread_model = self.env[self.model_id]
+        context = dict(
+            new_thread_from_mail_msg=True, thread_model=self.model_id)
+        rec_name = thread_model.fields_get().get(
+            thread_model._rec_name or 'name', False)
+        if rec_name and rec_name['type'] in ('char', 'text'):
+            name = self.message_id.subject or self.message_id.display_name
+            if name:
+                context.update(
+                    {'default_%s' % thread_model._rec_name or 'name': name})
         return {
             'name': _('New Document from Mail Message'),
             'view_type': 'form',
             'view_mode': 'form',
             'res_model': self.model_id,
             'type': 'ir.actions.act_window',
-            'context': dict(
-                new_thread_from_mail_msg=True, thread_model=self.model_id)
+            'context': context
         }
 
 
