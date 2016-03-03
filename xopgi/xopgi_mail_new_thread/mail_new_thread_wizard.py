@@ -18,6 +18,7 @@ from __future__ import (division as _py3_division,
 from openerp import api, exceptions, fields, models, SUPERUSER_ID, _
 from openerp.addons.xopgi_mail_threads.mail_messages import RAW_EMAIL_ATTR
 from openerp.addons.xopgi_move_copy_msg_commons import get_model_selection
+
 from xoeuf import signals
 
 FIELDS2READ = ['type', 'message_id', 'subject', 'email_from', 'date',
@@ -45,8 +46,8 @@ class NewThreadWizard(models.TransientModel):
         if view_type == 'form':
             if (len(context.get('active_ids', [])) > 1 or not context.get(
                     'default_message_id', False)):
-                raise exceptions.ValidationError(_(
-                    'You should select one and only one message.'))
+                raise exceptions.ValidationError(
+                    _('You should select one and only one message.'))
         result = super(NewThreadWizard, self).fields_view_get(
             cr, uid, view_id=view_id, view_type=view_type, context=context,
             toolbar=toolbar, submenu=submenu)
