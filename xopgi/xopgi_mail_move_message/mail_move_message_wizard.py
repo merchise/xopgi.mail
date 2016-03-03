@@ -67,5 +67,3 @@ class MoveMessageWizard(models.TransientModel):
             return action[0] if action else RELOAD_UI
         except AccessError:
             return RELOAD_UI
-
-

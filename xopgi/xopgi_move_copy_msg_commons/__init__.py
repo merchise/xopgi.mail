@@ -24,14 +24,17 @@ def get_model_selection(self):
 
     """
     thread_obj = self.env['mail.thread']
+
     def check(model):
         try:
             return self.env[model].search([], limit=1, count=True)
         except:
             return False
     translate = lambda source: (
-        self.env['ir.translation'].sudo()._get_source(None, ('model',),
-            self._context.get('lang', False), source) or source)
+        self.env['ir.translation'].sudo()._get_source(
+            None, ('model',),
+            self._context.get('lang', False), source
+        ) or source)
     model_names = [(n, translate(d)) for n, d in
                    thread_obj.message_capable_models().items() if
                    (n != 'mail.thread' and check(n))]
