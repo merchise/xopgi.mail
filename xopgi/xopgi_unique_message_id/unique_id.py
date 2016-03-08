@@ -38,7 +38,7 @@ from openerp.addons.mail.mail_thread import decode_header, mail_header_msgid_re
 from openerp.addons.xopgi_mail_threads import MailTransportRouter
 from openerp.addons.xopgi_mail_threads import TransportRouteData
 
-from .common import message_id_is_encoded,  encode_message_id
+from .common import message_id_is_encoded, encode_message_id
 
 
 class MailMessage(Model):
