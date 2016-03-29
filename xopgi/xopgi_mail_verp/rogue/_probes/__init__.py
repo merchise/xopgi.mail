@@ -12,8 +12,8 @@ __all__ = [
     'NautaProbe',
 
     # Keep this at the bottom
-    'FLUFLProbe',
+    # 'FLUFLProbe',
 ]
 
 from .nauta import NautaProbe
-from .heuristics import FLUFLProbe
+# from .heuristics import FLUFLProbe
