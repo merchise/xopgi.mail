@@ -15,16 +15,15 @@
 
 from __future__ import (division as _py3_division,
                         print_function as _py3_print,
-                        unicode_literals as _py3_unicode,
                         absolute_import as _py3_abs_imports)
 
 
 def read_terpfile():
     import os
-    from os .path import join
+    from os.path import join
     with open(join(os.path.dirname(__file__), '__openerp__.py'), 'rU') as fh:
         content = fh.read()
-        return eval(content, {}, {})
+        return eval(content, {'ODOO_VERSION_INFO': (8, 0)}, {})
 
 _TERP = read_terpfile()
 VERSION = _TERP['version']

@@ -18,7 +18,11 @@ dict(
     author='Merchise Autrement',
     category='mail',
     application=False,
-    installable=True,
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    installable=(8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+
     summary='Mail Hotfix.',
     description=('Avoid Duplicated Message Id on db.'),
     depends=['mail', 'xopgi_mail_threads'],

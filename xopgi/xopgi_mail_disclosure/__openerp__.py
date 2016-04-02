@@ -18,7 +18,11 @@ dict(
     author='Merchise Autrement',
     category='mail',
     application=False,
-    installable=True,
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    installable=((8, 0) <= ODOO_VERSION_INFO < (9, 0)),   # noqa
+
     summary='Disclose notified partners in notifications',
     description=('Appends a Cc disclosing notified partners in outgoing '
                  'emails.'),

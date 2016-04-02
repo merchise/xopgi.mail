@@ -16,7 +16,11 @@
     "author": 'Merchise Autrement',
     'category': 'Social Network',
     'application': False,
-    'installable': True,
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+
     'summary': 'Add an option to move/mopy existing messages to other mail '
                'threads.',
     'depends': [

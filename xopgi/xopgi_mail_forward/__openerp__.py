@@ -20,7 +20,11 @@
     'author': 'Merchise Autrement',
     'category': 'Hidden',
     'application': False,
-    'installable': True,
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+
     'summary': 'Allow to forward messages including the text of the original',
     'depends': ['mail', 'web'],
     'description': '',

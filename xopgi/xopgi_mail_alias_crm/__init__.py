@@ -16,4 +16,10 @@
 
 from __future__ import absolute_import as _py3_abs_imports
 
-from . import mail_crm  # noqa
+from openerp.release import version_info as ODOO_VERSION_INFO
+
+if ODOO_VERSION_INFO < (9, 0):
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+
+    from . import mail_crm  # noqa

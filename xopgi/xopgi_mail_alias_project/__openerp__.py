@@ -20,7 +20,11 @@
     'author': 'Merchise Autrement',
     'category': 'mail',
     'application': False,
-    'installable': True,
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+
     'summary': 'Extend project module to relate many alias per project to '
                'do different thinks.',
     'depends': ['project', 'project_issue', 'xopgi_mail_alias'],
