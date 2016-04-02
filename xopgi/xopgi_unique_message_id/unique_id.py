@@ -33,10 +33,16 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 from openerp.models import Model, AbstractModel
-from openerp.addons.mail.mail_thread import decode_header, mail_header_msgid_re
-
 from openerp.addons.xopgi_mail_threads import MailTransportRouter
 from openerp.addons.xopgi_mail_threads import TransportRouteData
+try:
+    # Odoo 8
+    from openerp.addons.mail.mail_thread \
+        import decode_header, mail_header_msgid_re
+except ImportError:
+    # Odoo 9 fallback
+    from openerp.addons.mail.models.mail_thread \
+        import decode_header, mail_header_msgid_re
 
 from .common import message_id_is_encoded, encode_message_id
 

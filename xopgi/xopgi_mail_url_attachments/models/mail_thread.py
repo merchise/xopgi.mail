@@ -16,18 +16,13 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 from lxml import etree
-from openerp import api, models
-from openerp.addons.mail.mail_thread import mail_thread as _base_mail_thread
-from xoeuf.osv.orm import get_modelname
 from six import integer_types, string_types
 
-
-mail_thread_model = get_modelname(_base_mail_thread)
+from openerp import api, models
 
 
 class MailThread(models.AbstractModel):
-    _name = mail_thread_model
-    _inherit = _name
+    _inherit = 'mail.thread'
 
     @api.cr_uid_ids_context
     def message_post(self, cr, uid, thread_id, body='', subject=None,
@@ -47,8 +42,8 @@ class MailThread(models.AbstractModel):
         if not links:
             return msg_id
         thread_model = (self._name
-                        if self._name != mail_thread_model
-                        else context.get('thread_model', mail_thread_model))
+                        if self._name != 'mail.thread'
+                        else context.get('thread_model', 'mail.thread'))
         attachment = self.pool['ir.attachment'].browse(cr, uid, [],
                                                        context=context)
         values = dict(

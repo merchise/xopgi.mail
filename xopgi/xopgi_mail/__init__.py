@@ -22,8 +22,8 @@ from __future__ import (division as _py3_division,
 
 from xoutil import logger as _logger
 
-from openerp.osv.orm import Model
 from openerp.osv import fields
+from openerp.models import Model
 
 try:
     from openerp.signals import receiver
