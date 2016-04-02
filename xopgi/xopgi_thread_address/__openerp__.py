@@ -14,14 +14,14 @@
 
 dict(
     name='xopgi_thread_address',
-    version='1.4',
+    version='2.0',
     author='Merchise Autrement',
     category='mail',
     application=False,
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    installable=(8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+    installable=(8, 0) <= ODOO_VERSION_INFO < (10, 0),   # noqa
 
     summary='Unique thread address',
     description=('Ensure each mail thread has a unique address to respond '
