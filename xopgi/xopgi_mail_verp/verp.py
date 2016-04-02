@@ -57,9 +57,15 @@ from openerp.osv import fields
 
 from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
 from openerp.addons.xopgi_mail_threads import TransportRouteData
-from openerp.addons.mail.mail_message import decode
+try:
+    # Odoo 8
+    from openerp.addons.mail.mail_message import decode
+except ImportError:
+    # Odoo 9 fallback
+    from openerp.addons.mail.models.mail_message import decode
 
-from .mail_bounce_model import BOUNCE_MODEL
+
+from .mail_bounce_model import BOUNCE_MODEL, BounceVirtualId
 
 
 class BounceRecord(Model):
@@ -267,8 +273,10 @@ class BouncedMailRouter(MailRouter):
                         cr, SUPERUSER_ID, found.thread_index
                     )
                     if model and thread_id:
-                        return (found.message_id, model, thread_id,
-                                found.recipient, message)
+                        return BounceVirtualId(
+                            found.message_id, model, thread_id,
+                            found.recipient, message
+                        )
         # Not a known bounce
         return None
 

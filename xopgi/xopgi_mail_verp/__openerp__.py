@@ -16,11 +16,15 @@
 
 dict(
     name='xopgi_mail_verp',
-    version='2.0',
+    version='3.0',
     author='Merchise Autrement',
-    category='mail',
+    category='Hidden',
     application=False,
-    installable=True,
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    installable=(8, 0) <= ODOO_VERSION_INFO < (10, 0),   # noqa
+
     summary='Variable Envelop Return Path (VERP)',
     description=('Allows to track email bounces and add them to the '
                  'proper thread.'),

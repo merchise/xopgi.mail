@@ -42,7 +42,7 @@ class mail_mail(osv.Model):
 
         '''
         res = True
-        context = kwargs.get('context', {}) or {}
+        context = dict(kwargs.get('context', {}) or {})
         _super = super(mail_mail, self).send
         for _id in ids:
             context.update(mail_id=_id)

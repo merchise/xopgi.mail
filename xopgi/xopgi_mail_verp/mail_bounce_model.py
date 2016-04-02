@@ -25,8 +25,32 @@ from xoutil import logger as _logger
 from openerp import tools
 from openerp.osv import orm
 from openerp.tools.translate import _
+from openerp.release import version_info as ODOO_VERSION_INFO
 
 from .common import BOUNCE_MODEL, VOID_EMAIL_ADDRESS
+
+
+class BounceVirtualId(object):
+    '''An object that represents a virtual id for bounces.
+
+    The ids of `MailBounce` objects are expected to be instances of this type.
+
+    '''
+    def __init__(self, message_id, model, thread_id, recipient, message):
+        self.message_id = message_id
+        self.model = model
+        self.thread_id = thread_id
+        self.recipient = recipient
+        self.message = message
+
+    @property
+    def args(self):
+        return (self.message_id, self.model, self.thread_id,
+                self.recipient, self.message)
+
+    def __iter__(self):
+        # Odoo 9
+        return iter([self, ])
 
 
 class MailBounce(orm.TransientModel):
@@ -62,18 +86,13 @@ class MailBounce(orm.TransientModel):
         before actually posting the message to avoid sending notification
         mails.
 
-        .. note:: The `ids` is expected to be a single item with a tuple with
-           ``(message_id, model, thread_id, failed_recipient, raw_message)``,
-           being the `message_id` the id of the message that bounced, `model`
-           the model to which the message belongs, `thread_id` of the object
-           (from model) that identifies the thread, `failed_recipient` the
-           email address that bounced, and `raw_message` the bounce message.
+        `ids` must a sequence with a single BounceVirtualId instance.
 
         '''
-        message_id, model, thread_id, recipient, rfc_message = ids[0]
+        message_id, model, thread_id, recipient, rfc_message = ids[0].args
         if not model:
             return
-        context = kwargs.setdefault('context', {})
+        kwargs['context'] = context = dict(kwargs.get('context', {}))
         model_pool = self.pool[model]
         if not hasattr(model_pool, 'message_post'):
             context['thread_model'] = model
@@ -134,19 +153,20 @@ class MailBounce(orm.TransientModel):
         return self.pool['mail.message'].browse(cr, uid, message_id)
 
 
-class mail_notification(orm.Model):
-    _inherit = 'mail.notification'
+if ODOO_VERSION_INFO < (9, 0):
+    class mail_notification(orm.Model):
+        _inherit = 'mail.notification'
 
-    def update_message_notification(self, cr, uid, ids, message_id,
-                                    partner_ids, context=None):
-        # If the forced_followers is set, override the partner_ids.
-        context = dict(context or {})
-        forced_followers = context.pop('forced_followers', Unset)
-        if forced_followers is not Unset:
-            partner_ids = forced_followers
-        return super(mail_notification, self).update_message_notification(
-            cr, uid, ids, message_id, partner_ids, context=context
-        )
+        def update_message_notification(self, cr, uid, ids, message_id,
+                                        partner_ids, context=None):
+            # If the forced_followers is set, override the partner_ids.
+            context = dict(context or {})
+            forced_followers = context.pop('forced_followers', Unset)
+            if forced_followers is not Unset:
+                partner_ids = forced_followers
+            return super(mail_notification, self).update_message_notification(
+                cr, uid, ids, message_id, partner_ids, context=context
+            )
 
 
 class mail_mail(orm.Model):
