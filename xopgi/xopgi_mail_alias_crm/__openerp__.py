@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_mail_alias_crm.__openerp__
 # --------------------------------------------------------------------------
-# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
+# Copyright (c) 2015-2016 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # Author: Merchise Autrement
