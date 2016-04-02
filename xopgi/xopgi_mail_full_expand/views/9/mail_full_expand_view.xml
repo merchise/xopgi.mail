@@ -14,17 +14,12 @@
             <field name="email_from" readonly="1"/>
             <field name="date" readonly="1"/>
             <field name="partner_ids" widget="many2many_tags" readonly="1"/>
-            <field
-                name="notified_partner_ids"
-                widget="many2many_tags"
-                readonly="1"
-                />
             <field name="parent_id" readonly="1"/>
           </group>
           <notebook colspan="4">
             <page string="Message">
               <h1>
-                <field name="subject" readonly="1"/>
+                <field name="subject" readonly="1" class="oe_inline"/>
               </h1>
               <field name="body" readonly="1"/>
               <field name="attachment_ids" widget="many2many_binary"

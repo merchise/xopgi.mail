@@ -5,6 +5,9 @@
 	      name="xopgi mail full expand"
 	      inherit_id="mail.assets_backend">
       <xpath expr="." position="inside">
+        <link
+            rel="stylesheet"
+            href="/xopgi_mail_full_expand/static/src/less/9/mail_full_expand.less"/>
         <script
             type="text/javascript"
             src="/xopgi_mail_full_expand/static/src/js/9/mail_full_expand.js">

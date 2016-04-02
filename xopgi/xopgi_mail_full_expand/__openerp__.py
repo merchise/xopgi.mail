@@ -14,14 +14,14 @@
 
 {
     'name': 'XOPGI Mail Full Expand',
-    'version': '1.4',
+    'version': '2.0',
     "author": 'Merchise Autrement',
     'category': 'Social Network',
     'application': False,
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+    'installable': (8, 0) <= ODOO_VERSION_INFO < (10, 0),   # noqa
 
     'summary': 'Add an option to open the mail in a big window.',
     'depends': [
