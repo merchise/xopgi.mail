@@ -15,17 +15,9 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from xoutil.string import safe_encode
-
-from xoeuf.osv.model_extensions import search_browse
-
-from openerp import SUPERUSER_ID
-
-from openerp.models import Model
-from openerp.osv import fields
-
-from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
+from openerp.addons.xopgi_mail_threads import MailTransportRouter
 from openerp.addons.xopgi_mail_threads import TransportRouteData
+
 try:
     # Odoo 8
     from openerp.addons.mail.mail_message import decode
