@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_mail_forward.__openerp__
 # --------------------------------------------------------------------------
-# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
+# Copyright (c) 2014-2016 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # Author: Eddy Ernesto del Valle Pino <eddy@merchise.org>
@@ -20,7 +20,11 @@
     'author': 'Merchise Autrement',
     'category': 'Hidden',
     'application': False,
-    'installable': True,
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+
     'summary': 'Allow to forward messages including the text of the original',
     'depends': ['mail', 'web'],
     'description': '',

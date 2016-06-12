@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # xopgi_mail_verp.router
 # ---------------------------------------------------------------------
-# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
+# Copyright (c) 2015-2016 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -15,11 +15,16 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
+from openerp import tools
 from openerp.models import Model
 from openerp.osv import fields
 from openerp.addons.xopgi_mail_threads import MailRouter
-from openerp.addons.mail.mail_thread import decode_header
-from openerp import tools
+try:
+    # Odoo 8
+    from openerp.addons.mail.mail_thread import decode_header
+except ImportError:
+    # Odoo 9 fallback
+    from openerp.addons.mail.models.mail_thread import decode_header
 
 
 def get_default_alias_domain(pool, cr, uid, context=None):

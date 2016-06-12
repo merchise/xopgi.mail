@@ -7,9 +7,9 @@
       <xpath expr="." position="inside">
 	<link
 	    rel="stylesheet"
-	    href="/xopgi_mail_full_expand/static/src/css/mail_full_expand.css"/>
+	    href="/xopgi_mail_full_expand/static/src/css/8/mail_full_expand.css"/>
         <script type="text/javascript"
-		src="/xopgi_mail_full_expand/static/src/js/mail_full_expand.js">
+		src="/xopgi_mail_full_expand/static/src/js/8/mail_full_expand.js">
 	</script>
       </xpath>
     </template>

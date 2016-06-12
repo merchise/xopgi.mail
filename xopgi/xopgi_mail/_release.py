@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------
 # xopgi.mail.xopgi_mail._release
 # ---------------------------------------------------------------------
-# Copyright (c) 2013, 2014, 2015 Merchise Autrement and Contributors
+# Copyright (c) 2015-2016 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -19,9 +19,10 @@ from __future__ import (division as _py3_division,
 
 def read_terpfile():
     import os
-    with open(os.path.join(os.path.dirname(__file__), '__openerp__.py'), 'rU') as fh:
+    from os.path import join
+    with open(join(os.path.dirname(__file__), '__openerp__.py'), 'rU') as fh:
         content = fh.read()
-        return eval(content, {}, {})
+        return eval(content, {'ODOO_VERSION_INFO': (8, 0)}, {})
 
 _TERP = read_terpfile()
 VERSION = _TERP['version']

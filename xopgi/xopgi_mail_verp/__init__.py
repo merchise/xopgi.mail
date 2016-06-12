@@ -15,7 +15,13 @@
 
 from __future__ import absolute_import as _py3_abs_imports
 
-from . import verp  # noqa
-from . import rogue  # noqa
-from . import mail_mail  # noqa
-from . import mail_bounce_model  # noqa
+from openerp.release import version_info as ODOO_VERSION_INFO
+
+if ODOO_VERSION_INFO < (10, 0):
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+
+    from . import verp  # noqa
+    from . import rogue  # noqa
+    from . import mail_mail  # noqa
+    from . import mail_bounce_model  # noqa

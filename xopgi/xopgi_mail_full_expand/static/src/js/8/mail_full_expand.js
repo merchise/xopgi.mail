@@ -1,4 +1,3 @@
-
 openerp.xopgi_mail_full_expand = function (instance) {
     instance.mail.ThreadMessage.include({
         bind_events: function () {

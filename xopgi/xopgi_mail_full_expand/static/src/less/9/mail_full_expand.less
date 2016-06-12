@@ -1,0 +1,18 @@
+@mail-thread-icon-opacity: 0.6;
+
+.o_mail_thread {
+  .o_thread_message {
+    i.o_thread_message_expand {
+      cursor: pointer;
+      opacity: 0;
+    }
+    &:hover, &.o_thread_selected_message {
+      i.o_thread_message_expand {
+        opacity: @mail-thread-icon-opacity;
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}

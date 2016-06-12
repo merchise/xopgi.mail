@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------
 # xopgi_thread_address
 # ---------------------------------------------------------------------
-# Copyright (c) 2015 Merchise Autrement and Contributors
+# Copyright (c) 2015, 2016 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -14,11 +14,15 @@
 
 dict(
     name='xopgi_thread_address',
-    version='1.4',
+    version='2.0',
     author='Merchise Autrement',
     category='mail',
     application=False,
-    installable=True,
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    installable=(8, 0) <= ODOO_VERSION_INFO < (10, 0),   # noqa
+
     summary='Unique thread address',
     description=('Ensure each mail thread has a unique address to respond '
                  'to.  You must ensure your MTA accepts dynamic addresses.'),

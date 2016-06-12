@@ -16,7 +16,15 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
+from email.utils import getaddresses
+
 from openerp.release import version_info as ODOO_VERSION_INFO
+try:
+    # Odoo 8
+    from openerp.addons.mail.mail_thread import decode_header
+except ImportError:
+    # Odoo 9 fallback
+    from openerp.addons.mail.models.mail_thread import decode_header
 
 
 # The name of the configuration parameter where the alias for bounces should
@@ -67,8 +75,6 @@ def valid_email(name, email):
 def get_recipients(message, include_cc=False):
     'Return the list of (name, email) of the message recipients.'
     # TODO: use openerp.tools.email_split(text)
-    from email.utils import getaddresses
-    from openerp.addons.mail.mail_thread import decode_header
     raw_recipients = [decode_header(message, 'To')]
     if include_cc:
         raw_recipients.append(decode_header(message, 'Cc'))

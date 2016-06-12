@@ -18,7 +18,11 @@
     "author": 'Merchise Autrement',
     'category': 'Internal',
     'application': False,
-    'installable': True,
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+
     'summary': 'Add method to move messages.',
     'depends': [
         'mail',

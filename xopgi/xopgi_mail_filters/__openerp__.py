@@ -3,11 +3,8 @@
 # --------------------------------------------------------------------------
 # xopgi_mail_forward.__openerp__
 # --------------------------------------------------------------------------
-# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
+# Copyright (c) 2014-2016 Merchise Autrement and Contributors
 # All rights reserved.
-#
-# Author: Eddy Ernesto del Valle Pino <eddy@merchise.org>
-# Contributors: see CONTRIBUTORS and HISTORY file
 #
 # This is free software; you can redistribute it and/or modify it under the
 # terms of the LICENCE attached (see LICENCE file) in the distribution
@@ -34,4 +31,8 @@
         ),
     ],
     'auto_install': True,
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.  We support Odoo 8.
+    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
 }

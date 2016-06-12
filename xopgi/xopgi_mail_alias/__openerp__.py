@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_mail_alias.__openerp__
 # --------------------------------------------------------------------------
-# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
+# Copyright (c) 2015-2016 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # Author: Merchise Autrement
@@ -20,7 +20,11 @@ dict(
     author='Merchise Autrement',
     category='mail',
     application=False,
-    installable=True,
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    installable=(8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+
     summary='Mail Alias Extension.',
     description=('Allow to user edit alias domain and check for it '
                  'on income message routing.'),

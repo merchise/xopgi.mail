@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # xopgi_directory_mail.__openerp__
 # ---------------------------------------------------------------------
-# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
+# Copyright (c) 2015-2016 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -18,7 +18,11 @@ dict(
     author='Merchise Autrement',
     category='Hidden',
     application=False,
-    installable=True,
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    installable=(8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+
     auto_install=True,
     summary='Mail extensions for directory.',
     description='Get fake and real partners con mail management',

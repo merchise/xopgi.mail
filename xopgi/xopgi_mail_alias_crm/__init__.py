@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_mail_alias_crm
 # --------------------------------------------------------------------------
-# Copyright (c) 2015 Merchise Autrement and Contributors
+# Copyright (c) 2015-2016 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # Author: Merchise Autrement
@@ -16,4 +16,10 @@
 
 from __future__ import absolute_import as _py3_abs_imports
 
-from . import mail_crm  # noqa
+from openerp.release import version_info as ODOO_VERSION_INFO
+
+if ODOO_VERSION_INFO < (9, 0):
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+
+    from . import mail_crm  # noqa

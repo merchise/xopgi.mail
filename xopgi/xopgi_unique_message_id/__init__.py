@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # xopgi_unique_message_id
 # ---------------------------------------------------------------------
-# Copyright (c) 2014, 2015 Merchise Autrement and Contributors
+# Copyright (c) 2015-2016 Merchise Autrement and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -13,5 +13,11 @@
 
 from __future__ import absolute_import as _py3_abs_imports
 
-from . import common  # noqa
-from . import unique_id  # noqa
+from openerp.release import version_info as ODOO_VERSION_INFO
+
+if ODOO_VERSION_INFO < (9, 0):
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+
+    from . import common  # noqa
+    from . import unique_id  # noqa
