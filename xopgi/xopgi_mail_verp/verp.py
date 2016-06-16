@@ -64,6 +64,11 @@ except ImportError:
     # Odoo 9 fallback
     from openerp.addons.mail.models.mail_message import decode
 
+from .common import (
+    VOID_EMAIL_ADDRESS,
+    get_bounce_alias,
+    get_recipients
+)
 
 from .mail_bounce_model import BOUNCE_MODEL, BounceVirtualId
 
@@ -233,7 +238,6 @@ class BouncedMailRouter(MailRouter):
 
     @classmethod
     def is_bouncelike(self, obj, cr, uid, rcpt, context=None):
-        from .common import get_bounce_alias
         bounce_alias = get_bounce_alias(obj.pool, cr, uid, context=context)
         if not bounce_alias:
             return False
@@ -251,7 +255,6 @@ class BouncedMailRouter(MailRouter):
         You should deal with forgery elsewhere.
 
         """
-        from .common import get_recipients
         recipients = get_recipients(message)
         found = None
         while not found and recipients:
@@ -298,7 +301,6 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
         '''Compute the bounce address.
 
         '''
-        from .common import VOID_EMAIL_ADDRESS
         if mail.email_from == VOID_EMAIL_ADDRESS:
             # This is a bounce notification, so don't we should not generate a
             # VERP address.
@@ -307,7 +309,6 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
             # I can't provide a VERP bounce address without a message id.
             return None
         assert mail.mail_message_id.id == message.id
-        from .common import get_bounce_alias
         bounce_alias = get_bounce_alias(obj.pool, cr, uid, context=context)
         if not bounce_alias:
             return None
