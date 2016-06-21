@@ -138,7 +138,7 @@ class UniqueAddressRouter(MailRouter):
         while not found and recipients:
             res = recipients.pop(0)
             if any(res.startswith(p) for p in prefixes):
-                thread_index = res[res.find('+') + 1:]
+                thread_index = res[res.find('+') + 1:res.find('@')]
                 model, thread_id = Threads._threadref_by_index(cr, uid,
                                                                thread_index)
                 found = bool(model and thread_id)
