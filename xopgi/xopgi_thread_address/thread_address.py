@@ -130,6 +130,8 @@ class UniqueAddressRouter(MailRouter):
         domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
         if not domain:
             return None
+        else:
+            domain = '@' + domain
         replymarks = get_param(cr, uid, 'mail.replyto.alias',
                                default=DEFAULT_REPLYTO_PREFIX, context=context)
         prefixes = [alias.strip() + '+' for alias in replymarks.split(',')]
@@ -137,7 +139,7 @@ class UniqueAddressRouter(MailRouter):
         Threads = obj.pool['mail.thread']
         while not found and recipients:
             res = recipients.pop(0)
-            if any(res.startswith(p) for p in prefixes):
+            if any(res.startswith(p) and res.endswith(domain) for p in prefixes):
                 thread_index = res[res.find('+') + 1:res.find('@')]
                 model, thread_id = Threads._threadref_by_index(cr, uid,
                                                                thread_index)
