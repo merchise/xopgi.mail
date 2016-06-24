@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_one_line_subject
 # --------------------------------------------------------------------------
-# Copyright (c) 2015-2016 Merchise Autrement and Contributors
+# Copyright (c) 2015-2016 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
 # Author: Merchise Autrement
