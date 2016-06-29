@@ -21,7 +21,6 @@ if ODOO_VERSION_INFO < (10, 0):
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
 
-    from . import verp  # noqa
-    from . import rogue  # noqa
+    from . import coordinated  # noqa
     from . import mail_mail  # noqa
     from . import mail_bounce_model  # noqa
