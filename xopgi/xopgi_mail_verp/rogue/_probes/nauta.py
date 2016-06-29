@@ -92,8 +92,8 @@ class NautaProbe(object):
         while parts:
             part = parts.pop(0)
             res = yield part
-            if res != 'prune' and msg.is_multipart():
-                parts.extend(msg.get_payload())
+            if res != 'prune' and part.is_multipart():
+                parts.extend(part.get_payload())
 
     def find_part(self, walk, ctype):
         try:
