@@ -165,7 +165,7 @@ class BouncedMailRouter(MailRouter):
                 # message it will be also delivered to the bounce VERP
                 # address, but we should not treat it as bounce and let it be
                 # placed according to In-Reply-To.
-                return False
+                return False, None
             else:
                 # Some mailers send auto-responses to the Return-Path address
                 # correctly but fail to include the Auto-Submitted header.
