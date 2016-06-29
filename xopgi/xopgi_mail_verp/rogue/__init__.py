@@ -36,10 +36,17 @@ from __future__ import (division as _py3_division,
 from xoutil import logger
 
 from openerp.addons.xopgi_mail_threads import MailRouter
+
 from . import _probes
+from ..mail_bounce_model import BounceVirtualId
 
 
 class RogueBounceProber(MailRouter):
+    @classmethod
+    def standard_verp(cls, *args, **kwargs):
+        from ..verp import BouncedMailRouter
+        return BouncedMailRouter.query(*args, **kwargs)
+
     @classmethod
     def _iter_probes(cls):
         probes = getattr(_probes, '__all__', None)
@@ -52,16 +59,27 @@ class RogueBounceProber(MailRouter):
 
     @classmethod
     def query(cls, obj, cr, uid, message, context=None):
-        probe = found = None
-        probes = list(cls._iter_probes())
-        while not found and probes:
-            probe = probes.pop(0)()
-            logger.debug('Probing with %s', probe)
-            found = probe(message)
-            if found and not ('thread_index' in found and 'failures' in found):
-                logger.error('Probe returned invalid data',
-                             extra=dict(probe=probe, found=found))
-                found = None
+        # TODO: We force a query to the standard VERP before any probe.  If
+        # the standard VERP finds this is a bounce we do nothing.  This means
+        # that the standard VERP is queried twice; but there's no way to
+        # coordinate routers now.  Alternatively, I could make a single router
+        # that does the standard VERP and fallback to rogue.
+        res = cls.standard_verp(obj, cr, uid, message, context=context)
+        if isinstance(res, tuple):
+            res = res[0]
+        if not res:
+            probe = found = None
+            probes = list(cls._iter_probes())
+            while not found and probes:
+                probe = probes.pop(0)()
+                logger.debug('Probing with %s', probe)
+                found = probe(message)
+                if found and not ('thread_index' in found and 'failures' in found):
+                    logger.error('Probe returned invalid data',
+                                 extra=dict(probe=probe, found=found))
+                    found = None
+        else:
+            found = None
         if found:
             return True, (probe, found)
         else:
@@ -75,7 +93,10 @@ class RogueBounceProber(MailRouter):
         MailThread = obj.pool['mail.thread']
         model, thread_id = MailThread._threadref_by_index(cr, uid, index)
         routes[:] = [
-            cls._get_route(obj, cr, uid, (None, model, thread_id, recipient, message))
+            cls._get_route(
+                obj, cr, uid,
+                BounceVirtualId(None, model, thread_id, recipient, message)
+            )
             for recipient in recipients
         ]
         # XXX: Clean up the message so that other routers don't reroute them.
