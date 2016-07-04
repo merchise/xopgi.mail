@@ -3,10 +3,10 @@
 # --------------------------------------------------------------------------
 # xopgi_mail_verp
 # --------------------------------------------------------------------------
-# Copyright (c) 2015-2016 Merchise Autrement and Contributors
+# Copyright (c) 2015-2016 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
-# Author: Merchise Autrement
+# Author: Merchise Autrement [~º/~]
 # Contributors: see CONTRIBUTORS and HISTORY file
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -21,7 +21,6 @@ if ODOO_VERSION_INFO < (10, 0):
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
 
-    from . import verp  # noqa
-    from . import rogue  # noqa
+    from . import coordinated  # noqa
     from . import mail_mail  # noqa
     from . import mail_bounce_model  # noqa

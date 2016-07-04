@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # xopgi_mail_url_attachments.models
 # ---------------------------------------------------------------------
-# Copyright (c) 2015-2016 Merchise Autrement
+# Copyright (c) 2015-2016 Merchise Autrement [~º/~]
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the

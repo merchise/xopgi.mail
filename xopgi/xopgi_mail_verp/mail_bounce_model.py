@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # xopgi_mail_verp.mail_bounce_model
 # ---------------------------------------------------------------------
-# Copyright (c) 2015-2016 Merchise Autrement and Contributors
+# Copyright (c) 2015-2016 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -89,7 +89,14 @@ class MailBounce(orm.TransientModel):
         `ids` must a sequence with a single BounceVirtualId instance.
 
         '''
-        message_id, model, thread_id, recipient, rfc_message = ids[0].args
+        data = ids[0]
+        # FIXME: [manu] As of 2016-06-29 this should be fixed.  But let's stay
+        # safe for a while.
+        if isinstance(data, BounceVirtualId):
+            message_id, model, thread_id, recipient, rfc_message = data.args
+        else:
+            _logger.warn('Bounce data with the unexpected type: %r', data)
+            message_id, model, thread_id, recipient, rfc_message = data
         if not model:
             return
         kwargs['context'] = context = dict(kwargs.get('context', {}))

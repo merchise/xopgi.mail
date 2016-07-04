@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------
 # xopgi_thread_address
 # ---------------------------------------------------------------------
-# Copyright (c) 2015, 2016 Merchise Autrement and Contributors
+# Copyright (c) 2015, 2016 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -99,9 +99,12 @@ class UniqueAddressTransport(MailTransportRouter):
     def _get_replyto_address(cls, obj, cr, uid, thread_index,
                              context=None):
         get_param = obj.pool['ir.config_parameter'].get_param
-        replyto = get_param(cr, uid, 'mail.catchall.alias',
-                            default=DEFAULT_REPLYTO_PREFIX,
-                            context=context)
+        replymarks = get_param(cr, uid, 'mail.replyto.alias',
+                               default=DEFAULT_REPLYTO_PREFIX,
+                               context=context)
+        # mail.replyto.alias is allowed to contain several aliases separated
+        # by commas
+        replyto = [alias.strip() for alias in replymarks.split(',')][0]
         domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
         if domain:
             return '%s+%s@%s' % (replyto, thread_index, domain)
@@ -123,20 +126,21 @@ class UniqueAddressRouter(MailRouter):
 
     @classmethod
     def _find_replyto(cls, obj, cr, uid, recipients, context=None):
-        from xoutil.string import cut_prefix, cut_suffix
         get_param = obj.pool['ir.config_parameter'].get_param
         domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
         if not domain:
             return None
-        replyto = get_param(cr, uid, 'mail.replyto.alias',
-                            default=DEFAULT_REPLYTO_PREFIX, context=context)
-        prefix, suffix = replyto + '+', '@' + domain
+        else:
+            domain = '@' + domain
+        replymarks = get_param(cr, uid, 'mail.replyto.alias',
+                               default=DEFAULT_REPLYTO_PREFIX, context=context)
+        prefixes = [alias.strip() + '+' for alias in replymarks.split(',')]
         found, model, thread_id = None, None, None
         Threads = obj.pool['mail.thread']
         while not found and recipients:
             res = recipients.pop(0)
-            if res.startswith(prefix):
-                thread_index = cut_prefix(cut_suffix(res, suffix), prefix)
+            if any(res.startswith(p) and res.endswith(domain) for p in prefixes):
+                thread_index = res[res.find('+') + 1:res.find('@')]
                 model, thread_id = Threads._threadref_by_index(cr, uid,
                                                                thread_index)
                 found = bool(model and thread_id)
