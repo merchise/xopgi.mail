@@ -1,0 +1,7 @@
+<openerp>
+    <data>
+        <record id="telephony_manager" model="res.groups">
+            <field name="name">Telephony reporting and invoicing manager</field>
+        </record>
+    </data>
+</openerp>
