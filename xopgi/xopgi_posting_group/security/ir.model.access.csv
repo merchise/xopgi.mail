@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-xhg_ca_telephony,xhg_ca_telephony,model_xhg_ca_telephony_phonecall_report,telephony.telephony_manager,1,0,0,0
-
