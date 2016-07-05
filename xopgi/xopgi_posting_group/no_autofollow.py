@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # xhg_ca_coordination_board.reports.confirmation_time
 # ---------------------------------------------------------------------
-# Copyright (c) 2016 Merchise Autrement
+# Copyright (c) 2016 Merchise Autrement [~º/~]
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -21,11 +21,11 @@ from openerp import api, fields, models
 class MailGroup(models.Model):
     _inherit = 'mail.group'
 
-    enable_auto_subscribe = fields.Boolean(default=False,
-                                           string='Enable automatic subscription',
-                                           help='''If checked, this group will
-                                                   not auto subscribe mail
-                                                   senders''')
+    enable_auto_subscribe = fields.Boolean(
+        default=False,
+        string='Enable automatic subscription',
+        help='If checked, this group will not auto subscribe mail senders'
+    )
 
     @api.model
     def create(self, vals):
