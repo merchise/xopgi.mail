@@ -1,21 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-  <!-- data>
-
+  <data>
     <record id="view_mail_group_form" model="ir.ui.view">
       <field name="name">mail.group.form</field>
       <field name="model">mail.group</field>
       <field name="priority">1000</field>
-      <field name="inherit_id" ref="mail.group_form"/>
+      <field name="inherit_id" ref="mail.view_group_form"/>
       <field name="arch" type="xml">
-        <xpath>
-          <div>
-            <label for="notification_model_ids"/>
-            <field name="notification_model_ids" widget="many2many_checkboxes"/>
-          </div>
-        </xpath>
+        <field name="group_ids" position="after">
+          <field name="enable_auto_subscribe"/>
+	    </field>
       </field>
     </record>
-
-  </data-->
+  </data>
 </openerp>
