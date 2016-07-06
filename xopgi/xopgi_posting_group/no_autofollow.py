@@ -14,6 +14,7 @@
 from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
+
 from openerp import api, fields, models
 
 
@@ -23,7 +24,7 @@ class MailGroup(models.Model):
     enable_auto_subscribe = fields.Boolean(
         default=False,
         string='Enable automatic subscription',
-        help='If checked, this group will not auto subscribe mail senders'
+        help='If checked, this group will auto subscribe mail senders'
     )
 
     @api.cr_uid_ids_context

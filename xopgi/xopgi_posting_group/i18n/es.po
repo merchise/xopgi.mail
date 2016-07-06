@@ -1,0 +1,37 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* xopgi_posting_group
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0.20160516.204712+8fe8b9a\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-07-05 17:39+0000\n"
+"PO-Revision-Date: 2016-07-05 17:39+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xopgi_posting_group
+#: field:mail.group,custom_domain:0
+msgid "Alias domain"
+msgstr "Alias"
+
+#. module: xopgi_posting_group
+#: model:ir.model,name:xopgi_posting_group.model_mail_group
+msgid "Discussion group"
+msgstr "Grupo de discusión"
+
+#. module: xopgi_posting_group
+#: field:mail.group,enable_auto_subscribe:0
+msgid "Enable automatic subscription"
+msgstr "Habilitar subscripción automática"
+
+#. module: xopgi_posting_group
+#: help:mail.group,enable_auto_subscribe:0
+msgid "If checked, this group will auto subscribe mail senders"
+msgstr "si se marca esta casilla este grupo subscribira automaticamente a los remitentes que le esciban correos"
+
