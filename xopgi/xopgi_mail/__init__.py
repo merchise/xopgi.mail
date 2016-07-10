@@ -81,6 +81,10 @@ class MailConfig(Model):
 
         'module_xopgi_mail_nowall':
             fields.boolean('Disallow replying from the Message Wall.'),
+
+        'module_xopgi_mail_expose_recipients':
+            fields.boolean('Expose original recipients of incoming messages.'),
+
     }
 
 

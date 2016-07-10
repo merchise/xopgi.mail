@@ -72,6 +72,8 @@ class NautaProbe(object):
         # Furthermore Nauta (or nauta-like MTAs) do include this in its
         # bounce, so we leverage this.
         original = self.find_part(walk, 'message/rfc822')
+        if not original:
+            return None
         contents = original.get_payload()
         # The 'message/rfc822' is seen as multipart and, thus, the
         # payload is the message's parts.  There should be a single
@@ -92,8 +94,8 @@ class NautaProbe(object):
         while parts:
             part = parts.pop(0)
             res = yield part
-            if res != 'prune' and msg.is_multipart():
-                parts.extend(msg.get_payload())
+            if res != 'prune' and part.is_multipart():
+                parts.extend(part.get_payload())
 
     def find_part(self, walk, ctype):
         try:

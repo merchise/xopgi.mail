@@ -55,7 +55,7 @@ from openerp import SUPERUSER_ID
 from openerp.models import Model
 from openerp.osv import fields
 
-from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
+from openerp.addons.xopgi_mail_threads import MailTransportRouter
 from openerp.addons.xopgi_mail_threads import TransportRouteData
 try:
     # Odoo 8
@@ -64,13 +64,13 @@ except ImportError:
     # Odoo 9 fallback
     from openerp.addons.mail.models.mail_message import decode
 
-from .common import (
+from ..common import (
     VOID_EMAIL_ADDRESS,
     get_bounce_alias,
     get_recipients
 )
 
-from .mail_bounce_model import BOUNCE_MODEL, BounceVirtualId
+from ..mail_bounce_model import BOUNCE_MODEL, BounceVirtualId
 
 
 class BounceRecord(Model):
@@ -155,7 +155,9 @@ class BounceRecord(Model):
             self.unlink(cr, SUPERUSER_ID, elders, context=context)
 
 
-class BouncedMailRouter(MailRouter):
+class BouncedMailRouter(object):
+    # Note that even though this class follows the MailRouter it MUST NOT
+    # inherit from MailRouter, so that this router is properly coordinated.
     @classmethod
     def query(cls, obj, cr, uid, message, context=None):
         route = cls._message_route_check_bounce(obj, cr, uid, message)
@@ -165,7 +167,7 @@ class BouncedMailRouter(MailRouter):
                 # message it will be also delivered to the bounce VERP
                 # address, but we should not treat it as bounce and let it be
                 # placed according to In-Reply-To.
-                return False
+                return False, None
             else:
                 # Some mailers send auto-responses to the Return-Path address
                 # correctly but fail to include the Auto-Submitted header.

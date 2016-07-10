@@ -89,10 +89,9 @@ class MailBounce(orm.TransientModel):
         `ids` must a sequence with a single BounceVirtualId instance.
 
         '''
-        # FIXME: [manu] For some reason (not reproducible in my box), the
-        # `ids` are getting a tuple instead of the BounceVirtualId instance.
-        # So let's play safe for now.
         data = ids[0]
+        # FIXME: [manu] As of 2016-06-29 this should be fixed.  But let's stay
+        # safe for a while.
         if isinstance(data, BounceVirtualId):
             message_id, model, thread_id, recipient, rfc_message = data.args
         else:

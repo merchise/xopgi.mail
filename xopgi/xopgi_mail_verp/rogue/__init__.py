@@ -35,11 +35,13 @@ from __future__ import (division as _py3_division,
 
 from xoutil import logger
 
-from openerp.addons.xopgi_mail_threads import MailRouter
 from . import _probes
+from ..mail_bounce_model import BounceVirtualId
 
 
-class RogueBounceProber(MailRouter):
+class RogueBounceProber(object):
+    # Note that even though this class follows the MailRouter it MUST NOT
+    # inherit from MailRouter, so that this router is properly coordinated.
     @classmethod
     def _iter_probes(cls):
         probes = getattr(_probes, '__all__', None)
@@ -75,7 +77,10 @@ class RogueBounceProber(MailRouter):
         MailThread = obj.pool['mail.thread']
         model, thread_id = MailThread._threadref_by_index(cr, uid, index)
         routes[:] = [
-            cls._get_route(obj, cr, uid, (None, model, thread_id, recipient, message))
+            cls._get_route(
+                obj, cr, uid,
+                BounceVirtualId(None, model, thread_id, recipient, message)
+            )
             for recipient in recipients
         ]
         # XXX: Clean up the message so that other routers don't reroute them.
