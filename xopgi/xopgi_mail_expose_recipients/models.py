@@ -18,6 +18,7 @@ from __future__ import (division as _py3_division,
 
 from openerp import api, fields, models
 from openerp.tools.mail import email_split_and_format
+
 from xoeuf.osv.orm import get_modelname
 
 try:
