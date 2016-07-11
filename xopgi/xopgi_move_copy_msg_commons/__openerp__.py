@@ -29,5 +29,5 @@
         'xopgi_mail_threads',
     ],
     'description': '',
-    'data': [],
+    'data': ['views/config.xml'],
 }

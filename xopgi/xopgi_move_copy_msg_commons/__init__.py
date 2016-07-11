@@ -9,3 +9,4 @@ if ODOO_VERSION_INFO < (9, 0):
     # and upgrade them.
 
     from .common import get_model_selection  # noqa
+    from . import mail_config  # noqa
