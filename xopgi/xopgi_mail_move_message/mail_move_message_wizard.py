@@ -17,13 +17,15 @@ from __future__ import (division as _py3_division,
 
 from openerp import api, fields, models, SUPERUSER_ID, _
 from openerp.exceptions import AccessError
-from openerp.addons.xopgi_move_copy_msg_commons import get_model_selection
+from openerp.addons.xopgi_move_copy_msg_commons.common import \
+    get_model_selection
 
 from xoeuf.ui import RELOAD_UI
 
 
 class MoveMessageWizard(models.TransientModel):
     _name = 'move.message.wizard'
+    _inherit = 'common.thread.wizard'
 
     thread_id = fields.Reference(
         string='Destination Mail Thread', size=128,
@@ -46,6 +48,12 @@ class MoveMessageWizard(models.TransientModel):
             toolbar=toolbar, submenu=submenu)
         return result
 
+    @api.onchange('thread_id')
+    @api.depends('thread_id')
+    def onchange_thread_id(self):
+        if self.thread_id:
+            self.model_id = self.thread_id._name
+
     @api.model
     def default_get(self, fields_list):
         values = super(MoveMessageWizard, self).default_get(fields_list)
@@ -63,7 +71,6 @@ class MoveMessageWizard(models.TransientModel):
             self.thread_id._name, self.thread_id.id, self.leave_msg)
         try:
             self.thread_id.read([])
-            action = self.thread_id.get_access_action()
-            return action[0] if action else RELOAD_UI
+            return self.get_thread_action(res_id=self.thread_id.id)
         except AccessError:
             return RELOAD_UI
