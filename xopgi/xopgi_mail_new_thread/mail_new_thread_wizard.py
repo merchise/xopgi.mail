@@ -17,7 +17,6 @@ from __future__ import (division as _py3_division,
 
 from openerp import api, exceptions, fields, models, SUPERUSER_ID, _
 from openerp.addons.xopgi_mail_threads.mail_messages import RAW_EMAIL_ATTR
-from openerp.addons.xopgi_move_copy_msg_commons import get_model_selection
 
 from xoeuf import signals
 
@@ -28,9 +27,8 @@ FIELDS2READ = ['type', 'message_id', 'subject', 'email_from', 'date',
 
 class NewThreadWizard(models.TransientModel):
     _name = 'new.thread.wizard'
+    _inherit = 'common.thread.wizard'
 
-    model_id = fields.Selection(
-        lambda self: get_model_selection(self), 'Model', required=True)
     message_id = fields.Many2one('mail.message', 'Message', readonly=True)
     leave_msg = fields.Boolean(
         'Preserve original message', default=True,
@@ -69,14 +67,7 @@ class NewThreadWizard(models.TransientModel):
             if name:
                 context.update(
                     {'default_%s' % thread_model._rec_name or 'name': name})
-        return {
-            'name': _('New Document from Mail Message'),
-            'view_type': 'form',
-            'view_mode': 'form',
-            'res_model': self.model_id,
-            'type': 'ir.actions.act_window',
-            'context': context
-        }
+        return self.with_context(**context).get_thread_action()
 
 
 @signals.receiver(signals.post_create)

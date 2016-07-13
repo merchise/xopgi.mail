@@ -8,4 +8,5 @@ if ODOO_VERSION_INFO < (9, 0):
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
 
-    from .common import get_model_selection  # noqa
+    from . import common  # noqa
+    from . import mail_config  # noqa
