@@ -23,6 +23,9 @@ class MailThread(models.AbstractModel):
 
     def _find_partner_from_emails(self, cr, uid, id, emails, model=None,
                                   context=None, check_followers=True):
+        # Odoo calls this method when a new email arrives and it needs to find
+        # the partners, we simply instruct that 'fake' partners should be
+        # included in the search.
         context = dict(context or {}, include_fake=True)
         return super(MailThread, self)._find_partner_from_emails(
             cr, uid, id, emails, model=model, context=context,

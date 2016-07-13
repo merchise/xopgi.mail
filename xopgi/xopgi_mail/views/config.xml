@@ -59,6 +59,10 @@
             <field name="module_xopgi_mail_nowall"/>
             <label for="module_xopgi_mail_nowall"/>
 
+            <br/>
+            <field name="module_xopgi_mail_expose_recipients"/>
+            <label for="module_xopgi_mail_expose_recipients"/>
+
           </div>
         </xpath>
       </field>

@@ -18,6 +18,7 @@ from __future__ import (division as _py3_division,
 
 from openerp import api, fields, models
 from openerp.tools.mail import email_split_and_format
+
 from xoeuf.osv.orm import get_modelname
 
 try:
@@ -47,8 +48,7 @@ class MailThread(models.Model):
             message, save_original=save_original)
         # Save all original recipients on mail message cc field.
         raw_recipients = []
-        for header in ('To', 'Cc', 'Delivered-To', 'Resent-To',
-                       'Resent-Cc', 'Envelop-To'):
+        for header in ('To', 'Cc'):
             raw_recipients.append(decode_header(message, header))
         recipients = []
         for recipient in raw_recipients:

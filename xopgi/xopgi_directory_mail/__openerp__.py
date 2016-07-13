@@ -24,8 +24,7 @@ dict(
     installable=(8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
 
     auto_install=True,
-    summary='Mail extensions for directory.',
-    description='Get fake and real partners con mail management',
+    summary='Integrate the directory with mail.',
     depends=['mail', 'xopgi_directory'],
     data=['views/mail_compose_message_view.xml'],
 )

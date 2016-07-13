@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 # ---------------------------------------------------------------------
-# xopgi_mail_cc_save
+# xopgi_mail_expose_recipients
 # ---------------------------------------------------------------------
 # Copyright (c) 2016 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
@@ -14,8 +14,8 @@
 # flake8: noqa
 
 dict(
-    name="Cuba Autrement CC save",
-    summary="Save all original recipients on incoming messages",
+    name="Expose original recipients of incoming messages",
+    summary="Save all original recipients of incoming messages",
     version="1.0",
     author="Merchise Autrement",
     website="",
