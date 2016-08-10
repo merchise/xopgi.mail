@@ -104,7 +104,7 @@ class AliasMailRouter(MailRouter):
             alias = route[-1] if len(route) == 5 else None
             if alias:
                 alias_mail = '%s@%s' % (alias.alias_name, alias.alias_domain)
-                if rcpt_tos and any(alias_mail == rcpt for rcpt in rcpt_tos):
+                if rcpt_tos and any(alias_mail.lower() == rcpt.lower() for rcpt in rcpt_tos):
                     result.append(route)
             else:
                 result.append(route)
