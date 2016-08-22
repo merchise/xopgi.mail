@@ -76,7 +76,10 @@ class MoveMessageWizard(models.TransientModel):
             self.thread_id._name, self.thread_id.id, self.leave_msg
         )
         try:
+            # Can I read the thread model?  If not, the message it's there but
+            # I cannot be redirected to the model's view.
             self.thread_id.read([])
-            return self.get_thread_action(res_id=self.thread_id.id)
         except AccessError:
             return RELOAD_UI
+        else:
+            return self.get_thread_action(res_id=self.thread_id.id)
