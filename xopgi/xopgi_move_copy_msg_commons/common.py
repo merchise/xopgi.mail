@@ -44,17 +44,23 @@ class Message(models.Model):
         new_msg = self.env['mail.message']
         parent_id = self.search(
             [('res_id', '=', res_id), ('model', '=', model),
-             ('parent_id', '=', False)], limit=1).id
+             ('parent_id', '=', False)],
+            limit=1
+        ).id
         msg_values = dict(model=model, res_id=res_id, parent_id=parent_id)
         att_values = dict(res_model=model, res_id=res_id)
         record_name = self._get_record_name(msg_values)
         msg_values.update(record_name=record_name)
         if leave_msg:
             for msg in self:
-                ids = [att.copy(dict(att_values, name=att.name)).id for att in
-                       msg.attachment_ids]
+                ids = [
+                    att.copy(dict(att_values, name=att.name)).id
+                    for att in msg.attachment_ids
+                ]
                 new_msg += msg.copy(dict(
-                    msg_values, attachment_ids=[REPLACEWITH_RELATED(*ids)]))
+                    msg_values,
+                    attachment_ids=[REPLACEWITH_RELATED(*ids)]
+                ))
         else:
             new_msg = self
             new_msg.write(msg_values)
@@ -129,7 +135,7 @@ class SelectableView(models.Model):
         else:
             cr, uid, context = self.env.args
             return self.env[model]._model.get_access_action(
-                cr, uid, None, context=context)
+                cr, uid, res_id, context=context)
 
     @api.multi
     def try_selected_view(self):
