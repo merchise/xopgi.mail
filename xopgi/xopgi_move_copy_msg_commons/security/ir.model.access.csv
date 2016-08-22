@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+xopgi_move_copy_msg_commons,xopgi_move_copy_msg_commons,model_xopgi_selectable_view,xopgi_mail_new_thread.group_new_thread,2,1,1,1

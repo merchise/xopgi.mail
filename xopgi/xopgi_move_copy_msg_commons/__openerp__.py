@@ -29,5 +29,7 @@
         'xopgi_mail_threads',
     ],
     'description': '',
-    'data': ['views/config.xml'],
+    'data': ['views/config.xml',
+             'security/ir.model.access.csv',
+            ],
 }
