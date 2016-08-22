@@ -64,7 +64,9 @@ class NewThreadWizard(models.TransientModel):
 
         '''
         thread_model = self.env[self.model_id]
+        self.ensure_one()
         context = dict(
+            wizard_id=self.id,
             new_thread_from_mail_msg=True,
             thread_model=self.model_id
         )
@@ -87,9 +89,9 @@ def move_message(self, signal, result, values):
     """
     if self._context.get('new_thread_from_mail_msg', False) and \
             self._name == self._context.get('thread_model', ''):
-        if self._context.get('active_id', False):
+        if self._context.get('wizard_id', False):
             wizard = self.env['new.thread.wizard'].search(
-                [('id', '=', self._context['active_id'])]
+                [('id', '=', self._context['wizard_id'])]
             )
         else:
             wizard = False
