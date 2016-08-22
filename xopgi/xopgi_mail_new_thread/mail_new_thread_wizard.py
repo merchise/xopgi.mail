@@ -45,10 +45,16 @@ class NewThreadWizard(models.TransientModel):
             if (len(context.get('active_ids', [])) > 1 or not context.get(
                     'default_message_id', False)):
                 raise exceptions.ValidationError(
-                    _('You should select one and only one message.'))
+                    _('You should select one and only one message.')
+                )
         result = super(NewThreadWizard, self).fields_view_get(
-            cr, uid, view_id=view_id, view_type=view_type, context=context,
-            toolbar=toolbar, submenu=submenu)
+            cr, uid,
+            view_id=view_id,
+            view_type=view_type,
+            context=context,
+            toolbar=toolbar,
+            submenu=submenu
+        )
         return result
 
     @api.multi
@@ -59,14 +65,17 @@ class NewThreadWizard(models.TransientModel):
         '''
         thread_model = self.env[self.model_id]
         context = dict(
-            new_thread_from_mail_msg=True, thread_model=self.model_id)
+            new_thread_from_mail_msg=True,
+            thread_model=self.model_id
+        )
         rec_name = thread_model.fields_get().get(
-            thread_model._rec_name or 'name', False)
+            thread_model._rec_name or 'name',
+            False
+        )
         if rec_name and rec_name['type'] in ('char', 'text'):
             name = self.message_id.subject or self.message_id.display_name
             if name:
-                context.update(
-                    {'default_%s' % thread_model._rec_name or 'name': name})
+                context['default_%s' % (thread_model._rec_name or 'name')] = name
         return self.with_context(**context).get_thread_action()
 
 
@@ -80,10 +89,14 @@ def move_message(self, signal, result, values):
             self._name == self._context.get('thread_model', ''):
         if self._context.get('active_id', False):
             wizard = self.env['new.thread.wizard'].search(
-                [('id', '=', self._context['active_id'])])
+                [('id', '=', self._context['active_id'])]
+            )
         else:
             wizard = False
         if wizard:
             wizard.message_id.do_move_message(
-                self._name, result.id, wizard.leave_msg)
+                self._name,
+                result.id,
+                wizard.leave_msg
+            )
             wizard.unlink()

@@ -44,8 +44,13 @@ class MoveMessageWizard(models.TransientModel):
                 cr, uid, 'xopgi_mail_move_message.group_move_message'):
             raise AccessError(_('Access denied.'))
         result = super(MoveMessageWizard, self).fields_view_get(
-            cr, uid, view_id=view_id, view_type=view_type, context=context,
-            toolbar=toolbar, submenu=submenu)
+            cr, uid,
+            view_id=view_id,
+            view_type=view_type,
+            context=context,
+            toolbar=toolbar,
+            submenu=submenu
+        )
         return result
 
     @api.onchange('thread_id')
@@ -68,7 +73,8 @@ class MoveMessageWizard(models.TransientModel):
 
         '''
         self.message_ids.do_move_message(
-            self.thread_id._name, self.thread_id.id, self.leave_msg)
+            self.thread_id._name, self.thread_id.id, self.leave_msg
+        )
         try:
             self.thread_id.read([])
             return self.get_thread_action(res_id=self.thread_id.id)
