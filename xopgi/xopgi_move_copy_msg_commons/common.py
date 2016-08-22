@@ -135,7 +135,7 @@ class SelectableView(models.Model):
         else:
             cr, uid, context = self.env.args
             return self.env[model]._model.get_access_action(
-                cr, uid, None, context=context)
+                cr, uid, res_id, context=context)
 
     @api.multi
     def try_selected_view(self):
