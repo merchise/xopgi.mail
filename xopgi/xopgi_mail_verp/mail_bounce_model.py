@@ -180,7 +180,7 @@ class mail_mail(orm.Model):
     _inherit = 'mail.mail'
 
     def create(self, cr, uid, values, context=None):
-        from six import string_types
+        from xoutil.eight import string_types
         if context:
             auto_submitted = context.get('auto_submitted')
         else:

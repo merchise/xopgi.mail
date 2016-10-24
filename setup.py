@@ -48,9 +48,8 @@ setup(name=project_name,
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          'six',
-          'xoeuf',
-          'xoutil',
+          'xoeuf>=0.',
+          'xoutil>=1.7.1,<1.7.2',
           'lxml',
           'xopgi.mail_threads',
           'flufl.bounce>=2.3'

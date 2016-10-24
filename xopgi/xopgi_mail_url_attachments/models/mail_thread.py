@@ -16,7 +16,7 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 from lxml import etree
-from six import integer_types, string_types
+from xoutil.eight import integer_types, string_types
 
 from openerp import api, models
 
