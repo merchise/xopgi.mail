@@ -125,7 +125,13 @@ class BounceRecord(Model):
     ]
 
     def create(self, cr, uid, vals, context=None):
-        from openerp.addons.mail.xopgi.index import generate_reference
+        try:
+            from openerp.addons.mail.xopgi.index import generate_reference
+        except ImportError:
+            try:  # Odoo 9
+                from openerp.addons.mail.models.xopgi.index import generate_reference
+            except ImportError:  # Odoo 10
+                from odoo.addons.mail.models.xopgi.index import generate_reference
         reference = generate_reference(
             lambda r: self.search(cr, uid, [('reference', '=', r)]),
             start=3,
