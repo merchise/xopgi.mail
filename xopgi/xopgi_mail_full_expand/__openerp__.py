@@ -34,12 +34,6 @@
         'views/%d/mail_full_expand_view.xml' % ODOO_VERSION_INFO[0],
         'views/%d/assets.xml' % ODOO_VERSION_INFO[0],
     ],
-    'css': [
-        'static/src/css/%d/mail_full_expand.css' % ODOO_VERSION_INFO[0],
-    ],
-    'js': [
-        'static/src/js/%d/mail_full_expand.js' % ODOO_VERSION_INFO[0],
-    ],
     'qweb': [
         'static/src/xml/%d/mail_full_expand.xml' % ODOO_VERSION_INFO[0],
     ],

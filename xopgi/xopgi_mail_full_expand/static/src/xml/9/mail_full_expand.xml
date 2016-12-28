@@ -6,7 +6,7 @@
     <t t-jquery=".o_mail_info span" t-operation="append">
       <i t-if="message.record_name &amp;&amp; message.model != 'mail.channel' &amp;&amp; !message.is_system_notification"
          t-att-data-message-id="message.id"
-         class="fa fa-expand o_thread_message_expand"
+         class="fa fa-lg fa-expand o_thread_message_expand"
          title="Expand"/>
     </t>
   </t>
