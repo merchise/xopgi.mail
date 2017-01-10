@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # xhg_ca_coordination_board.reports.confirmation_time
 # ---------------------------------------------------------------------
-# Copyright (c) 2016 Merchise Autrement [~º/~]
+# Copyright (c) 2016-2017 Merchise Autrement [~º/~]
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
