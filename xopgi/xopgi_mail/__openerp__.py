@@ -25,4 +25,5 @@
         'views/config.xml',
     ],
     'auto_install': True,
+    'installable': (8, 0) <= ODOO_VERSION_INFO < (10, 0),  # noqa
 }
