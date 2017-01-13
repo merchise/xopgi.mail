@@ -17,8 +17,12 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 from datetime import datetime
-from openerp.osv.orm import Model
-from openerp.release import version_info as ODOO_VERSION_INFO
+try:
+    from openerp.models import Model
+    from openerp.release import version_info as ODOO_VERSION_INFO
+except ImportError:
+    from odoo.models import Model
+    from odoo.release import version_info as ODOO_VERSION_INFO
 from xoeuf.osv.model_extensions import search_browse
 
 MODULE_NAME = 'xopgi_mail_filter'

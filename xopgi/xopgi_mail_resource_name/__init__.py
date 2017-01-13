@@ -16,7 +16,10 @@ from __future__ import (absolute_import as _py3_abs_imports,
                         division as _py3_division,
                         print_function as _py3_print)
 
-from openerp import models, api
+try:
+    from openerp import models, api
+except ImportError:
+    from odoo import models, api
 
 
 class Message(models.Model):
