@@ -23,5 +23,5 @@ except ImportError:
 
 
 if ODOO_VERSION_INFO < (9, 0):
-    from . import mail_move_message_wizard  # noqa
+    from . import wizard  # noqa
     from . import message_move  # noqa
