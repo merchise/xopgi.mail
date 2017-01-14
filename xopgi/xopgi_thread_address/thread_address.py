@@ -24,18 +24,28 @@ from __future__ import (division as _py3_division,
 
 from email.utils import getaddresses
 
-from openerp import SUPERUSER_ID
-from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
-from openerp.addons.xopgi_mail_threads import TransportRouteData
-from openerp.addons.xopgi_mail_threads.utils import set_message_from
-from openerp.addons.xopgi_mail_threads.utils import set_message_sender
+try:
+    from openerp import SUPERUSER_ID
+    from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
+    from openerp.addons.xopgi_mail_threads import TransportRouteData
+    from openerp.addons.xopgi_mail_threads.utils import set_message_from
+    from openerp.addons.xopgi_mail_threads.utils import set_message_sender
+except ImportError:
+    from odoo import SUPERUSER_ID
+    from odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
+    from odoo.addons.xopgi_mail_threads import TransportRouteData
+    from odoo.addons.xopgi_mail_threads.utils import set_message_from
+    from odoo.addons.xopgi_mail_threads.utils import set_message_sender
+
 try:
     # Odoo 8
     from openerp.addons.mail.mail_thread import decode_header
 except ImportError:
-    # Odoo 9 fallback
-    from openerp.addons.mail.models.mail_thread import decode_header
-
+    try:
+        # Odoo 9 fallback
+        from openerp.addons.mail.models.mail_thread import decode_header
+    except ImportError:
+        from odoo.addons.mail.models.mail_thread import decode_header
 
 # The default prefix for a Reply-To address.  NOTICE: we suggest to use the
 # same as the mail.catchall.alias.  The Reply-To address is constructed as
@@ -47,9 +57,8 @@ DEFAULT_REPLYTO_PREFIX = 'catchall'
 
 class UniqueAddressTransport(MailTransportRouter):
     @classmethod
-    def query(cls, obj, cr, uid, message, context=None):
-        msg, _ = cls.get_message_objects(obj, cr, uid, message,
-                                         context=context)
+    def query(cls, obj, message):
+        msg, _ = cls.get_message_objects(obj, message)
         if msg and isinstance(msg, list):
             # XXX: Temporarily record all the indexes:
             indexes = {m.thread_index for m in msg}
@@ -65,25 +74,22 @@ class UniqueAddressTransport(MailTransportRouter):
             else:
                 msg = msg[0]
         if msg and msg.thread_index:
-            address = cls._get_replyto_address(obj, cr, uid, msg.thread_index,
-                                               context=context)
+            address = cls._get_replyto_address(obj, msg.thread_index)
             return bool(address), dict(thread_index=msg.thread_index,
                                        replyto_address=address)
         return False, None
 
-    def prepare_message(self, obj, cr, uid, message, data=None, context=None):
+    def prepare_message(self, obj, message, data=None):
         thread_index = data['thread_index']
         address = data['replyto_address']
-        self._set_replyto_address(obj, cr, uid, message, address,
-                                  context=context)
+        self._set_replyto_address(obj, message, address)
         # The 'Thread-Index' is just to fuck some Microsoft Offices out there
         # that are not including the References.
         message['X-Odoo-Thread-Index'] = message['Thread-Index'] = thread_index
         return TransportRouteData(message, {})
 
     @classmethod
-    def _set_replyto_address(cls, obj, cr, uid, message, address,
-                             context=None):
+    def _set_replyto_address(cls, obj, message, address):
         '''Set the Reply-To address for the message given the thread index.
 
         Furthermore, all authors and sender are reset so their addresses are
@@ -96,16 +102,14 @@ class UniqueAddressTransport(MailTransportRouter):
         set_message_from(message, address, address_only=True)
 
     @classmethod
-    def _get_replyto_address(cls, obj, cr, uid, thread_index,
-                             context=None):
-        get_param = obj.pool['ir.config_parameter'].get_param
-        replymarks = get_param(cr, uid, 'mail.replyto.alias',
-                               default=DEFAULT_REPLYTO_PREFIX,
-                               context=context)
+    def _get_replyto_address(cls, obj, thread_index):
+        get_param = obj.env['ir.config_parameter'].get_param
+        replymarks = get_param('mail.replyto.alias',
+                               default=DEFAULT_REPLYTO_PREFIX)
         # mail.replyto.alias is allowed to contain several aliases separated
         # by commas
         replyto = [alias.strip() for alias in replymarks.split(',')][0]
-        domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
+        domain = get_param('mail.catchall.domain')
         if domain:
             return '%s+%s@%s' % (replyto, thread_index, domain)
         else:
@@ -114,40 +118,39 @@ class UniqueAddressTransport(MailTransportRouter):
 
 class UniqueAddressRouter(MailRouter):
     @classmethod
-    def query(cls, obj, cr, uid, message, context=None):
+    def query(cls, obj, message):
         headers = [
             decode_header(message, 'To'),
             decode_header(message, 'Cc'),
             decode_header(message, 'Delivered-To')
         ]
         recipients = [email for _, email in getaddresses(headers)]
-        match = cls._find_replyto(obj, cr, uid, recipients, context=context)
+        match = cls._find_replyto(obj, recipients)
         return match is not None, match
 
     @classmethod
-    def _find_replyto(cls, obj, cr, uid, recipients, context=None):
-        get_param = obj.pool['ir.config_parameter'].get_param
-        domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
+    def _find_replyto(cls, obj, recipients):
+        get_param = obj.env['ir.config_parameter'].get_param
+        domain = get_param('mail.catchall.domain')
         if not domain:
             return None
         else:
             domain = '@' + domain
-        replymarks = get_param(cr, uid, 'mail.replyto.alias',
-                               default=DEFAULT_REPLYTO_PREFIX, context=context)
+        replymarks = get_param('mail.replyto.alias',
+                               default=DEFAULT_REPLYTO_PREFIX)
         prefixes = [alias.strip() + '+' for alias in replymarks.split(',')]
         found, model, thread_id = None, None, None
-        Threads = obj.pool['mail.thread']
+        Threads = obj.env['mail.thread']
         while not found and recipients:
             res = recipients.pop(0)
             if any(res.startswith(p) and res.endswith(domain) for p in prefixes):
                 thread_index = res[res.find('+') + 1:res.find('@')]
-                model, thread_id = Threads._threadref_by_index(cr, uid,
-                                                               thread_index)
+                model, thread_id = Threads._threadref_by_index(thread_index)
                 found = bool(model and thread_id)
         return (res, model, thread_id) if found else None
 
     @classmethod
-    def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
+    def apply(cls, obj, routes, message, data=None):
         def valid(route):
             # A valid route is one that does not shadow our Reply-to and does
             # not create a new thread (the classical fallback to crm.lead)
