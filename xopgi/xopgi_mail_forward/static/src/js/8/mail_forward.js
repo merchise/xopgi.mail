@@ -9,14 +9,14 @@ openerp.xopgi_mail_forward = function (instance) {
 
         on_message_forward: function () {
             // Generate email subject as possible from record_name and subject
-            foward_header = _t('Fwd:');
-            subject = [foward_header];
-            subject_parent = [];
-            partner_list = [];
+            var foward_header = _t('Fwd:');
+            var subject = [foward_header];
+            var subject_parent = [];
+            var partner_list = [];
             var partners = this.partner_ids;
             for (var key in partners) {
                 partner_list.push(partners[key][1]);
-                }
+            }
             if (_.string.startsWith(this.subject, foward_header)) {
                 subject.pop();
                 subject_parent.pop();
@@ -34,7 +34,7 @@ openerp.xopgi_mail_forward = function (instance) {
                 subject_parent.push(this.record_name);
             }
 
-            body = (
+            var body = (
                 '<br/>' +
                 '<p><i>----------' +
                 _t('Original message') +
@@ -47,7 +47,7 @@ openerp.xopgi_mail_forward = function (instance) {
                 _t('Date:') + ' ' + this.date + '</i></p><br/>' +
 
                 this.body
-            )
+            );
 
             var context = {
                 default_attachment_ids: this.attachment_ids,
