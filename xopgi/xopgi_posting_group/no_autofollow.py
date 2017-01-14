@@ -15,7 +15,10 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp import api, fields, models
+try:
+    from openerp import api, fields, models
+except ImportError:
+    from odoo import api, fields, models
 
 
 class MailGroup(models.Model):
@@ -27,22 +30,14 @@ class MailGroup(models.Model):
         help='If checked, this group will auto subscribe mail senders'
     )
 
-    @api.cr_uid_ids_context
-    def message_post(self, cr, uid, thread_id, body='', subject=None,
-                     type='notification', subtype=None, parent_id=False,
-                     attachments=None, context=None, content_subtype='html',
-                     **kwargs):
-
-        group = self.browse(cr, uid, thread_id, context=context)
-
-        if not group.enable_auto_subscribe:
-            if not context:
-                context = {}
-            context['mail_create_nosubscribe'] = True
-            context['mail_post_autofollow'] = False
-
-        return super(MailGroup, self).message_post(cr, uid, thread_id, body,
-                                                   subject, type, subtype,
-                                                   parent_id, attachments,
-                                                   context, content_subtype,
-                                                   **kwargs)
+    @api.multi
+    @api.returns('self', lambda value: value.id)
+    def message_post(self, **kwargs):
+        if not self.enable_auto_subscribe:
+            _super = super(MailGroup, self).with_context(
+                mail_create_nosubscribe=True,
+                mail_post_autofollow=False
+            )
+        else:
+            _super = super(MailGroup, self)
+        return _super.message_post(**kwargs)
