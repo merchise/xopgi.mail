@@ -105,11 +105,12 @@ class MailComposeMessage(models.TransientModel):
                 node.attrib.pop('class', False)
             self.body = tostring(result)
 
-    @api.model
+    @api.multi
     def send_mail(self):
         ''' Validate no readonly token was modified and remove added style.
 
         '''
+        self.ensure_one()
         if self._validate_template_restrictions():
             return super(MailComposeMessage, self).send_mail()
         else:
