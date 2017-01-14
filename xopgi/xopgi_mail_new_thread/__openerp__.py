@@ -32,6 +32,7 @@
     'description': '',
     'data': [
         'security/security.xml',
+        'security/ir.model.access.csv',
         'views/mail_new_thread_wizard.xml',
         'views/assets.xml',
     ],
