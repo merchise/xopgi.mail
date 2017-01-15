@@ -21,7 +21,10 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 
-from openerp.addons.xopgi_mail_threads import MailRouter
+try:
+    from openerp.addons.xopgi_mail_threads import MailRouter
+except ImportError:
+    from odoo.addons.xopgi_mail_threads import MailRouter
 
 
 class EvaneosMailRouter(MailRouter):
@@ -36,12 +39,12 @@ class EvaneosMailRouter(MailRouter):
         return senders
 
     @classmethod
-    def get_all_matches(cls, obj, cr, uid, message):
+    def get_all_matches(cls, obj, message):
         from xoutil.iterators import map
         from re import compile as _re_compile
-        config = obj.pool['ir.config_parameter']
+        config = obj.env['ir.config_parameter']
         pattern = config.get_param(
-            cr, uid, 'evaneos.mailrouter.pattern',
+            'evaneos.mailrouter.pattern',
             # The default allows to tests pass.
             default=r'_(?P<thread>\d+)@.*(?<=[@\.])evaneos\.com$'
         )
@@ -51,17 +54,16 @@ class EvaneosMailRouter(MailRouter):
         return (match for match in map(search, senders) if match)
 
     @classmethod
-    def get_first_match(cls, obj, cr, uid, message):
-        return next(cls.get_all_matches(obj, cr, uid, message), None)
+    def get_first_match(cls, obj, message):
+        return next(cls.get_all_matches(obj, message), None)
 
     @classmethod
-    def query(cls, obj, cr, uid, message, context=None):
-        match = cls.get_first_match(obj, cr, uid, message)
+    def query(cls, obj, message):
+        match = cls.get_first_match(obj, message)
         return bool(match), match
 
     @classmethod
-    def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
-        from xoeuf.osv.model_extensions import search_browse
+    def apply(cls, obj, routes, message, data=None):
         match = data
         sender = match.group(0)
         fmodel, fthread = 0, 1
@@ -85,11 +87,11 @@ class EvaneosMailRouter(MailRouter):
             ('parent_id.parent_id', '=', None),
             ('res_id', '!=', 0),
             ('res_id', '!=', None)]
-        mail_message = obj.pool['mail.message']
-        result = search_browse(mail_message, cr, uid, query, ensure_list=True)
+        mail_message = obj.env['mail.message']
+        result = mail_message.search(query)
         if result:
             # search_browse may return a list or a single browse record
-            result = result[0] if isinstance(result, list) else result
+            result = result[0] if len(result) > 1 else result
             model = result.model
             thread_id = result.res_id
             # Find the matching route. The matching route is the first its
@@ -104,4 +106,4 @@ class EvaneosMailRouter(MailRouter):
             else:
                 # Odoo routes are 5-tuple.  The last is the alias
                 # record.  Best not to pass any.
-                routes.append((model, thread_id, {}, uid, None))
+                routes.append((model, thread_id, {}, obj._uid, None))
