@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # ---------------------------------------------------------------------
-# xopgi_mail_verp.mail_mail
+# xopgi_mail_new_thread
 # ---------------------------------------------------------------------
 # Copyright (c) 2015-2017 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
@@ -15,8 +15,12 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp import api, exceptions, fields, models, SUPERUSER_ID, _
-from openerp.addons.xopgi_mail_threads.mail_messages import RAW_EMAIL_ATTR
+try:
+    from odoo import api, exceptions, fields, models, SUPERUSER_ID, _
+    from odoo.addons.xopgi_mail_threads.mail_messages import RAW_EMAIL_ATTR
+except ImportError:
+    from openerp import api, exceptions, fields, models, SUPERUSER_ID, _
+    from openerp.addons.xopgi_mail_threads.mail_messages import RAW_EMAIL_ATTR
 
 from xoeuf import signals
 
@@ -34,12 +38,12 @@ class NewThreadWizard(models.TransientModel):
         'Preserve original message', default=True,
         help="Check for no remove message from original thread.")
 
-    @api.guess
-    def fields_view_get(self, cr, uid, view_id=None, view_type='form',
-                        context=None, toolbar=False, submenu=False):
-        context = dict(context or {})
-        if uid != SUPERUSER_ID and not self.pool['res.users'].has_group(
-                cr, uid, 'xopgi_mail_new_thread.group_new_thread'):
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False,
+                        submenu=False):
+        context = dict(self._context or {})
+        if self._uid != SUPERUSER_ID and not self.env['res.users'].has_group(
+                'xopgi_mail_new_thread.group_new_thread'):
             raise exceptions.AccessDenied()
         if view_type == 'form':
             if (len(context.get('active_ids', [])) > 1 or not context.get(
@@ -48,10 +52,8 @@ class NewThreadWizard(models.TransientModel):
                     _('You should select one and only one message.')
                 )
         result = super(NewThreadWizard, self).fields_view_get(
-            cr, uid,
             view_id=view_id,
             view_type=view_type,
-            context=context,
             toolbar=toolbar,
             submenu=submenu
         )

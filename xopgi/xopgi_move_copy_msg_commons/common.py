@@ -15,7 +15,12 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp import api, fields, models
+try:
+    from odoo import api, fields, models
+except ImportError:
+    from openerp import api, fields, models
+
+
 from xoeuf.osv.orm import REPLACEWITH_RELATED
 
 
@@ -67,10 +72,8 @@ class Message(models.Model):
             for msg in self:
                 if msg.attachment_ids:
                     msg.attachment_ids.write(att_values)
-        notify = lambda _id: self._model._notify(self._cr, self._uid, _id,
-                                                 context=self._context)
         for item in new_msg:
-            notify(item.id)
+            self._notify(item.id)
 
 
 class CommonThreadWizard(models.TransientModel):
@@ -98,6 +101,8 @@ class CommonThreadWizard(models.TransientModel):
                 self.view = False
 
     def get_thread_action(self, res_id=None):
+        """ Returns the action that shows the form of this model
+        """
         return self.view.get_action(model=self.model_id, res_id=res_id)
 
 
@@ -117,25 +122,35 @@ class SelectableView(models.Model):
         domain = [('model_id', '=', model)]
         return self.search(domain)
 
-    def get_action(self, model=None, target='current', res_id=None):
-        # model param is used only when not self.
-        assert self or model
+    def get_action(self, model=None, target='current', res_id='None'):
+        """ Return an ir.actions.act_window
+        """
+        res = dict(target=target)
         if self:
-            self.ensure_one()
-            return {
+            view = self[0]
+            model = view.model_id
+
+        if res_id is not None:
+            # If the recordset is empty in Odoo8 it returns an empty list.In
+            # odoo10 gives error.
+            values_action = self.env[model].browse(res_id).get_access_action()
+
+            # If values_action contains a list it is because get_acess_action
+            # was executed #in odoo8 and returns a [{}], in odoo10 returns a {}.
+            if isinstance(values_action, list):
+                values_action = values_action[0]
+            res = dict(values_action, **res)
+        else:
+            values = {
                 'type': 'ir.actions.act_window',
-                'res_model': self.model_id or self.view.model,
-                'res_id': res_id,
+                'res_model': model,
                 'view_type': 'form',
                 'view_mode': 'form',
                 'views': [(self.view.id, 'form')],
-                'target': target,
                 'context': self._context
             }
-        else:
-            cr, uid, context = self.env.args
-            return self.env[model]._model.get_access_action(
-                cr, uid, res_id, context=context)
+            res = dict(values, **res)
+        return res
 
     @api.multi
     def try_selected_view(self):

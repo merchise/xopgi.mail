@@ -16,30 +16,52 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp import SUPERUSER_ID
-from openerp.osv import osv, fields
+try:
+    from odoo import SUPERUSER_ID
+    from odoo import models, fields, api
+except ImportError:
+    from openerp import SUPERUSER_ID
+    from openerp import models, fields, api
+
+from xoutil.context import context
+from xoutil.objects import get_first_of
 
 
 FIELD_NAME = 'can_move'
+ADD_CANMOVE_TO_READ = object()
 
 
-class Message(osv.Model):
+class Messages(models.Model):
     _inherit = 'mail.message'
+    can_move = fields.Boolean(compute='_get_can_move', string='Can New')
 
-    def _get_can_move(self, cr, uid, ids, field_name, args, context=None):
-        result = {}
-        has_group = self.pool['res.users'].has_group(
-            cr, uid, 'xopgi_mail_move_message.group_move_message')
-        for msg in self.browse(cr, uid, ids, context=context):
-            result[msg.id] = (msg.type != 'notification' and
-                              (uid == SUPERUSER_ID or has_group))
-        return result
+    @api.multi
+    def _get_can_move(self):
+        for record in self:
+            has_group = self.env['res.users'].has_group(
+                'xopgi_mail_move_message.group_move_message'
+            )
+            type = get_first_of(record, 'type', 'message_type')
+            record.can_move = (
+                type not in ('notification', ) and
+                (self._uid == SUPERUSER_ID or has_group)
+            )
 
-    _columns = {FIELD_NAME: fields.function(_get_can_move, string='Can New',
-                                            type='boolean'), }
-
-    def _message_read_dict(self, cr, uid, msg, parent_id=False, context=None):
-        res = super(Message, self)._message_read_dict(
-            cr, uid, msg, parent_id=parent_id, context=context)
+    @api.model
+    def _message_read_dict(self, msg, parent_id=False):
+        """ Return a dict representation of the message.
+        """
+        res = super(Messages, self)._message_read_dict(msg, parent_id=parent_id)
         res[FIELD_NAME] = getattr(msg, FIELD_NAME)
         return res
+
+    @api.multi
+    def message_format(self):
+        with context(ADD_CANMOVE_TO_READ):
+            return super(Messages, self).message_format()
+
+    @api.multi
+    def read(self, fields=None, load='_classic_read'):
+        if ADD_CANMOVE_TO_READ in context:
+            fields.append(FIELD_NAME)
+        return super(Messages, self).read(fields=fields, load=load)

@@ -15,10 +15,13 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp import api, fields, models
+try:
+    from odoo import api, fields, models
+except ImportError:
+    from openerp import api, fields, models
 
 
-class MailConfig(models.Model):
+class MailConfig(models.TransientModel):
     _inherit = 'base.config.settings'
 
     default_views = fields.Many2many(

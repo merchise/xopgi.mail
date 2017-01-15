@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 # --------------------------------------------------------------------------
-# xopgi_mail_expand
+# xopgi_mail_new_thread
 # --------------------------------------------------------------------------
 # Copyright (c) 2015-2017 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
@@ -19,7 +19,10 @@
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+    #
+    # BIG WARNING: Although we make this installable in Odoo 9, it's done so
+    # for the sake of easy migrations.  This addon won't work in Odoo 9.
+    'installable': ODOO_VERSION_INFO[0] in (8, 9, 10),   # noqa
 
     'summary': 'Add an option to create new mail capable object from '
                'existing message.',
@@ -33,10 +36,10 @@
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
-        'views/mail_new_thread_wizard.xml',
-        'views/assets.xml',
+        'views/%d/mail_new_thread_wizard.xml' % ODOO_VERSION_INFO[0],  # noqa
+        'views/%d/assets.xml' % ODOO_VERSION_INFO[0],  # noqa
     ],
     'qweb': [
-        'static/src/xml/mail_new_thread.xml',
+        'static/src/xml/%d/mail_new_thread.xml' % ODOO_VERSION_INFO[0]  # noqa
     ],
 }
