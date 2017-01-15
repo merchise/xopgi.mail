@@ -17,7 +17,10 @@ from __future__ import (division as _py3_division,
 
 from lxml.html import fromstring, tostring
 
-from openerp import api, fields, exceptions, models, _
+try:
+    from openerp import api, fields, exceptions, models, _
+except ImportError:
+    from odoo import api, fields, exceptions, models, _
 
 FIND_CLASS_XPATH_EXPRESSION = (
     "descendant-or-self::*[@class and "
@@ -30,19 +33,17 @@ FIND_CLASS_XPATH_EXPRESSION = (
 class MailComposeMessage(models.TransientModel):
     _inherit = 'mail.compose.message'
 
-    def _have_body_readonly_elements(self):
-        return True
-
     body_readonly_elements = fields.Boolean()
     template_subject_readonly = fields.Boolean(
         related="template_id.use_default_subject")
 
+    def _have_body_readonly_elements(self):
+        return True
+
     @api.multi
     def onchange_template_id(self, template_id, composition_mode, model,
                              res_id):
-        ''' Add style to readonly tokens
-
-        '''
+        'Add style to readonly tokens.'
         result = super(MailComposeMessage, self).onchange_template_id(
             template_id, composition_mode, model, res_id)
         body = result.get('value', {}).get('body', '')
@@ -62,6 +63,7 @@ class MailComposeMessage(models.TransientModel):
         '''Ensure readonly elements aren't modify.
 
         '''
+        self.ensure_one()
         if not self.template_id:
             return True
         template_dict = self.pool['email.template'].generate_email_batch(
@@ -107,7 +109,7 @@ class MailComposeMessage(models.TransientModel):
 
     @api.multi
     def send_mail(self):
-        ''' Validate no readonly token was modified and remove added style.
+        '''Validate no readonly token was modified and remove added style.
 
         '''
         self.ensure_one()
@@ -119,10 +121,9 @@ class MailComposeMessage(models.TransientModel):
 
     @api.multi
     def save_as_template(self):
-        ''' Remove added style from readonly tokens.
+        '''Remove added style from readonly tokens.
 
         '''
-        # FIXME: _remove_readonly_style access self.body, it's not decorated
-        # with @api.one, though.  It may break.
+        self.ensure_one()
         self._remove_readonly_style()
         return super(MailComposeMessage, self).save_as_template()
