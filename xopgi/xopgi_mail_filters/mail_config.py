@@ -17,13 +17,15 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 from datetime import datetime
+
+from xoeuf import api
+
 try:
     from openerp.models import Model
     from openerp.release import version_info as ODOO_VERSION_INFO
 except ImportError:
     from odoo.models import Model
     from odoo.release import version_info as ODOO_VERSION_INFO
-from xoeuf.osv.model_extensions import search_browse
 
 MODULE_NAME = 'xopgi_mail_filter'
 
@@ -39,7 +41,8 @@ def followed_models(cr):
 class MailConfig(Model):
     _inherit = 'base.config.settings'
 
-    def extend_search_views(self, cr, uid, context=None):
+    @api.model
+    def extend_search_views(self):
         '''Get all primary search views from all actual followed models
         and add it a message_follower_ids field filter.
 
@@ -55,30 +58,31 @@ class MailConfig(Model):
                        '\'<?xml version="1.0"?>\n'
                        '<xpath expr="/search" position="inside">\n'
                        ' <field name="message_follower_ids"/>\n'
-                       '</xpath>\'', str(16), str(uid),
+                       '</xpath>\'', str(16), str(self._uid),
                        "'%s'" % datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                        "'%s'" % datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                       str(uid), '%s', '%s']
+                       str(self._uid), '%s', '%s']
         if ODOO_VERSION_INFO >= (8, 0):
             columns.extend(['mode', 'active'])
             view_values.extend(["'extension'", str(True)])
         insert_query = insert_query % dict(columns=', '.join(columns),
                                            values=', '.join(view_values))
-        models = followed_models(cr)
-        view_obj = self.pool['ir.ui.view']
-        args = [('model', 'in', models), ('inherit_id', '=', False),
-                ('type', '=', 'search')]
-        for view in search_browse(view_obj, cr, uid, args, context=context):
+        models = followed_models(self._cr)
+        view_obj = self.env['ir.ui.view']
+        query = [('model', 'in', models), ('inherit_id', '=', False),
+                 ('type', '=', 'search')]
+        for view in view_obj.search(query):
             name = "%s.%s.followers.filter" % (MODULE_NAME, view.model)
             check_args = [('model', '=', view.model), ('inherit_id', '=', view.id),
                           ('type', '=', 'search'), ('name', '=', name)]
-            if not view_obj.search(cr, uid, check_args, context=context):
-                cr.execute(insert_query, (view.model, view.id, name))
-        return True
+            if not view_obj.search(check_args):
+                self._cr.execute(insert_query, (view.model, view.id, name))
+        view_obj.invalidate_cache()
 
-    def add_followers_filter(self, cr, uid, ids, context=None):
+    @api.take_one
+    def add_followers_filter(self):
         '''Method called by config button for add followers filters.
 
         '''
-        self.extend_search_views(cr, uid, context=context)
+        self.extend_search_views()
         return {'type': 'ir.actions.client', 'tag': 'reload', }
