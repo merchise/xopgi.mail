@@ -15,291 +15,205 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp.osv.orm import Model
-from openerp.osv import fields, osv
-from openerp.tools.translate import _
-from openerp.release import version_info as ODOO_VERSION_INFO
-from openerp.addons.xopgi_mail_alias.mail_alias import \
-    get_default_alias_domain
+try:
+    from odoo import models, fields, exceptions
+    from odoo.release import version_info as ODOO_VERSION_INFO
+except ImportError:
+    from openerp import models, fields, exceptions
+    from openerp.release import version_info as ODOO_VERSION_INFO
 
-from xoeuf.osv.orm import get_modelname
 
-if ODOO_VERSION_INFO < (8, 0):
-    from openerp.addons.crm.crm import crm_case_section as _base
+from xoeuf import api
+from xoeuf.osv.orm import CREATE_RELATED, UPDATE_RELATED, REMOVE_RELATED
+
+
+if ODOO_VERSION_INFO < (10, 0):
+    def get_team(alias):
+        return alias.section_id
+
+    TEAM_MODEL_NAME = 'crm.case.section'
 else:
-    from openerp.addons.sales_team.sales_team import crm_case_section as _base
+    def get_team(alias):
+        return alias.team_id
+
+    TEAM_MODEL_NAME = 'crm.team'
 
 
-def str2dict(dict_str):
-    try:
-        return dict(eval(dict_str))
-    except:
-        return {}
-
-
-class crm_valias(Model):
+class crm_valias(models.Model):
     _name = 'crm.valias'
+    _inherit = ['xopgi.mail.alias.mocker']
 
-    _columns = {
-        'alias_name':
-            fields.char(
-                'Alias',
-                required=True,
-                help=("The name of the email alias, e.g. 'jobs' if "
-                      "you want to catch emails "
-                      "for <jobs@example.my.openerp.com>")),
-        'alias_domain':
-            fields.char(
-                'Domain',
-                required=True,
-                help=("The domain of the email alias, e.g. "
-                      "'example.my.openerp.com' if you want to catch emails "
-                      "for <jobs@example.my.openerp.com>")),
-        'alias_defaults':
-            fields.text(
-                'Default Values',
-                help=("A Python dictionary that will be evaluated to "
-                      "provide default values when creating new "
-                      "records for this alias.")),
-        'alias_force_thread_id':
-            fields.integer(
-                'Record Thread ID',
-                help=("Optional ID of a thread (record) to which "
-                      "all incoming messages will be attached, "
-                      "even if they did not reply to it. If set, "
-                      "this will disable the creation of new "
-                      "records completely.")),
-        'type':
-            fields.selection(
-                [('lead', 'Lead'), ('opportunity', 'Opportunity')],
-                'Type', select=True,
-                help="Type of object to create by incoming messages."
-            ),
-        'section_id': fields.many2one('crm.case.section', 'Sale Team'),
-        'user_id': fields.many2one('res.users', 'Team Leader'),
-    }
+    type = fields.Selection(
+        [('lead', 'Lead'),
+         ('opportunity', 'Opportunity')],
+        'Type',
+        select=True,
+        help="Type of object to create by incoming messages."
+    )
 
-    _defaults = dict(
-        alias_domain=lambda s, c, u, ctx: get_default_alias_domain(
-            s.pool, c, u, context=ctx))
+    if ODOO_VERSION_INFO < (10, 0):
+        section_id = fields.Many2one(TEAM_MODEL_NAME, string='Sale Team')
+    else:
+        team_id = fields.Many2one(TEAM_MODEL_NAME, string='Sale Team')
 
-    def read(self, cr, uid, ids, fields=None, context=None,
-             load='_classic_read'):
-        """Read the ids from mail.alias if any of fields are not present on
-        mail.alias model then search it on alias_defaults dict.
+    user_id = fields.Many2one('res.users', string='Team Leader')
 
+
+class crm_case_section(models.Model):
+    _inherit = TEAM_MODEL_NAME
+
+    @api.model
+    def _get_model_id(self):
+        model_obj = self.env['ir.model']
+        return model_obj.search([('model', '=', 'crm.lead')]).id
+
+    # @api.take_one(warn=True)
+    def _get_alias(self):
+        """Returns aliases related to a sale_team.
         """
-        if context is None:
-            context = {}
-        if not hasattr(ids, '__iter__'):
-            ids = [ids]
-        alias_obj = self.pool['mail.alias']
-        fields2 = []
-        other_fields = []
-        for field in fields:
-            if field in alias_obj._columns.keys():
-                fields2.append(field)
-            else:
-                other_fields.append(field)
-        add_default = other_fields and 'alias_defaults' not in fields
-        if add_default:
-            fields2.append('alias_defaults')
-        res = alias_obj.read(cr, uid, ids, fields2, context=context)
-        if not other_fields:
-            return res
-        for row in res:
-            defaults = str2dict(row['alias_defaults'])
-            for field in other_fields:
-                row[field] = defaults.pop(field, False)
-            row['alias_defaults'] = str(defaults)
-        if add_default:
-            for row in res:
-                row.pop('alias_defaults', False)
-        return res
+        Alias = self.env['mail.alias']
+        Virtual = self.env['crm.valias']
+        model_id = self._get_model_id()
+        aliases = Alias.search([('alias_model_id', '=', model_id)], order='id asc')\
+                       .filtered(lambda alias: get_team(Virtual.browse(alias.id)) == self)\
+                       .mapped(lambda alias: Virtual.browse(alias.id))
+        self.alias_ids = aliases
+        return aliases
 
-
-class crm_case_section(Model):
-    _inherit = get_modelname(_base)
-
-    def _get_model_id(self, cr, uid, context):
-        model_obj = self.pool.get('ir.model')
-        return model_obj.search(cr, uid, [('model', '=', 'crm.lead')],
-                                context=context)[0]
-
-    def _get_alias(self, cr, uid, ids, field_name=None, arg=None,
-                   context=None):
-        """Check if each section_ids are referenced on any mail.alias and
-        return a list of alias_ids per section_id.
-        """
-        alias_obj = self.pool.get("mail.alias")
-        model_id = self._get_model_id(cr, uid, context=context)
-        alias_ids = alias_obj.search(
-            cr, uid,
-            [('alias_model_id', '=', model_id)],
-            context=context
-        )
-
-        def _check_one(section_id, alias_id, defaults):
-            check = str2dict(defaults).get('section_id', 0)
-            if check == section_id:
-                return alias_id
-            return False
-
-        def _check_all(section_id):
-            value = []
-            for a in alias_obj.browse(cr, uid, alias_ids, context=context):
-                temp = _check_one(section_id, a.id, a.alias_defaults)
-                if temp:
-                    value.append(temp)
-            return value
-        return {i: _check_all(i) for i in ids}
-
-    def _unlink_alias(self, cr, uid, section_id, alias_id, context=None):
-        alias_obj = self.pool.get("mail.alias")
-        section_ids = self.search(cr, uid, [('alias_id', '=', alias_id),
-                                            ('active', '=', False),
-                                            ('id', '!=', section_id)],
-                                  context=context)
+    @api.multi
+    def _unlink_alias(self, alias_id):
+        Alias = self.env['mail.alias']
+        section_ids = self.search([('alias_id', '=', alias_id),
+                                   ('active', '=', False),
+                                   ('id', '!=', self.id)])
         if section_ids:
-            self.unlink(cr, uid, section_ids, context=context)
-        return alias_obj.unlink(cr, uid, alias_id, context=context)
+            section_ids.unlink()
+        return Alias.browse(alias_id).unlink()
 
-    def _set_alias(self, cr, uid, section_id, field_name, field_value, arg,
-                   context=None):
-        alias_obj = self.pool.get("mail.alias")
-        model_id = self._get_model_id(cr, uid, context=context)
-        CREATE_RELATED = 0
-        UPDATE_RELATED = 1
-        DELETE_RELATED = 2
-        _create = lambda _id, vals: alias_obj.create(cr, uid, vals,
-                                                     context=context)
-        _write = lambda _id, vals: alias_obj.write(cr, uid, _id, vals,
-                                                   context=context)
+    def validate_type_alias(self, vals, use_lead, use_opportunity):
+        alias = eval(vals['alias_defaults'])
+        type_valias = alias.get('type', False)
+        if not type_valias:
+            return vals
+        if use_lead is None:
+            use_lead = self.use_leads
+        if use_opportunity is None:
+            use_opportunity = self.use_opportunities
+        if not use_lead and type_valias == 'lead':
+            raise exceptions.Warning(
+                "This sale team not use 'Leads' then cant alias with 'Lead'."
+                "please select the 'Leads' option from 'Sales team'")
+        if not use_opportunity and type_valias == 'opportunity':
+            raise exceptions.Warning(
+                "This sale team not use 'Opportunities' then cant alias with"
+                "'Opportunity' please select the Opportunities' option from"
+                "'Sales team'")
+        return vals
 
-        def _parse_fields(alias_id, vals):
-            '''The fields not present on mail.alias model are include on
-            alias_defaults dictionary.
+    @api.multi
+    def _set_alias(self):
+        pass
 
-            '''
-            fields = []
-            other_fields = []
-            for field in vals.keys():
-                if field in alias_obj._columns.keys():
-                    fields.append(field)
-                else:
-                    other_fields.append(field)
-            if not other_fields:
-                return vals
-            defaults = '{}'
-            if 'alias_defaults' in fields:
-                defaults = str2dict(vals['alias_defaults'])
-            elif alias_id:
-                row = alias_obj.read(cr, uid, alias_id,
-                                     ['alias_defaults'], context=context)
-                defaults = str2dict(row['alias_defaults'])
-            for field in other_fields:
-                value = vals.pop(field, False)
-                if value:
-                    defaults.update({field: value})
-            vals['alias_defaults'] = str(defaults)
-            if ODOO_VERSION_INFO < (8, 0):
-                # TODO:  Comment on this early return
-                return vals
-            _type = vals.get('type', False)
-            if not _type:
-                return vals
-            section = self.browse(cr, uid, section_id, context=context)
-            if (not section.use_leads) and _type == 'lead':
-                raise osv.except_osv(_('Warning!'), _(
-                    "This sale team not use leads then cant alias with"
-                    "leads creation."))
-            if (not section.use_opportunities) and _type == 'opportunity':
-                raise osv.except_osv(_('Warning!'), _(
-                    "This sale team not use opportunity then cant alias with"
-                    "opportunities creation."))
+    def set_values(self, field_value, use_lead, use_opportunity):
+        """It manages the CRUD of mail aliases for a project. In the case of
+        "create" it returns a list of the identifiers of the new mail alias
+        that have been created. In the case of write and unlink it returns an
+        empty list.
+        """
+        Alias = self.env['mail.alias']
+        Virtual = self.env['crm.valias']
+        alias_model_id = self._get_model_id()
+
+        def update_values(id, vals):
+            if ODOO_VERSION_INFO < (10, 0):
+                vals['section_id'] = self.id
+            else:
+                vals['team_id'] = self.id
+            vals['alias_model_id'] = alias_model_id
+            vals = Virtual._parse_fields(id, vals)
+            vals = self.validate_type_alias(vals, use_lead, use_opportunity)
             return vals
 
-        def _action(_id, vals, _function):
-            vals['section_id'] = section_id
-            section = self.browse(cr, uid, section_id, context=context)
-            vals['user_id'] = (section.user_id.id
-                               if section and section.user_id
-                               else False)
-            vals = _parse_fields(_id, vals)
-            vals['alias_model_id'] = model_id
-            return _function(_id, vals)
+        def create_mail_alias(alias_id, values):
+            return Alias.create(update_values(alias_id, values))
+
+        def update_mail_alias(alias_id, values):
+            return Alias.browse(alias_id).write(update_values(alias_id, values))
+
         to_unlink = []
+        alias_add = []
         for option, alias_id, values in field_value:
             if option == CREATE_RELATED:
-                _action(False, values, _create)
+                alias = create_mail_alias(alias_id, values)
+                alias_add.append(alias.id)
             elif option == UPDATE_RELATED:
-                _action(alias_id, values, _write)
-            elif option == DELETE_RELATED:
+                update_mail_alias(alias_id, values)
+            elif option == REMOVE_RELATED:
                 to_unlink.append(alias_id)
         if to_unlink:
-            self._unlink_alias(cr, uid, section_id, to_unlink, context=context)
-        return 1
+            self._unlink_alias(to_unlink)
+        return alias_add
 
-    _columns = {
-        'alias_ids': fields.function(
-            _get_alias,
-            fnct_inv=_set_alias,
-            method=True,
-            relation='crm.valias',
-            string='Mail Aliases',
-            type='one2many',
-            help=("The email addresses associated with this team. New emails "
-                  "received will automatically create new Lead/Opportunity "
-                  "assigned to the team.")),
-    }
+    alias_ids = fields.One2many(
+        'crm.valias',
+        compute='_get_alias',
+        inverse='_set_alias',
+        string='Mail Aliases',
+        help=("The email addresses associated with this team. New emails "
+              "received will automatically create new Lead/Opportunity "
+              "assigned to the team.")
+    )
 
-    def create(self, cr, uid, values, context=None):
-        """Check if at least one mail alias is defined, create a temporal alias to
-        avoid create the default one, replace the temporal alias by user
-        defined ones and remove the temporal alias.  Else if no mail alias are
-        defined let create de default one.
-
+    @api.model
+    def create(self, values):
+        """Odoo create by default a mail alias.This function allows you to
+           create more than one mail alias since a project is created for the
+           first time.
         """
-        if context is None:
-            context = {}
-        if values.get('alias_ids', False):
-            alias_obj = self.pool.get("mail.alias")
-            temp_alias = alias_obj.create_unique_alias(
-                cr, uid,
-                {'alias_name': 'crm+temp-alias'},
-                model_name="crm.lead",
-                context=context
-            )
-            values['alias_id'] = temp_alias
-            values.pop('alias_name', None)
-        else:
-            temp_alias = False
-            if not values.get('alias_name', False):
-                values['alias_name'] = values.get('name', 'sale_team')
-        res = super(crm_case_section, self).create(cr, uid, values,
-                                                   context=context)
-        if temp_alias:
-            alias_ids = self._get_alias(cr, uid, [res], context=context)[res]
-            if temp_alias in alias_ids:
-                alias_ids.remove(temp_alias)
-            self.write(cr, uid, res, {'alias_id': alias_ids[0]},
-                       context=context)
-            self.pool['mail.alias'].unlink(cr, uid, temp_alias,
-                                           context=context)
-        return res
+        if not values['alias_name']:
+            values['alias_name'] = values['name']
+            Alias = self.env['mail.alias']
+            vals = {}
+            aliases_create = None
+            if values['alias_ids']:
+                    valias = values.pop('alias_ids')
+                    use_lead = values.get('use_leads', None)
+                    use_opportunitie = values.get('use_opportunities', None)
+                    aliases_create = self.set_values(valias, use_lead, use_opportunitie)
+            sale_team = super(crm_case_section, self).create(values)
+            if sale_team and aliases_create:
+                for alias in aliases_create:
+                    record = Alias.browse(alias)
+                    defaults = eval(record.alias_defaults)
+                    if ODOO_VERSION_INFO < (10, 0):
+                        defaults.update(section_id=sale_team.id)
+                    else:
+                        # Odoo 10 changed the section_id to a team_id.
+                        defaults.update(team_id=sale_team.id)
+                    vals['alias_defaults'] = repr(defaults)
+                    record.write(vals)
+        return sale_team
 
-    def unlink(self, cr, uid, ids, context=None):
+    @api.multi
+    def write(self, values):
+        """Override the project for to update relation of valias-project
+        """
+        if 'alias_ids' in values:
+            valias = values.pop('alias_ids')
+            use_lead = values.get('use_leads', None)
+            use_opportunity = values.get('use_opportunities', None)
+            self.set_values(valias, use_lead, use_opportunity)
+        return super(crm_case_section, self).write(values)
+
+    @api.multi
+    def unlink(self):
         """Cascade unlink the mail alias related.
-
         """
-        if context is None:
-            context = {}
-        if not hasattr(ids, '__iter__'):
-            ids = [ids]
-        alias_ids = self._get_alias(cr, uid, ids, context=context)
-        result = super(crm_case_section, self).unlink(cr, uid, ids,
-                                                      context=context)
-        for _id, _ids in alias_ids.items():
-            if _ids:
-                self._unlink_alias(cr, uid, _id, _ids, context=context)
+        for record in self:
+            aliases = record._get_alias()
+            record_aux = record
+            result = super(crm_case_section, record).unlink()
+            if aliases:
+                for alias_id in aliases:
+                    record_aux._unlink_alias(alias_id.id)
         return result

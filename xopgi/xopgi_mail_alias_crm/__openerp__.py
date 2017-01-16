@@ -23,12 +23,18 @@
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+    #
+    # WARNING: Although we allow this addon to be installed in Odoo 9 it does
+    # not do much.  It's only allowed to ease the migration from Odoo 8 to
+    # Odoo 10.
+    'installable': ODOO_VERSION_INFO[0] in (8, 9, 10),   # noqa
 
-    'summary': 'Extend crm module to relate many alias per sale team.',
+    'summary': 'Mail Alias CRM (sales_team).',
+    'description': 'Extend crm module to relate many alias per sale team.',
     'depends': ['crm', 'xopgi_mail_alias'],
+
     'data': [
-        'view/crm_view.xml',
-        'security/security.xml'
+        'view/%d/crm_view.xml' % ODOO_VERSION_INFO[0],  # noqa
+        'security/%d/security.xml' % ODOO_VERSION_INFO[0],  # noqa
     ],
 }
