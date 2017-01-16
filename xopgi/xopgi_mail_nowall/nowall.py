@@ -23,7 +23,10 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp.addons.xopgi_mail_threads.routers import MailRouter
+try:
+    from openerp.addons.xopgi_mail_threads.routers import MailRouter
+except ImportError:
+    from odoo.addons.xopgi_mail_threads.routers import MailRouter
 
 
 MODEL_INDEX = 0
@@ -32,12 +35,14 @@ DIRECT_MAIL_MODEL = 'res.users'
 
 class NoDirectMailRouter(MailRouter):
     @classmethod
-    def query(cls, obj, cr, uid, message, context=None):
+    def query(cls, obj, message):
         return True
 
     @classmethod
-    def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
-        routes[:] = [route
-                     for route in routes
-                     if route[MODEL_INDEX] != DIRECT_MAIL_MODEL]
+    def apply(cls, obj, routes, message, data=None):
+        routes[:] = [
+            route
+            for route in routes
+            if route[MODEL_INDEX] != DIRECT_MAIL_MODEL
+        ]
         return routes
