@@ -21,20 +21,16 @@ from email.utils import getaddresses
 from openerp.release import version_info as ODOO_VERSION_INFO
 try:
     # Odoo 8
-    from openerp.addons.mail.mail_thread import decode_header
+    from openerp.addons.xopgi_mail_threads.utils import decode_header
 except ImportError:
     # Odoo 9 fallback
-    from openerp.addons.mail.models.mail_thread import decode_header
+    from openerp.addons.xopgi_mail_threads.utils import decode_header
 
 
-# The name of the configuration parameter where the alias for bounces should
-# be located.
-MAIL_BOUNCE_ALIAS_PARAM = 'mail.bounce.alias'
-
-# The name of the preferred alias for VERP bounces.  If this alias is set the
-# 'mail.bounces.alias' won't be used.  This allows to bypass the Odoo
-# mail.mail default Return-Path, though VERP is not installed.
-MAIL_BOUNCE_VERP_ALIAS_PARAM = 'mail.bounce.verp.alias'
+# The name configuration parameter for VERP bounces.  Don't use the
+# 'mail.bounce.alias' to avoid clashes with Odoo 10.  Odoo 8 didn't have the
+# 'mail.bounce.alias' and it won't be missed.
+MAIL_BOUNCE_VERP_ALIAS_PARAM = 'xopgi.mail.bounce.verp.alias'
 
 # The default alias.
 DEFAULT_BOUNCE_ALIAS = 'postmaster-odoo'
@@ -48,20 +44,14 @@ BOUNCE_MODEL = 'mail.bounce.model'
 VOID_EMAIL_ADDRESS = '<>'
 
 
-def get_bounce_alias(pool, cr, uid, context=None):
+def get_bounce_alias(self):
     '''Return the alias for building bouncing addresses.
 
     If no alias are set, return 'postmaster-odoo'.
 
     '''
-    alias_name = ('mail.catchall.alias'
-                  if ODOO_VERSION_INFO < (8, 0)
-                  else MAIL_BOUNCE_ALIAS_PARAM)
-    get_param = pool['ir.config_parameter'].get_param
-    bounce = get_param(cr, uid, alias_name,
-                       default=DEFAULT_BOUNCE_ALIAS, context=context)
-    res = get_param(cr, uid, MAIL_BOUNCE_VERP_ALIAS_PARAM, default=bounce,
-                    context=context)
+    get_param = self.env['ir.config_parameter'].get_param
+    res = get_param(MAIL_BOUNCE_VERP_ALIAS_PARAM, default=DEFAULT_BOUNCE_ALIAS)
     return res
 
 

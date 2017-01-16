@@ -22,10 +22,17 @@ from __future__ import (division as _py3_division,
 from xoutil import Unset
 from xoutil import logger as _logger
 
-from openerp import tools
-from openerp.osv import orm
-from openerp.tools.translate import _
-from openerp.release import version_info as ODOO_VERSION_INFO
+from xoeuf import api
+
+try:
+    from openerp import tools, models
+    from openerp.tools.translate import _
+    from openerp.release import version_info as ODOO_VERSION_INFO
+except ImportError:
+    from odoo import tools, models
+    from odoo.tools.translate import _
+    from odoo.release import version_info as ODOO_VERSION_INFO
+
 
 from .common import BOUNCE_MODEL, VOID_EMAIL_ADDRESS
 
@@ -53,10 +60,11 @@ class BounceVirtualId(object):
         return iter([self, ])
 
 
-class MailBounce(orm.TransientModel):
+class MailBounce(models.TransientModel):
     _name = BOUNCE_MODEL
 
-    def message_new(self, cr, uid, msg_dict, custom_values=None, context=None):
+    @api.model
+    def message_new(self, msg_dict, custom_values=None):
         '''Log an exception to see if this case happen.
 
         This is not expected to happen cause a bounce should never start a new
@@ -70,15 +78,16 @@ class MailBounce(orm.TransientModel):
         )
         return False
 
-    def message_update(self, cr, uid, ids, msg_dict, update_vals=None,
-                       context=None):
+    @api.multi
+    def message_update(self, msg_dict, update_vals=None):
         # Conceptually this is not needed, cause its purpose is to update the
         # object record from an email data.  Being a bounce we mustn't modify
         # any record for that sort of thing.  However, this is method is still
         # needed to keep Odoo from calling `message_new`.
         return True
 
-    def message_post(self, cr, uid, ids, **kwargs):
+    @api.multi
+    def message_post(self, **kwargs):
         '''Post the bounce to the proper thread.
 
         Change the email_from with the email_to of the original message (not
@@ -89,21 +98,15 @@ class MailBounce(orm.TransientModel):
         `ids` must a sequence with a single BounceVirtualId instance.
 
         '''
-        data = ids[0]
-        # FIXME: [manu] As of 2016-06-29 this should be fixed.  But let's stay
-        # safe for a while.
-        if isinstance(data, BounceVirtualId):
-            message_id, model, thread_id, recipient, rfc_message = data.args
-        else:
-            _logger.warn('Bounce data with the unexpected type: %r', data)
-            message_id, model, thread_id, recipient, rfc_message = data
+        data = self._ids[0]
+        message_id, model, thread_id, recipient, rfc_message = data.args
         if not model:
             return
-        kwargs['context'] = context = dict(kwargs.get('context', {}))
-        model_pool = self.pool[model]
+        context = dict(self._context)
+        model_pool = self.env[model]
         if not hasattr(model_pool, 'message_post'):
             context['thread_model'] = model
-            model_pool = self.pool['mail.thread']
+            model_pool = self.env['mail.thread']
         if thread_id:
             # TODO: Prove this happens by inspecting the log.
             # thread_id must time will be an integer but on a few cases can be
@@ -113,12 +116,12 @@ class MailBounce(orm.TransientModel):
             except ValueError:
                 _logger.warn('Invalid thread while bounce %s', thread_id)
         if message_id:
-            message = self._get_message(cr, uid, int(message_id))
+            message = self.env['mail.message'].browse(int(message_id))
         else:
             # This means we recognized this message as 'rogue bounce' which
             # could not find the message that bounced.
             message = None
-        self._build_bounce(cr, uid, rfc_message, message, recipient, kwargs)
+        self._build_bounce(rfc_message, message, recipient, kwargs)
         if message and message.author_id and any(message.author_id.user_ids):
             # Notify to the author of the original email IF AND ONLY IF it
             # is a 'res_user'. This is to avoid notifying third parties about
@@ -134,10 +137,9 @@ class MailBounce(orm.TransientModel):
             # Don't make the superuser a follower
             mail_post_autofollow=False,
         )
-        msgid = model_pool.message_post(cr, uid, [thread_id], **kwargs)
-        return msgid
+        return model_pool.browse(thread_id).with_context(context).message_post(**kwargs)
 
-    def _build_bounce(self, cr, uid, rfc_message, message, recipient, params):
+    def _build_bounce(self, rfc_message, message, recipient, params):
         '''Rewrites the bounce email.
         '''
         params['subject'] = rfc_message['subject'] or _('Mail Returned to Sender')
@@ -156,12 +158,12 @@ class MailBounce(orm.TransientModel):
             )
         return params
 
-    def _get_message(self, cr, uid, message_id):
-        return self.pool['mail.message'].browse(cr, uid, message_id)
-
 
 if ODOO_VERSION_INFO < (9, 0):
-    class mail_notification(orm.Model):
+    # Though, Odoo 10 resurrects the mail.notification model it's not used
+    # anymore to 'update_message_notification', so the followers need to be
+    # forced elsewhere.
+    class mail_notification(models.Model):
         _inherit = 'mail.notification'
 
         def update_message_notification(self, cr, uid, ids, message_id,
@@ -174,24 +176,26 @@ if ODOO_VERSION_INFO < (9, 0):
             return super(mail_notification, self).update_message_notification(
                 cr, uid, ids, message_id, partner_ids, context=context
             )
+else:
+    pass
 
 
-class mail_mail(orm.Model):
+class Mail(models.Model):
     _inherit = 'mail.mail'
 
-    def create(self, cr, uid, values, context=None):
+    @api.model
+    def create(self, values):
+        # Inject the Auto-Submitted header in the mail.  CURRENTLY NOT
+        # WORKING.
         from xoutil.eight import string_types
-        if context:
-            auto_submitted = context.get('auto_submitted')
-        else:
-            auto_submitted = None
+        auto_submitted = self._context.get('auto_submitted')
         if auto_submitted:
             headers = values.get('headers', {})
             if isinstance(headers, string_types):
                 headers = eval(headers)
             headers['Auto-Submitted'] = auto_submitted
             values['headers'] = str(headers)
-        return super(mail_mail, self).create(cr, uid, values, context=context)
+        return super(Mail, self).create(values)
 
 
 def find_part(msg, type='text/plain'):

@@ -15,10 +15,15 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp.osv import osv
+from xoeuf import api
+
+try:
+    from openerp import models
+except ImportError:
+    from odoo import models
 
 
-class mail_mail(osv.Model):
+class Mail(models.Model):
     '''Override the send method to add mail_id on context.
 
     This is needed by the transport to properly build a bounce address which
@@ -35,17 +40,19 @@ class mail_mail(osv.Model):
     _name = 'mail.mail'
     _inherit = _name
 
-    def send(self, cr, uid, ids, *args, **kwargs):
-        '''Add mail_id to context and call _super one by one.
-
-        mail_id may use to get unique return-path.
-
-        '''
-        res = True
-        context = dict(kwargs.get('context', {}) or {})
-        _super = super(mail_mail, self).send
-        for _id in ids:
-            context.update(mail_id=_id)
-            kwargs.update(context=context)
-            res = _super(cr, uid, [_id], *args, **kwargs) and res
+    @api.multi
+    def send(self, *args, **kwargs):
+        # Add mail_id to context and call _super one by one.
+        #
+        # verp_mail_id may use to get unique return-path.
+        if len(self) > 1:
+            res = True
+            for record in self:
+                res = self.browse(record.id).with_context(
+                    verp_mail_id=record.id
+                ).send(*args, **kwargs) and res
+        else:
+            res = super(Mail, self.with_context(
+                verp_mail_id=self.id
+            )).send(*args, **kwargs)
         return res
