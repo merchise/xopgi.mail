@@ -17,7 +17,6 @@
     'author': 'Merchise Autrement',
     'category': 'Hidden',
     'application': False,
-    'installable': True,
     'summary': 'Several extensions to OpenERP Messaging System',
     'description': 'Provides a configurable interface to Messaging Extensions',
     'depends': ['mail', 'web'],
@@ -25,5 +24,8 @@
         'views/config.xml',
     ],
     'auto_install': True,
-    'installable': (8, 0) <= ODOO_VERSION_INFO < (10, 0),  # noqa
+
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    'installable': ODOO_VERSION_INFO[0] in (8, 10),  # noqa
 }

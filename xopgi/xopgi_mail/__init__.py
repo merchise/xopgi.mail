@@ -23,11 +23,11 @@ from __future__ import (division as _py3_division,
 from xoutil import logger as _logger
 
 try:
-    from openerp import fields
-    from openerp.models import Model
-except ImportError:
     from odoo import fields
-    from odoo.models import Model
+    from odoo.models import TransientModel
+except ImportError:
+    from openerp import fields
+    from openerp.models import TransientModel
 
 try:
     from openerp.signals import receiver
@@ -48,8 +48,12 @@ except ImportError:
             return lambda f: f
 
 
-class MailConfig(Model):
+class MailConfig(TransientModel):
     _inherit = 'base.config.settings'
+
+    module_xopgi_mail_full_expand = fields.Boolean(
+        'Allow to "expand" messages.'
+    )
 
     module_xopgi_mail_forward = fields.Boolean(
         'Allow to "forward" messages.'
