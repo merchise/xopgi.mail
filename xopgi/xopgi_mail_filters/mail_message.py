@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi.mail.xopgi_mail_filters.mail_message
 # --------------------------------------------------------------------------
-# Copyright (c) 2014-2016 Merchise Autrement [~º/~] and Contributors
+# Copyright (c) 2014-2017 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the

@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # evaneos_mailrouter
 # ---------------------------------------------------------------------
-# Copyright (c) 2014-2016 Merchise Autrement [~º/~] and Contributors
+# Copyright (c) 2014-2017 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -37,7 +37,7 @@ class EvaneosMailRouter(MailRouter):
 
     @classmethod
     def get_all_matches(cls, obj, cr, uid, message):
-        from six.moves import map
+        from xoutil.iterators import map
         from re import compile as _re_compile
         config = obj.pool['ir.config_parameter']
         pattern = config.get_param(

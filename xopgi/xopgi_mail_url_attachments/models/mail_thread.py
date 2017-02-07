@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # xopgi_mail_url_attachments.mail_thread
 # ---------------------------------------------------------------------
-# Copyright (c) 2015-2016 Merchise Autrement [~º/~]
+# Copyright (c) 2015-2017 Merchise Autrement [~º/~]
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -16,7 +16,7 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 from lxml import etree
-from six import integer_types, string_types
+from xoutil.eight import integer_types, string_types
 
 from openerp import api, models
 

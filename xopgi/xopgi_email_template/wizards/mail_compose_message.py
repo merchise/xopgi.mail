@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # xopgi_email_template.wizards.mail_compose_message
 # ---------------------------------------------------------------------
-# Copyright (c) 2015-2016 Merchise Autrement [~º/~]
+# Copyright (c) 2015-2017 Merchise Autrement [~º/~]
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -105,11 +105,12 @@ class MailComposeMessage(models.TransientModel):
                 node.attrib.pop('class', False)
             self.body = tostring(result)
 
-    @api.model
+    @api.multi
     def send_mail(self):
         ''' Validate no readonly token was modified and remove added style.
 
         '''
+        self.ensure_one()
         if self._validate_template_restrictions():
             return super(MailComposeMessage, self).send_mail()
         else:

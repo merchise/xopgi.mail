@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_mail_expand
 # --------------------------------------------------------------------------
-# Copyright (c) 2015-2016 Merchise Autrement [~º/~] and Contributors
+# Copyright (c) 2015-2017 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -32,6 +32,7 @@
     'description': '',
     'data': [
         'security/security.xml',
+        'security/ir.model.access.csv',
         'views/mail_new_thread_wizard.xml',
         'views/assets.xml',
     ],

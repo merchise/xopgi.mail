@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------
 # xopgi_mail
 # ---------------------------------------------------------------------
-# Copyright (c) 2015-2016 Merchise Autrement [~º/~] and Contributors
+# Copyright (c) 2015-2017 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -22,70 +22,90 @@ from __future__ import (division as _py3_division,
 
 from xoutil import logger as _logger
 
-from openerp.osv import fields
-from openerp.models import Model
+try:
+    from openerp import fields
+    from openerp.models import Model
+except ImportError:
+    from odoo import fields
+    from odoo.models import Model
 
 try:
     from openerp.signals import receiver
-    from openerp.addons.mail.xopgi import unlink_thread
+    try:
+        from openerp.addons.mail.xopgi import unlink_thread
+    except ImportError:
+        from openerp.addons.mail.models.xopgi import unlink_thread
 except ImportError:
-    # Safely fallback to doing nothing while signals are not deployed on
-    # production.
-    unlink_thread = None
+    try:
+        from odoo.signals import receiver
+        from odoo.addons.mail.models.xopgi import unlink_thread
+    except ImportError:
+        # Safely fallback to doing nothing while signals are not deployed on
+        # production.
+        unlink_thread = None
 
-    def receiver(*args, **kw):
-        return lambda f: f
+        def receiver(*args, **kw):
+            return lambda f: f
 
 
 class MailConfig(Model):
     _inherit = 'base.config.settings'
 
-    _columns = {
-        'module_xopgi_mail_forward':
-            fields.boolean('Allow to "forward" messages.'),
+    module_xopgi_mail_forward = fields.Boolean(
+        'Allow to "forward" messages.'
+    )
 
-        'module_xopgi_mailservers':
-            fields.boolean('Control outgoing SMTP server by sender.'),
+    module_xopgi_mailservers = fields.Boolean(
+        'Control outgoing SMTP server by sender.'
+    )
 
-        'module_xopgi_mail_alias_crm':
-            fields.boolean('Several mail alias by sale team.'),
+    module_xopgi_mail_alias_crm = fields.Boolean(
+        'Allow several mail alias by sale team.'
+    )
 
-        'module_xopgi_mail_alias_project':
-            fields.boolean('Several mail alias by project.'),
+    module_xopgi_mail_alias_project = fields.Boolean(
+        'Allow several mail alias by project.'
+    )
 
-        'module_xopgi_mail_verp':
-            fields.boolean('Notify (if possible) authors about message '
-                           'bounces.'),
+    module_xopgi_mail_verp = fields.Boolean(
+        'Notify (if possible) authors about message bounces.'
+    )
 
-        'module_xopgi_mail_new_thread':
-            fields.boolean('Allow to create an new object from an existing '
-                           'message.'),
+    module_xopgi_mail_new_thread = fields.Boolean(
+        'Allow to create an new object from an existing message.'
+    )
 
-        'module_xopgi_mail_move_message':
-            fields.boolean('Allow to transfer messages.'),
+    module_xopgi_mail_move_message = fields.Boolean(
+        'Allow to transfer messages.'
+    )
 
-        'module_xopgi_thread_address': fields.boolean(
-            'Generate a unique email address per thread.'),
+    module_xopgi_thread_address = fields.Boolean(
+        'Generate a unique email address per thread.'
+    )
 
-        'module_xopgi_unique_message_id': fields.boolean(
-            'Generate a unique id per message on db.'),
+    module_xopgi_unique_message_id = fields.Boolean(
+        'Generate a unique id per message on DB.'
+    )
 
-        'module_xopgi_mail_url_attachments': fields.boolean(
-            'Add URL attachments from links on messages body.'),
+    module_xopgi_mail_url_attachments = fields.Boolean(
+        'Add URL attachments from links on messages body.'
+    )
 
-        'module_xopgi_mail_disclosure':
-            fields.boolean('Disclose recipients in outgoing emails.'),
+    module_xopgi_mail_disclosure = fields.Boolean(
+        'Disclose recipients in outgoing emails.'
+    )
 
-        'module_xopgi_mail_alias':
-            fields.boolean('Check aliases domains when receiving messages'),
+    module_xopgi_mail_alias = fields.Boolean(
+        'Check aliases domains when receiving messages'
+    )
 
-        'module_xopgi_mail_nowall':
-            fields.boolean('Disallow replying from the Message Wall.'),
+    module_xopgi_mail_nowall = fields.Boolean(
+        'Disallow replying from the Message Wall.'
+    )
 
-        'module_xopgi_mail_expose_recipients':
-            fields.boolean('Expose original recipients of incoming messages.'),
-
-    }
+    module_xopgi_mail_expose_recipients = fields.Boolean(
+        'Expose original recipients of incoming messages.'
+    )
 
 
 # @receiver(unlink_thread)

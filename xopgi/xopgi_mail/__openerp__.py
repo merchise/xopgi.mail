@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # xopgi_mail.__openerp__
 # --------------------------------------------------------------------------
-# Copyright (c) 2015-2016 Merchise Autrement [~º/~] and Contributors
+# Copyright (c) 2015-2017 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -25,4 +25,5 @@
         'views/config.xml',
     ],
     'auto_install': True,
+    'installable': (8, 0) <= ODOO_VERSION_INFO < (10, 0),  # noqa
 }

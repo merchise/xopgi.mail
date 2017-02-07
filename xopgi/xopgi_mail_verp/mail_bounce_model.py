@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------
 # xopgi_mail_verp.mail_bounce_model
 # ---------------------------------------------------------------------
-# Copyright (c) 2015-2016 Merchise Autrement [~º/~] and Contributors
+# Copyright (c) 2015-2017 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
 # This is free software; you can redistribute it and/or modify it under the
@@ -180,7 +180,7 @@ class mail_mail(orm.Model):
     _inherit = 'mail.mail'
 
     def create(self, cr, uid, values, context=None):
-        from six import string_types
+        from xoutil.eight import string_types
         if context:
             auto_submitted = context.get('auto_submitted')
         else:
