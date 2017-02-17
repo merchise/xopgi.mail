@@ -18,12 +18,9 @@ from __future__ import (division as _py3_division,
 
 from email.utils import getaddresses
 
-from openerp.release import version_info as ODOO_VERSION_INFO
 try:
-    # Odoo 8
-    from openerp.addons.xopgi_mail_threads.utils import decode_header
+    from odoo.addons.xopgi_mail_threads.utils import decode_header
 except ImportError:
-    # Odoo 9 fallback
     from openerp.addons.xopgi_mail_threads.utils import decode_header
 
 

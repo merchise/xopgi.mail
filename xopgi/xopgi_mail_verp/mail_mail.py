@@ -18,9 +18,9 @@ from __future__ import (division as _py3_division,
 from xoeuf import api
 
 try:
-    from openerp import models
-except ImportError:
     from odoo import models
+except ImportError:
+    from openerp import models
 
 
 class Mail(models.Model):

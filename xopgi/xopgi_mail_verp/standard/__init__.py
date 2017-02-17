@@ -51,25 +51,17 @@ from xoutil.string import safe_encode
 from xoeuf import api
 
 try:
-    from openerp.models import Model
-    from openerp import fields
-    from openerp.addons.xopgi_mail_threads import MailTransportRouter
-    from openerp.addons.xopgi_mail_threads import TransportRouteData
-except ImportError:
     from odoo.models import Model
     from odoo import fields
     from odoo.addons.xopgi_mail_threads import MailTransportRouter
     from odoo.addons.xopgi_mail_threads import TransportRouteData
-
-try:
-    # Odoo 8
-    from openerp.addons.mail.mail_message import decode
+    from odoo.tools.mail import decode_smtp_header as decode_header
 except ImportError:
-    # Odoo 9 fallback
-    try:
-        from openerp.addons.mail.models.mail_message import decode
-    except ImportError:
-        from odoo.tools.mail import decode_smtp_header as decode
+    from openerp.models import Model
+    from openerp import fields
+    from openerp.addons.xopgi_mail_threads import MailTransportRouter
+    from openerp.addons.xopgi_mail_threads import TransportRouteData
+    from openerp.addons.mail.mail_message import decode as decode_header
 
 from ..common import (
     VOID_EMAIL_ADDRESS,
@@ -333,7 +325,7 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
             bounce_alias=bounce_alias,
             message_id=message.id,
             thread_index=message.thread_index,
-            recipient=decode(
+            recipient=decode_header(
                 # decode assumes str, but mail.email_to may yield unicode
                 safe_encode(mail.email_to or email_to)
             )

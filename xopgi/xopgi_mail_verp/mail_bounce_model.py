@@ -25,13 +25,13 @@ from xoutil import logger as _logger
 from xoeuf import api
 
 try:
-    from openerp import tools, models
-    from openerp.tools.translate import _
-    from openerp.release import version_info as ODOO_VERSION_INFO
-except ImportError:
     from odoo import tools, models
     from odoo.tools.translate import _
     from odoo.release import version_info as ODOO_VERSION_INFO
+except ImportError:
+    from openerp import tools, models
+    from openerp.tools.translate import _
+    from openerp.release import version_info as ODOO_VERSION_INFO
 
 
 from .common import BOUNCE_MODEL, VOID_EMAIL_ADDRESS
@@ -176,8 +176,34 @@ if ODOO_VERSION_INFO < (9, 0):
             return super(mail_notification, self).update_message_notification(
                 cr, uid, ids, message_id, partner_ids, context=context
             )
-else:
-    pass
+
+elif ODOO_VERSION_INFO < (11, 0):
+    class MessageBounceNotification(models.Model):
+        _inherit = 'mail.message'
+
+        @api.multi
+        def _notify(self, force_send=False, send_after_commit=True,
+                    user_signature=True):
+            forced_followers = self.env.context.get('forced_followers', Unset)
+            if forced_followers is not Unset and self.model:
+                thread = self.env[self.model].browse(self.res_id).sudo()
+                ID = lambda x: x.id
+                followers = thread.message_follower_ids.mapped(lambda f: f.partner_id)
+                channels = thread.message_channel_ids.mapped(ID)
+                thread.message_unsubscribe(followers.mapped(ID), channels)
+                thread.message_subscribe(forced_followers)
+            else:
+                thread = None
+                followers = None
+            try:
+                return super(MessageBounceNotification, self)._notify(
+                    force_send=force_send,
+                    send_after_commit=send_after_commit,
+                    user_signature=user_signature,
+                )
+            finally:
+                if followers and thread:
+                    thread.message_subscribe(followers.mapped(ID), channels)
 
 
 class Mail(models.Model):

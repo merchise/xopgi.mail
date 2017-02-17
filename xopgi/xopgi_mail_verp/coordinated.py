@@ -18,9 +18,9 @@ from __future__ import (division as _py3_division,
 
 
 try:
-    from openerp.addons.xopgi_mail_threads import MailRouter
-except ImportError:
     from odoo.addons.xopgi_mail_threads import MailRouter
+except ImportError:
+    from openerp.addons.xopgi_mail_threads import MailRouter
 
 from .standard import BouncedMailRouter as StandardBounceRouter
 from .rogue import RogueBounceProber
