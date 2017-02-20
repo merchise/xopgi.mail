@@ -18,9 +18,11 @@ from __future__ import (division as _py3_division,
 from lxml.html import fromstring, tostring
 
 try:
-    from openerp import api, fields, exceptions, models, _
-except ImportError:
     from odoo import api, fields, exceptions, models, _
+    from odoo.release import version_info as ODOO_VERSION_INFO
+except ImportError:
+    from openerp import api, fields, exceptions, models, _
+    from openerp.release import version_info as ODOO_VERSION_INFO
 
 FIND_CLASS_XPATH_EXPRESSION = (
     "descendant-or-self::*[@class and "
@@ -66,9 +68,13 @@ class MailComposeMessage(models.TransientModel):
         self.ensure_one()
         if not self.template_id:
             return True
-        template_dict = self.pool['email.template'].generate_email_batch(
-            self.env.cr, self.env.uid, self.template_id.id, [self.res_id],
-            context=self._context).get(self.res_id, {})
+        if ODOO_VERSION_INFO < (9, 0):
+            template_dict = self.pool['email.template'].generate_email_batch(
+                self.env.cr, self.env.uid, self.template_id.id, [self.res_id],
+                context=self._context).get(self.res_id, {})
+        else:
+            template_dict = self.template_id.generate_email(self.res_id)
+
         template_body = template_dict.get('body_html', False)
         if not template_body:
             return True
@@ -108,13 +114,13 @@ class MailComposeMessage(models.TransientModel):
             self.body = tostring(result)
 
     @api.multi
-    def send_mail(self):
+    def send_mail(self, **kwargs):  # Odoo 10 introduced auto_commit
         '''Validate no readonly token was modified and remove added style.
 
         '''
         self.ensure_one()
         if self._validate_template_restrictions():
-            return super(MailComposeMessage, self).send_mail()
+            return super(MailComposeMessage, self).send_mail(**kwargs)
         else:
             raise exceptions.ValidationError(
                 _('Non-editable items were modified.'))

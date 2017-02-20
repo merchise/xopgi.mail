@@ -18,20 +18,25 @@ from __future__ import (division as _py3_division,
 from lxml.html import fromstring as html_fromstring
 
 try:
-    from openerp import api, fields, models
-except ImportError:
     from odoo import api, fields, models
+    from odoo.release import version_info as ODOO_VERSION_INFO
+except ImportError:
+    from openerp import api, fields, models
+    from openerp.release import version_info as ODOO_VERSION_INFO
 
 
 class EmailTemplate(models.Model):
-    _inherit = 'email.template'
+    _inherit = 'email.template' if ODOO_VERSION_INFO < (10, 0) else 'mail.template'
 
     use_default_subject = fields.Boolean()
 
     @api.one
     def get_body_readonly_elements(self, res_id):
-        msg_dict = super(EmailTemplate, self).generate_email_batch(
-            [self.res_id], fields=['body_html'])
+        if ODOO_VERSION_INFO < (10, 0):
+            _super = super(EmailTemplate, self).generate_email_batch
+        else:
+            _super = super(EmailTemplate, self).generate_email
+        msg_dict = _super([self.res_id], fields=['body_html'])
         template_body = msg_dict.get(res_id, {}).get('body_html')
         if not template_body:
             return []
