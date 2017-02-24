@@ -20,11 +20,13 @@
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+    'installable': (8, 0) <= ODOO_VERSION_INFO < (11, 0),   # noqa
 
     'auto_install': True,
     'summary': 'Show resource name.',
     'depends': ['mail'],
     'description': 'Show resource name of a mail.',
-    'data': ['resource_name_view.xml'],
+    'data': [
+        'views/%d/resource_name_view.xml' % ODOO_VERSION_INFO[0],   # noqa
+    ],
 }
