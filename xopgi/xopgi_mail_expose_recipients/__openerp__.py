@@ -20,9 +20,13 @@ dict(
     author="Merchise Autrement",
     website="",
     category="Social Network",
-    depends=['mail', 'xopgi_mail_threads', 'xopgi_mail_full_expand'],
-    data=[
-        'views/mail_message_views.xml'
+    depends=[
+        'mail',
+        'xopgi_mail_threads',
+        'xopgi_mail_full_expand'
     ],
-    installable=(8, 0) <= ODOO_VERSION_INFO < (9, 0),
+    data=[
+         'views/mail_message_views.xml'
+    ],
+    installable=ODOO_VERSION_INFO[0] in (8, 9, 10),   # noqa
 )

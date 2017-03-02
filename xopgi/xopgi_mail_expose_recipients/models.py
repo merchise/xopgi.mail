@@ -27,35 +27,29 @@ except ImportError:
 from xoeuf.osv.orm import get_modelname
 
 try:
-    # Odoo 8
-    from openerp.addons.mail.mail_thread import mail_thread, decode_header
-    from openerp.addons.mail.mail_message import mail_message
+    from odoo.addons.mail.models.mail_message import Message
+    from odoo.addons.xopgi_mail_threads.utils import decode_header
 except ImportError:
-    try:
-        # Odoo 9 fallback
-        from openerp.addons.mail.models.mail_thread import mail_thread, decode_header
-        from openerp.addons.mail.models.mail_message import mail_message
-    except ImportError:
-        # Odoo 10
-        from odoo.addons.mail.models.mail_thread import mail_thread, decode_header
-        from odoo.addons.mail.models.mail_message import mail_message
+    from openerp.addons.mail.mail_message import mail_message as Message
+    from openerp.addons.xopgi_mail_threads.utils import decode_header
 
 
-class MailMessage(models.Model):
-    _name = get_modelname(mail_message)
+class MessageRecipients(models.Model):
+    _name = get_modelname(Message)
     _inherit = _name
 
     recipients = fields.Char()
 
 
-class MailThread(models.Model):
-    _name = get_modelname(mail_thread)
+class MailThreadExpand(models.AbstractModel):
+    _name = 'mail.thread'
     _inherit = _name
 
     @api.model
     def message_parse(self, message, save_original=False):
-        result = super(MailThread, self).message_parse(
-            message, save_original=save_original)
+        result = super(MailThreadExpand, self).message_parse(
+            message, save_original=save_original
+        )
         # Save all original recipients on mail message cc field.
         raw_recipients = []
         for header in ('To', 'Cc'):
