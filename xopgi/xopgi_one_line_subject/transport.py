@@ -16,21 +16,15 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 try:
-    from openerp.addons.xopgi_mail_threads import MailTransportRouter
-    from openerp.addons.xopgi_mail_threads import TransportRouteData
-except ImportError:
     from odoo.addons.xopgi_mail_threads import MailTransportRouter
     from odoo.addons.xopgi_mail_threads import TransportRouteData
-
-try:
-    # Odoo 8
-    from openerp.addons.mail.mail_message import decode
+    from odoo.addons.xopgi_mail_threads.utils \
+        import decode_smtp_header as decode
 except ImportError:
-    # Odoo 9 fallback
-    try:
-        from openerp.addons.mail.models.mail_message import decode
-    except ImportError:
-        from odoo.addons.mail.models.mail_message import decode
+    from openerp.addons.xopgi_mail_threads import MailTransportRouter
+    from openerp.addons.xopgi_mail_threads import TransportRouteData
+    from openerp.addons.xopgi_mail_threads.utils \
+        import decode_smtp_header as decode
 
 
 class OneLineSubjectTransport(MailTransportRouter):
