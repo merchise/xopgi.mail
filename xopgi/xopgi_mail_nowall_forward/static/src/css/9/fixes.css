@@ -1,0 +1,8 @@
+/* Don't show the forward icon unless in forms */
+.o_mail_info span .o_thread_message_forward {
+    display: none;
+}
+
+.oe_form .o_mail_info span .o_thread_message_forward {
+    display: inline;
+}
