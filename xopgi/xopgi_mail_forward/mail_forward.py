@@ -6,9 +6,6 @@
 # Copyright (c) 2014-2017 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
-# Author: Eddy Ernesto del Valle Pino <eddy@merchise.org>
-# Contributors: see CONTRIBUTORS and HISTORY file
-#
 # This is free software; you can redistribute it and/or modify it under the
 # terms of the LICENCE attached (see LICENCE file) in the distribution
 # package.
@@ -22,11 +19,26 @@ from lxml import html
 from xoutil.string import cut_prefixes
 
 try:
-    from openerp import models, api
-    from openerp.tools.translate import _
-except ImportError:
     from odoo import models, api
     from odoo.tools.translate import _
+except ImportError:
+    from openerp import models, api
+    from openerp.tools.translate import _
+
+
+# We need the first two empty paragraph so that the cursor goes there.  Also
+# the new-line chars in this text will allow for the trick in JS converting an
+# HTML to text to format nicely.
+MAIL_BODY_TEMPLATE = '''
+<p></p><p></p>
+<p><i>----------Original message----------</i></p>
+<p>Subject: %(subject)s <br/>
+From: %(author)s <br/>
+To: %(partners)s <br/>
+Date: %(date)s <br/></p>
+
+%(body)s
+'''
 
 
 class ForwardMail(models.TransientModel):
@@ -38,6 +50,41 @@ class ForwardMail(models.TransientModel):
     """
     _name = 'mail.compose.message'
     _inherit = _name
+
+    @api.model
+    def get_forward_action(self, message_id):
+        message = self.env['mail.message'].browse(message_id)
+        get_partner = lambda follower: follower.partner_id
+        thread = self.env[message.model].browse(message.res_id)
+        partners = thread.message_follower_ids.mapped(get_partner)
+        partner_list = [
+            partner.name
+            for partner in partners
+            if partner and partner.name
+        ]
+        body = MAIL_BODY_TEMPLATE % dict(
+            subject=message.subject,
+            author=message.author_id.name,
+            partners=', '.join(partner_list),
+            date=message.date,
+            body=message.body
+        )
+        context = dict(
+            default_body=body,
+            default_model=message.model,
+            default_res_id=message.res_id,
+            default_subject=("Fwd: %s" % message.record_name),
+            mail_post_autofollow=True
+        )
+        return dict(
+            type='ir.actions.act_window',
+            res_model='mail.compose.message',
+            view_mode='form',
+            view_type='form',
+            views=[[False, 'form']],
+            target='new',
+            context=context
+        )
 
     @api.model
     def default_get(self, fields):

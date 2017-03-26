@@ -27,7 +27,8 @@
 
     'summary': 'Allow to forward messages including the text of the original',
     'depends': ['mail', 'web'],
-    'description': '',
+    'description': 'In any conversation thread that includes messaging Allow'
+                    'to forward messages including the text of the original',
     'data': [
         'views/mail_forward_wizard.xml',
         'views/%d/assets.xml' % ODOO_VERSION_INFO[0],  # noqa
