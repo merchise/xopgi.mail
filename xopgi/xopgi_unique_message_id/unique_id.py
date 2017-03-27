@@ -33,30 +33,28 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 try:
-    from openerp import api
-    from openerp.models import Model, AbstractModel
-    from openerp.addons.xopgi_mail_threads import MailTransportRouter
-    from openerp.addons.xopgi_mail_threads import TransportRouteData
-except ImportError:
-    from odoo import api
-    from odoo.models import Model, AbstractModel
+    from odoo import api, models
     from odoo.addons.xopgi_mail_threads import MailTransportRouter
     from odoo.addons.xopgi_mail_threads import TransportRouteData
-
-try:
-    # Odoo 8
-    from openerp.addons.mail.mail_thread \
-        import decode_header, mail_header_msgid_re
+    from odoo.addons.xopgi_mail_threads.utils import decode_header
+    from odoo.tools import mail_header_msgid_re
 except ImportError:
-    # Odoo 9 fallback
-    from openerp.addons.mail.models.mail_thread \
-        import decode_header, mail_header_msgid_re
+    from openerp import api, models
+    from openerp.addons.xopgi_mail_threads import MailTransportRouter
+    from openerp.addons.xopgi_mail_threads import TransportRouteData
+    from openerp.addons.xopgi_mail_threads.utils import decode_header
+    try:
+        from openerp.addons.mail.mail_thread \
+            import mail_header_msgid_re
+    except ImportError:
+        from openerp.addons.mail.models.mail_thread \
+            import mail_header_msgid_re
 
 from .common import message_id_is_encoded, encode_message_id
 
 
-class MailMessage(Model):
-    _inherit = str('mail.message')
+class MailMessage(models.Model):
+    _inherit = 'mail.message'
 
     @api.model
     def create(self, values):
@@ -66,7 +64,7 @@ class MailMessage(Model):
         return super(MailMessage, self).create(values)
 
 
-class MailThread(AbstractModel):
+class MailThread(models.AbstractModel):
     _name = str('mail.thread')
     _inherit = _name
 
