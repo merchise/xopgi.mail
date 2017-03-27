@@ -16,9 +16,9 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 try:
-    from openerp import api, fields, models
-except ImportError:
     from odoo import api, fields, models
+except ImportError:
+    from openerp import api, fields, models
 
 
 class MailGroup(models.Model):
