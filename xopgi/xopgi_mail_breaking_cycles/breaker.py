@@ -19,27 +19,17 @@ from xoutil import logger as _logger
 from email.utils import getaddresses
 
 try:
-    # Odoo 8
-    from openerp.addons.mail.mail_thread import decode_header
-except ImportError:
-    try:
-        # Odoo 9 fallback
-        from openerp.addons.mail.models.mail_thread import decode_header
-    except ImportError:
-        # Odoo 10
-        from odoo.addons.mail.models.mail_thread import decode_header
-
-try:
-    from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
-    from openerp.addons.xopgi_mail_threads import TransportRouteData
-    from openerp.addons.xopgi_mail_threads.utils import set_message_from
-    from openerp.addons.xopgi_mail_threads.utils import set_message_sender
-except ImportError:
+    from odoo.addons.xopgi_mail_threads.utils import decode_header
     from odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
     from odoo.addons.xopgi_mail_threads import TransportRouteData
     from odoo.addons.xopgi_mail_threads.utils import set_message_from
     from odoo.addons.xopgi_mail_threads.utils import set_message_sender
-
+except ImportError:
+    from openerp.addons.xopgi_mail_threads.utils import decode_header
+    from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
+    from openerp.addons.xopgi_mail_threads import TransportRouteData
+    from openerp.addons.xopgi_mail_threads.utils import set_message_from
+    from openerp.addons.xopgi_mail_threads.utils import set_message_sender
 
 #
 # This pair of Router & Transport avoid the mail-sending cycles when two
@@ -73,8 +63,8 @@ BREAKING_ALIAS_PARAMETER = 'mail.breaking-cycle.alias'
 class BreakingCyclesTransport(MailTransportRouter):
     @classmethod
     def query(self, obj, message):
-        msg, _ = self.get_message_objects(obj, message)
         if message['Auto-Submitted']:
+            msg, _ = self.get_message_objects(obj, message)
             address = self._get_breaking_address(obj, msg.thread_index)
             _logger.info('Re-sending auto-submitted message with a '
                          'breaking-cycle address %s', address)
@@ -125,19 +115,19 @@ class BreakingCyclesRouter(MailRouter):
             # 4. Later Party B (the human) replies but uses the address in the
             #    auto-submitted message to do it.
             #
-            # In this, although the address would be a breaking cycle is not
-            # actually a cycle.
+            # In this case, although the address would be a breaking cycle is
+            # not actually a cycle.
             #
             # The only problem with this is there's a auto-responder that does
             # not use the Auto-Submitted header.  As we've seen some use the
             # From address as the recipient for the auto-submitted message and
             # that's not what the RFC recommends.  However, the previous
-            # depiction is likely to happen is we ever allow an auto-submitted
+            # depiction is likely to happen if we ever allow an auto-submitted
             # message to go out (as we do).
             #
             recipients = [
                 email for _, email in getaddresses(headers)
-                if cls._is_breaking_cycle_address(cls, obj, email)
+                if cls._is_breaking_cycle_address(obj, email)
             ]
             # If any recipient is a breaking cycle address, break it!
             return bool(recipients)
