@@ -18,11 +18,11 @@ from __future__ import (absolute_import as _py3_abs_imports,
                         print_function as _py3_print)
 
 try:
-    from openerp.release import version_info as ODOO_VERSION_INFO
-except ImportError:
     from odoo.release import version_info as ODOO_VERSION_INFO
+except ImportError:
+    from openerp.release import version_info as ODOO_VERSION_INFO
 
-if ODOO_VERSION_INFO < (9, 0):
+if ODOO_VERSION_INFO[0] in (8, 10):
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
 

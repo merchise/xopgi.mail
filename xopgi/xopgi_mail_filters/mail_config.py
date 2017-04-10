@@ -21,11 +21,12 @@ from datetime import datetime
 from xoeuf import api
 
 try:
-    from openerp.models import Model
-    from openerp.release import version_info as ODOO_VERSION_INFO
-except ImportError:
-    from odoo.models import Model
+    from odoo import models
     from odoo.release import version_info as ODOO_VERSION_INFO
+except ImportError:
+    from openerp import models
+    from openerp.release import version_info as ODOO_VERSION_INFO
+
 
 MODULE_NAME = 'xopgi_mail_filter'
 
@@ -38,7 +39,7 @@ def followed_models(cr):
     return [row[0] for row in cr.fetchall()]
 
 
-class MailConfig(Model):
+class MailConfig(models.TransientModel):
     _inherit = 'base.config.settings'
 
     @api.model
@@ -51,9 +52,18 @@ class MailConfig(Model):
             INSERT INTO ir_ui_view (%(columns)s)
             VALUES (%(values)s);
              '''
-        columns = ['model', 'type', 'arch', 'priority', 'create_uid',
-                   'create_date', 'write_date', 'write_uid', 'inherit_id',
-                   'name']
+        columns = [
+            'model',
+            'type',
+            'arch' if ODOO_VERSION_INFO < (10, 0) else 'arch_db',
+            'priority',
+            'create_uid',
+            'create_date',
+            'write_date',
+            'write_uid',
+            'inherit_id',
+            'name'
+        ]
         view_values = ['%s', "'search'",
                        '\'<?xml version="1.0"?>\n'
                        '<xpath expr="/search" position="inside">\n'
@@ -62,9 +72,8 @@ class MailConfig(Model):
                        "'%s'" % datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                        "'%s'" % datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                        str(self._uid), '%s', '%s']
-        if ODOO_VERSION_INFO >= (8, 0):
-            columns.extend(['mode', 'active'])
-            view_values.extend(["'extension'", str(True)])
+        columns.extend(['mode', 'active'])
+        view_values.extend(["'extension'", str(True)])
         insert_query = insert_query % dict(columns=', '.join(columns),
                                            values=', '.join(view_values))
         models = followed_models(self._cr)

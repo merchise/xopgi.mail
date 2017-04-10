@@ -24,15 +24,11 @@
         'data/extend_search_views.xml',
         'views/config.xml',
         'views/mail_message_search.xml',
-        (
-            'views/8/search.xml'
-            if ODOO_VERSION_INFO >= (8, )   # noqa
-            else 'dummy.xml'
-        ),
+        'views/search.xml'
     ],
     'auto_install': True,
 
     # MIGRATION POLICY: All addons are not included until someone work on them
-    # and upgrade them.  We support Odoo 8.
-    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+    # and upgrade them.
+    'installable': ODOO_VERSION_INFO[0] in (8, 10),   # noqa
 }

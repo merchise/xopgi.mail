@@ -18,18 +18,11 @@ from __future__ import (absolute_import as _py3_abs_imports,
 
 
 try:
-    from openerp import fields, models
-except ImportError:
     from odoo import fields, models
-
-try:
-    from openerp.addons.mail.mail_message import mail_message as mail_msg
+    from odoo.addons.mail.models.mail_message import Message as mail_msg
 except ImportError:
-    try:
-        # Odoo 9
-        from openerp.addons.mail.models.mail_message import mail_message as mail_msg
-    except ImportError:
-        from odoo.addons.mail.models.mail_message import mail_message as mail_msg
+    from openerp import fields, models
+    from openerp.addons.mail.mail_message import mail_message as mail_msg
 
 from xoeuf import api
 from xoeuf.models import get_modelname
@@ -62,8 +55,7 @@ def translate_model_name(self, model):
 class mail_message(models.Model):
     """Store the translated name of the model that the message reference to."""
 
-    _name = get_modelname(mail_msg)
-    _inherit = get_modelname(mail_msg)
+    _name = _inherit = get_modelname(mail_msg)
 
     model_names = fields.Char(
         compute='_get_model_names',
