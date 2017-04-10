@@ -25,27 +25,19 @@ from __future__ import (division as _py3_division,
 from email.utils import getaddresses
 
 try:
-    from openerp import SUPERUSER_ID
-    from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
-    from openerp.addons.xopgi_mail_threads import TransportRouteData
-    from openerp.addons.xopgi_mail_threads.utils import set_message_from
-    from openerp.addons.xopgi_mail_threads.utils import set_message_sender
-except ImportError:
     from odoo import SUPERUSER_ID
+    from odoo.addons.xopgi_mail_threads.utils import decode_header
     from odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
     from odoo.addons.xopgi_mail_threads import TransportRouteData
     from odoo.addons.xopgi_mail_threads.utils import set_message_from
     from odoo.addons.xopgi_mail_threads.utils import set_message_sender
-
-try:
-    # Odoo 8
-    from openerp.addons.mail.mail_thread import decode_header
 except ImportError:
-    try:
-        # Odoo 9 fallback
-        from openerp.addons.mail.models.mail_thread import decode_header
-    except ImportError:
-        from odoo.addons.mail.models.mail_thread import decode_header
+    from openerp import SUPERUSER_ID
+    from openerp.addons.xopgi_mail_threads.utils import decode_header
+    from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
+    from openerp.addons.xopgi_mail_threads import TransportRouteData
+    from openerp.addons.xopgi_mail_threads.utils import set_message_from
+    from openerp.addons.xopgi_mail_threads.utils import set_message_sender
 
 # The default prefix for a Reply-To address.  NOTICE: we suggest to use the
 # same as the mail.catchall.alias.  The Reply-To address is constructed as
