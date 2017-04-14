@@ -42,56 +42,53 @@ from __future__ import (division as _py3_division,
 
 from xoutil import logger as _logger
 
-from openerp.osv.orm import Model
-from openerp.osv import fields
+try:
+    from odoo import models, fields, api
+    from odoo.addons.xopgi_mail_threads import MailTransportRouter
+    from odoo.addons.xopgi_mail_threads import TransportRouteData
+except ImportError:
+    from openerp import models, fields, api
+    from openerp.addons.xopgi_mail_threads import MailTransportRouter
+    from openerp.addons.xopgi_mail_threads import TransportRouteData
 
-from openerp.addons.xopgi_mail_threads import MailTransportRouter
-from openerp.addons.xopgi_mail_threads import TransportRouteData
 
-
-class MailServer(Model):
+class MailServer(models.Model):
     # Adds the delivered column
     _inherit = 'ir.mail_server'
 
-    _columns = {
-        'delivered_address':
-            fields.char(
-                'Delivered to',
-                required=False,
-                help=('The email address that should be check as the '
-                      'recipient of this server.  This way we can match this '
-                      'server for outgoing messages in response to emails '
-                      'delivered to this address.'),
-            ),
-    }
+    delivered_address = fields.Char(
+        'Delivered to',
+        required=False,
+        help=('The email address that should be check as the '
+              'recipient of this server.  This way we can match this '
+              'server for outgoing messages in response to emails '
+              'delivered to this address.'),
+    )
 
 
 class SameOriginTransport(MailTransportRouter):
     @classmethod
-    def servers(cls, obj, cr, uid):
-        from openerp import SUPERUSER_ID
-        from xoeuf.osv.model_extensions import search_browse
-        servers = obj.pool['ir.mail_server']
+    def servers(cls, obj):
+        servers = obj.env['ir.mail_server']
         query = [('delivered_address', '!=', None)]
-        found = search_browse(servers, cr, SUPERUSER_ID, query)
+        found = servers.sudo().search(query)
         return found
 
     @classmethod
-    def query(self, obj, cr, uid, message, context=None):
-        return bool(self.servers(obj, cr, uid))
+    def query(self, obj, message):
+        return bool(self.servers(obj))
 
-    def prepare_message(self, obj, cr, uid, message, data=None, context=None):
+    def prepare_message(self, obj, message, data=None):
         import email
         from xoutil.string import safe_encode
-        _, refs = self.get_message_objects(obj, cr, uid, message,
-                                           context=None)
+        _, refs = self.get_message_objects(obj, message)
         connection_data = {}
         if refs:
             # It seems OpenERP always uses the "original" message-id in the
             # references.  At least, for outgoing messages.
             parent = refs[0]
             mail = email.message_from_string(safe_encode(parent.raw_email))
-            server = self.origin_server(obj, cr, uid, mail)
+            server = self.origin_server(obj, mail)
             originators = self.get_authors(mail, msg=parent)
             recipients = self.get_recipients(message)
             # Only use this server for messages going to the originators,
@@ -143,13 +140,9 @@ class SameOriginTransport(MailTransportRouter):
         addresses = tuple({address for _, address in recipients if address})
         return addresses
 
-    def origin_server(self, obj, cr, uid, message):
+    def origin_server(self, obj, message):
         '''Get the "origin" server for a message.'''
-        from openerp import SUPERUSER_ID
-        from xoeuf.osv.model_extensions import search_browse
         addresses = self.get_recipients(message)
-        query = [('delivered_address', 'in', addresses)]
-        servers = obj.pool['ir.mail_server']
-        found = search_browse(servers, cr, SUPERUSER_ID, query,
-                              ensure_list=True)
+        servers = obj.env['ir.mail_server']
+        found = servers.sudo().search([('delivered_address', 'in', addresses)])
         return found[0] if found else None

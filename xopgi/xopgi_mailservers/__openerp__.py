@@ -20,7 +20,7 @@ dict(
     depends=["xopgi_mail_threads"],
     description='Send emails via the right SMTP server. ',
     data=[
-        'views/server.xml',
+    'views/%d/server.xml' % ODOO_VERSION_INFO[0]
     ],
     application=False,
 
