@@ -43,11 +43,11 @@ from __future__ import (division as _py3_division,
 from xoutil import logger as _logger
 
 try:
-    from odoo import models, fields, api
+    from odoo import models, fields
     from odoo.addons.xopgi_mail_threads import MailTransportRouter
     from odoo.addons.xopgi_mail_threads import TransportRouteData
 except ImportError:
-    from openerp import models, fields, api
+    from openerp import models, fields
     from openerp.addons.xopgi_mail_threads import MailTransportRouter
     from openerp.addons.xopgi_mail_threads import TransportRouteData
 

@@ -20,13 +20,13 @@ dict(
     depends=["xopgi_mail_threads"],
     description='Send emails via the right SMTP server. ',
     data=[
-    'views/%d/server.xml' % ODOO_VERSION_INFO[0]
+        'views/%d/server.xml' % ODOO_VERSION_INFO[0],  # noqa
     ],
     application=False,
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    installable=(8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+    installable=ODOO_VERSION_INFO[0] in (8, 9, 10),   # noqa
 
     auto_install=False,
 )
