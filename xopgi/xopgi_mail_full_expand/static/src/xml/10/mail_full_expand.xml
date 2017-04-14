@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<template>
+  <t t-extend="mail.ChatThread.Message">
+    <!-- Odoo 9 lacks a proper mark for icons -->
+    <t t-jquery=".o_mail_info span:last-child" t-operation="append">
+      <i t-if="message.record_name  &amp;&amp; !message.is_system_notification"
+         t-att-data-message-id="message.id"
+         class="fa fa-lg fa-expand o_thread_message_expand"
+         title="Expand"/>
+    </t>
+  </t>
+</template>
