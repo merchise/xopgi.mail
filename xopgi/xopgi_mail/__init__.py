@@ -52,7 +52,7 @@ class MailConfig(TransientModel):
     )
 
     module_xopgi_mail_verp = fields.Boolean(
-        'Notify (if possible) authors about message bounces.'
+        'Notify (if possible) authors about message bounces (VERP).'
     )
 
     module_xopgi_mail_new_thread = fields.Boolean(
