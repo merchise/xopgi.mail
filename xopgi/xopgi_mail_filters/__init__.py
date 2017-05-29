@@ -22,7 +22,7 @@ try:
 except ImportError:
     from openerp.release import version_info as ODOO_VERSION_INFO
 
-if ODOO_VERSION_INFO[0] in (8, 10):
+if ODOO_VERSION_INFO < (11, 0):
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
 

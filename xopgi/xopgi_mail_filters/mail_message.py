@@ -22,7 +22,10 @@ try:
     from odoo.addons.mail.models.mail_message import Message as mail_msg
 except ImportError:
     from openerp import fields, models
-    from openerp.addons.mail.mail_message import mail_message as mail_msg
+    try:
+        from openerp.addons.mail.mail_message import mail_message as mail_msg
+    except ImportError:
+        from openerp.addons.mail.models.mail_message import Message as mail_msg
 
 from xoeuf import api
 from xoeuf.models import get_modelname

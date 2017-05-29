@@ -55,7 +55,7 @@ class MailConfig(models.TransientModel):
         columns = [
             'model',
             'type',
-            'arch' if ODOO_VERSION_INFO < (10, 0) else 'arch_db',
+            'arch' if ODOO_VERSION_INFO < (9, 0) else 'arch_db',
             'priority',
             'create_uid',
             'create_date',
