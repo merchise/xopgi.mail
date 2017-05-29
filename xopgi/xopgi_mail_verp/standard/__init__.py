@@ -48,21 +48,20 @@ from __future__ import (division as _py3_division,
 
 from xoutil.string import safe_encode
 
-from xoeuf.osv.model_extensions import search_browse
+from xoeuf import api
 
-from openerp import SUPERUSER_ID
-
-from openerp.models import Model
-from openerp.osv import fields
-
-from openerp.addons.xopgi_mail_threads import MailTransportRouter
-from openerp.addons.xopgi_mail_threads import TransportRouteData
 try:
-    # Odoo 8
-    from openerp.addons.mail.mail_message import decode
+    from odoo.models import Model
+    from odoo import fields
+    from odoo.addons.xopgi_mail_threads import MailTransportRouter
+    from odoo.addons.xopgi_mail_threads import TransportRouteData
+    from odoo.tools.mail import decode_smtp_header as decode_header
 except ImportError:
-    # Odoo 9 fallback
-    from openerp.addons.mail.models.mail_message import decode
+    from openerp.models import Model
+    from openerp import fields
+    from openerp.addons.xopgi_mail_threads import MailTransportRouter
+    from openerp.addons.xopgi_mail_threads import TransportRouteData
+    from openerp.addons.mail.mail_message import decode as decode_header
 
 from ..common import (
     VOID_EMAIL_ADDRESS,
@@ -82,49 +81,52 @@ class BounceRecord(Model):
     '''
     _name = 'xopgi.verp.record'
 
-    _columns = dict(
-        bounce_alias=fields.char(
-            help=('The alias where the bounce was sent to. You may change the'
-                  'alias configuration midways and this will still work'),
-            required=True,
-            default='bounces'
-        ),
-        thread_index=fields.char(
-            help='The unique index reference for the thread.',
-            required=True,
-            index=True,
-        ),
-        message_id=fields.many2one(
-            'mail.message',
-            required=True,
-            # ondelete=cascade: If the message is delete remove the VERP
-            # address.  This happens for invitations, for instance.  The
-            # message is create and the bounce address is properly generated,
-            # but afterwards the message is removed.  This make the bounce
-            # reference ephemeral for these cases, but if the message is lost
-            # we won't be able to know who to notify.
-            ondelete="cascade",
-            help=('The message id originating this notification. This allows '
-                  'to know who to notify about bounces.')
-        ),
-        reference=fields.char(
-            help='The unique part for the bounce address.',
-            size=100,
-            required=True,
-            index=True,
-        ),
-        recipient=fields.char(
-            help='The recipient for which this VERP address was created',
-            required=True,
-            index=True,
-        ),
+    bounce_alias = fields.Char(
+        help=('The alias where the bounce was sent to. You may change the'
+              'alias configuration midways and this will still work'),
+        required=True,
+        default='bounces'
+    )
+
+    thread_index = fields.Char(
+        help='The unique index reference for the thread.',
+        required=True,
+        index=True,
+    )
+
+    message_id = fields.Many2one(
+        'mail.message',
+        required=True,
+        # ondelete=cascade: If the message is delete remove the VERP
+        # address.  This happens for invitations, for instance.  The
+        # message is create and the bounce address is properly generated,
+        # but afterwards the message is removed.  This make the bounce
+        # reference ephemeral for these cases, but if the message is lost
+        # we won't be able to know who to notify.
+        ondelete="cascade",
+        help=('The message id originating this notification. This allows '
+              'to know who to notify about bounces.')
+    )
+    reference = fields.Char(
+        help='The unique part for the bounce address.',
+        size=100,
+        required=True,
+        index=True,
+    )
+
+    recipient = fields.Char(
+        help='The recipient for which this VERP address was created',
+        required=True,
+        index=True,
     )
 
     _sql_constraints = [
         ('verp_unique', 'unique (reference)', 'The VERP is duplicated.'),
     ]
 
-    def create(self, cr, uid, vals, context=None):
+    @api.model
+    @api.returns('self', lambda r: r.reference)  # return the reference
+    def create(self, vals):
         try:
             from openerp.addons.mail.xopgi.index import generate_reference
         except ImportError:
@@ -133,42 +135,40 @@ class BounceRecord(Model):
             except ImportError:  # Odoo 10
                 from odoo.addons.mail.models.xopgi.index import generate_reference
         reference = generate_reference(
-            lambda r: self.search(cr, uid, [('reference', '=', r)]),
+            lambda r: self.search([('reference', '=', r)]),
             start=3,
             lower=True
         )
         assert reference
         vals.update(reference=reference)
-        res = super(BounceRecord, self).create(cr, uid, vals, context=context)
-        if res:
-            # I don't care about the id
-            return reference
+        return super(BounceRecord, self).create(vals)
 
-    def cleanup(self, cr, uid, context=None):
+    @api.model
+    def cleanup(self):
         '''Remove all bounce address references that are too old.
 
         This should be called in a cron task.
 
         '''
-        cr.execute('''
+        self._cr.execute('''
            WITH aged AS (
               SELECT id, ((NOW() at time zone 'UTC') - create_date) AS age
               FROM xopgi_verp_record
            ) SELECT id FROM aged WHERE age >= %s
         ''', ('10 days', ))
-        elders = [row[0] for row in cr.fetchall()]
+        elders = [row[0] for row in self._cr.fetchall()]
         if elders:
-            self.unlink(cr, SUPERUSER_ID, elders, context=context)
+            self.sudo().browse(elders).unlink()
 
 
 class BouncedMailRouter(object):
     # Note that even though this class follows the MailRouter it MUST NOT
     # inherit from MailRouter, so that this router is properly coordinated.
     @classmethod
-    def query(cls, obj, cr, uid, message, context=None):
-        route = cls._message_route_check_bounce(obj, cr, uid, message)
+    def query(cls, obj, message):
+        route = cls._message_route_check_bounce(obj, message)
         if route:
-            if cls._is_auto_responded(obj, cr, uid, message):
+            if cls._is_auto_responded(obj, message):
                 # If the message is an auto-responded (e.g Out of Office)
                 # message it will be also delivered to the bounce VERP
                 # address, but we should not treat it as bounce and let it be
@@ -182,10 +182,10 @@ class BouncedMailRouter(object):
             return False, None
 
     @classmethod
-    def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
+    def apply(cls, obj, routes, message, data=None):
         bounce = data
         if bounce:
-            route = cls._get_route(obj, cr, uid, bounce)
+            route = cls._get_route(obj, bounce)
             # We assume a bounce should never create anything else.  What's
             # the point for creating a lead, or task from a
             # bounce... Specially if the alias is bound to some ids.  This
@@ -199,7 +199,7 @@ class BouncedMailRouter(object):
         return routes
 
     @classmethod
-    def _is_auto_responded(cls, obj, cr, uid, message):
+    def _is_auto_responded(cls, obj, message):
         '''Check if the message seems to be an auto-responded message and not
         actually a bounce.
 
@@ -245,8 +245,8 @@ class BouncedMailRouter(object):
         return False
 
     @classmethod
-    def is_bouncelike(self, obj, cr, uid, rcpt, context=None):
-        bounce_alias = get_bounce_alias(obj.pool, cr, uid, context=context)
+    def is_bouncelike(self, obj, rcpt):
+        bounce_alias = get_bounce_alias(obj)
         if not bounce_alias:
             return False
         localpart, _ = rcpt.rsplit('@', 1)
@@ -256,7 +256,7 @@ class BouncedMailRouter(object):
         return False
 
     @classmethod
-    def _message_route_check_bounce(self, obj, cr, uid, message):
+    def _message_route_check_bounce(self, obj, message):
         """Verify that the email_to is the bounce alias.
 
         Notice this method will return any route matching a bounce address.
@@ -270,18 +270,15 @@ class BouncedMailRouter(object):
             localpart, _ = recipient.rsplit('@', 1)
             if '+' in localpart:
                 alias, reference = localpart.split('+', 1)
-                found = search_browse(
-                    obj.pool['xopgi.verp.record'],
-                    cr, uid,
+                found = obj.env['xopgi.verp.record'].search(
                     [('bounce_alias', '=', alias),
                      ('reference', '=', reference)],
                     limit=1,
-                    ensure_list=False
                 )
                 if found:
-                    Threads = obj.pool['mail.thread']
-                    model, thread_id = Threads._threadref_by_index(
-                        cr, SUPERUSER_ID, found.thread_index
+                    Threads = obj.env['mail.thread']
+                    model, thread_id = Threads.sudo()._threadref_by_index(
+                        found.thread_index
                     )
                     if model and thread_id:
                         return BounceVirtualId(
@@ -292,8 +289,8 @@ class BouncedMailRouter(object):
         return None
 
     @classmethod
-    def _get_route(self, obj, cr, uid, bouncedata):
-        return (BOUNCE_MODEL, bouncedata, {}, uid, None)
+    def _get_route(self, obj, bouncedata):
+        return (BOUNCE_MODEL, bouncedata, {}, obj._uid, None)
 
 
 class VariableEnvReturnPathTransport(MailTransportRouter):
@@ -304,8 +301,7 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
 
     '''
     @classmethod
-    def _get_bounce_address(cls, obj, cr, uid, message, mail, email_to,
-                            context=None):
+    def _get_bounce_address(cls, obj, message, mail, email_to):
         '''Compute the bounce address.
 
         '''
@@ -317,30 +313,27 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
             # I can't provide a VERP bounce address without a message id.
             return None
         assert mail.mail_message_id.id == message.id
-        bounce_alias = get_bounce_alias(obj.pool, cr, uid, context=context)
+        bounce_alias = get_bounce_alias(obj)
         if not bounce_alias:
             return None
-        get_param = obj.pool['ir.config_parameter'].get_param
-        domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
+        get_param = obj.env['ir.config_parameter'].get_param
+        domain = get_param('mail.catchall.domain')
         if not domain or not message.thread_index:
             return None
-        Records = obj.pool['xopgi.verp.record']
-        reference = Records.create(
-            cr, uid,
-            dict(
-                bounce_alias=bounce_alias,
-                message_id=message.id,
-                thread_index=message.thread_index,
-                recipient=decode(
-                    # decode assumes str, but mail.email_to may yield unicode
-                    safe_encode(mail.email_to or email_to)
-                )
-            ),
-            context=context)
-        return '%s+%s@%s' % (bounce_alias, reference, domain)
+        Records = obj.env['xopgi.verp.record']
+        record = Records.create(dict(
+            bounce_alias=bounce_alias,
+            message_id=message.id,
+            thread_index=message.thread_index,
+            recipient=decode_header(
+                # decode assumes str, but mail.email_to may yield unicode
+                safe_encode(mail.email_to or email_to)
+            )
+        ))
+        return '%s+%s@%s' % (bounce_alias, record.reference, domain)
 
     @classmethod
-    def query(self, obj, cr, uid, message, context=None):
+    def query(self, obj, message):
         '''Test whether the `message` should be delivered with VERP.
 
         Return ``(True, {'address': address})`` if test succeeds, otherwise
@@ -354,26 +347,25 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
         get any useful information from a bounce.
 
         '''
-        context = context if context else {}
-        mail_id = context.get('mail_id', False) if context else False
+        context = obj._context
+        mail_id = context.get('verp_mail_id', False) if context else False
         if not mail_id:
             return False, None
         automatic = message['Auto-Submitted']
         if automatic:
             return False, None
-        msg, _ = self.get_message_objects(obj, cr, uid, message,
-                                          context=context)
+        msg, _ = self.get_message_objects(obj, message)
         if msg:
-            msg = msg[0] if isinstance(msg, list) else msg
-            mail = obj.pool['mail.mail'].browse(cr, uid, mail_id,
-                                                context=context)
+            msg = msg[0]
+            mail = obj.env['mail.mail'].browse(mail_id)
             address = self._get_bounce_address(
-                obj, cr, uid, msg, mail, mail.email_to or message['To'],
-                context=context)
+                obj, msg, mail,
+                mail.email_to or message['To']
+            )
             return bool(address), dict(address=address)
         return False, None
 
-    def prepare_message(self, obj, cr, uid, message, data=None, context=None):
+    def prepare_message(self, obj, message, data=None):
         '''Add the bounce address to the message.
 
         '''
