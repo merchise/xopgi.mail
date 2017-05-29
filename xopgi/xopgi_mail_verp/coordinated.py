@@ -17,7 +17,10 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 
-from openerp.addons.xopgi_mail_threads import MailRouter
+try:
+    from odoo.addons.xopgi_mail_threads import MailRouter
+except ImportError:
+    from openerp.addons.xopgi_mail_threads import MailRouter
 
 from .standard import BouncedMailRouter as StandardBounceRouter
 from .rogue import RogueBounceProber
@@ -31,12 +34,12 @@ class CoordinatedBounceRouter(MailRouter):
 
     '''
     @classmethod
-    def query(cls, obj, cr, uid, message, context=None):
+    def query(cls, obj, message):
         candidates = [StandardBounceRouter, RogueBounceProber]
         router = res = data = None
         while candidates and not res:
             router = candidates.pop(0)
-            res = router.query(obj, cr, uid, message, context=context)
+            res = router.query(obj, message)
             if isinstance(res, tuple):
                 res, data = res
             else:
@@ -47,8 +50,6 @@ class CoordinatedBounceRouter(MailRouter):
             return False, None
 
     @classmethod
-    def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
+    def apply(cls, obj, routes, message, data=None):
         router, data = data
-        return router.apply(
-            obj, cr, uid, routes, message, data=data, context=context
-        )
+        return router.apply(obj, routes, message, data=data)

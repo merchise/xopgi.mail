@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+  <data noupdate="1">
+    <record id="verp_bounce_alias" model="ir.config_parameter">
+      <field name="key">xopgi.mail.bounce.verp.alias</field>
+      <field name="value">bounces</field>
+      <field name="group_ids" eval="[(4, ref('base.group_system'))]" />
+    </record>
+  </data>
+</openerp>

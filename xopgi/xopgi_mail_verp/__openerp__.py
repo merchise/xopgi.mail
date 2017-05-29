@@ -16,19 +16,23 @@
 
 dict(
     name='xopgi_mail_verp',
-    version='3.0',
+    version='3.1',
     author='Merchise Autrement',
     category='Hidden',
     application=False,
 
     # MIGRATION POLICY: All addons are not included until someone work on them
-    # and upgrade them.
-    installable=(8, 0) <= ODOO_VERSION_INFO < (10, 0),   # noqa
+    # and upgrade them:  Supported versions 8 and 10.
+    installable=ODOO_VERSION_INFO[0] in (8, 10),   # noqa
 
     summary='Variable Envelop Return Path (VERP)',
     description=('Allows to track email bounces and add them to the '
                  'proper thread.'),
     depends=['mail', 'xopgi_mail_threads'],
     external_dependencies={'python': ['flufl.bounce']},
-    data=['data/cron.xml', 'data/acl.xml'],
+    data=[
+        'data/cron.xml',
+        'data/acl.xml',
+        'data/init.xml',
+    ],
 )

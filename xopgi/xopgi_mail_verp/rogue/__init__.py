@@ -53,7 +53,7 @@ class RogueBounceProber(object):
                 yield probe
 
     @classmethod
-    def query(cls, obj, cr, uid, message, context=None):
+    def query(cls, obj, message):
         probe = found = None
         probes = list(cls._iter_probes())
         while not found and probes:
@@ -70,15 +70,15 @@ class RogueBounceProber(object):
             return False, None
 
     @classmethod
-    def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
+    def apply(cls, obj, routes, message, data=None):
         probe, values = data
         index = values['thread_index']
         recipients = values['failures']
-        MailThread = obj.pool['mail.thread']
-        model, thread_id = MailThread._threadref_by_index(cr, uid, index)
+        MailThread = obj.env['mail.thread']
+        model, thread_id = MailThread._threadref_by_index(index)
         routes[:] = [
             cls._get_route(
-                obj, cr, uid,
+                obj,
                 BounceVirtualId(None, model, thread_id, recipient, message)
             )
             for recipient in recipients
@@ -90,6 +90,6 @@ class RogueBounceProber(object):
         return routes
 
     @classmethod
-    def _get_route(self, obj, cr, uid, bouncedata):
+    def _get_route(self, obj, bouncedata):
         from ..mail_bounce_model import BOUNCE_MODEL
-        return (BOUNCE_MODEL, bouncedata, {}, uid, None)
+        return (BOUNCE_MODEL, bouncedata, {}, obj._uid, None)

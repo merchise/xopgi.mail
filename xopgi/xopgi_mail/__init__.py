@@ -20,36 +20,20 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from xoutil import logger as _logger
-
 try:
-    from openerp import fields
-    from openerp.models import Model
-except ImportError:
     from odoo import fields
-    from odoo.models import Model
-
-try:
-    from openerp.signals import receiver
-    try:
-        from openerp.addons.mail.xopgi import unlink_thread
-    except ImportError:
-        from openerp.addons.mail.models.xopgi import unlink_thread
+    from odoo.models import TransientModel
 except ImportError:
-    try:
-        from odoo.signals import receiver
-        from odoo.addons.mail.models.xopgi import unlink_thread
-    except ImportError:
-        # Safely fallback to doing nothing while signals are not deployed on
-        # production.
-        unlink_thread = None
-
-        def receiver(*args, **kw):
-            return lambda f: f
+    from openerp import fields
+    from openerp.models import TransientModel
 
 
-class MailConfig(Model):
-    _inherit = 'base.config.settings'
+class MailConfig(TransientModel):
+    _name = _inherit = 'base.config.settings'
+
+    module_xopgi_mail_full_expand = fields.Boolean(
+        'Allow to "expand" messages.'
+    )
 
     module_xopgi_mail_forward = fields.Boolean(
         'Allow to "forward" messages.'
@@ -68,7 +52,7 @@ class MailConfig(Model):
     )
 
     module_xopgi_mail_verp = fields.Boolean(
-        'Notify (if possible) authors about message bounces.'
+        'Notify (if possible) authors about message bounces (VERP).'
     )
 
     module_xopgi_mail_new_thread = fields.Boolean(
@@ -106,33 +90,3 @@ class MailConfig(Model):
     module_xopgi_mail_expose_recipients = fields.Boolean(
         'Expose original recipients of incoming messages.'
     )
-
-
-# @receiver(unlink_thread)
-def log_thread_removal(sender, signal, **kwargs):
-    name_get = getattr(sender, 'name_get')
-    if name_get:
-        which = name_get()
-    else:
-        which = sender
-    messages_deleted = [_message_trace(message)
-                        for message in sender.message_ids]
-    if messages_deleted:
-        _logger.warn('Removing thread %s', which,
-                     extra=dict(
-                         messages_deleted=messages_deleted,
-                         messages_deleted_count=len(messages_deleted),
-                     ))
-
-
-def _message_trace(message):
-    from xoutil.string import safe_encode
-    result = 'from={from_}, at={at}, id={id}'
-    if message.email_from:
-        from_ = safe_encode(message.email_from)
-    elif message.author_id:
-        from_ = safe_encode(message.author_id.email)
-    else:
-        from_ = '?'
-    return result.format(from_=from_, at=message.create_date,
-                         id=safe_encode(message.message_id))
