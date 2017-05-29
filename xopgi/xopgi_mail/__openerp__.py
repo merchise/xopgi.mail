@@ -11,21 +11,21 @@
 # package.
 
 
-{
-    'name': 'Mail Extensions',
-    'version': '1.4',
-    'author': 'Merchise Autrement',
-    'category': 'Hidden',
-    'application': False,
-    'summary': 'Several extensions to OpenERP Messaging System',
-    'description': 'Provides a configurable interface to Messaging Extensions',
-    'depends': ['mail', 'web'],
-    'data': [
+dict(
+    name='Mail Extensions',
+    version='1.4',
+    author='Merchise Autrement',
+    category='Hidden',
+    application=False,
+    summary='Several extensions to OpenERP Messaging System',
+    description='Provides a configurable interface to Messaging Extensions',
+    depends=['mail', 'web'],
+    data=[
         'views/config.xml',
     ],
-    'auto_install': True,
+    auto_install=True,
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    'installable': ODOO_VERSION_INFO[0] in (8, 10),  # noqa
-}
+    installable=(8, 0) <= ODOO_VERSION_INFO < (11, 0),  # noqa
+)
