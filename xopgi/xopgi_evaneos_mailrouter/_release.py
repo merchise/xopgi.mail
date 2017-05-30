@@ -25,5 +25,6 @@ def read_terpfile():
         content = fh.read()
         return eval(content, {'ODOO_VERSION_INFO': (8, 0)}, {})
 
+
 _TERP = read_terpfile()
 VERSION = _TERP['version']
