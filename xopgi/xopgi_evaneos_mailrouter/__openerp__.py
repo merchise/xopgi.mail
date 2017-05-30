@@ -32,6 +32,5 @@
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    'installable': ODOO_VERSION_INFO[0] in (8, 10),   # noqa
-
+    'installable': (8, 0) <= ODOO_VERSION_INFO < (11, 0),   # noqa
 }
