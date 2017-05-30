@@ -151,21 +151,22 @@ class DiscloseRecipientsTransport(MailTransportRouter):
         return True, None
 
     def prepare_message(self, obj, message, data=None):
+        from email.utils import COMMASPACE
         msg, _ = self.get_message_objects(obj, message)
-        if ODOO_VERSION_INFO < (9, 0):
-            get_partner = lambda partner: partner
-        elif (10, 0) <= ODOO_VERSION_INFO < (11, 0):
-            get_partner = lambda follower: follower.partner_id
         if msg:
+            if ODOO_VERSION_INFO < (9, 0):
+                # Since Odoo 9, followers are not partners, but a model
+                # (channel, follower) that points to the partner.  In Odoo 8,
+                # however, the related follower is the partner itself.
+                get_partner = lambda partner: partner
+            elif (9, 0) <= ODOO_VERSION_INFO < (11, 0):
+                get_partner = lambda follower: follower.partner_id
             thread = msg.env[msg.model].browse(msg.res_id)
+            reply_to = ''
             partners = (
-                encode_rfc2822_address_header(
-                    '"%s" <%s>' % (partner.name, '')
-                )
-
+                encode_rfc2822_address_header('"%s" <%s>' % (partner.name, reply_to))
                 for partner in thread.message_follower_ids.mapped(get_partner)
                 if partner and partner.name
             )
-            message['Cc'] = ', '.join(partners)
-
+            message['Cc'] = COMMASPACE.join(partners)
         return TransportRouteData(message, {})
