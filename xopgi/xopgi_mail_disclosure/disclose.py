@@ -26,9 +26,27 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
+try:
+    from odoo.release import version_info as ODOO_VERSION_INFO
+    from odoo import api, models
+    from odoo import tools
+    from odoo.addons.base.ir.ir_mail_server import encode_rfc2822_address_header
+except ImportError:
+    from openerp import tools, SUPERUSER_ID
+    from openerp import api, models
+    from openerp.release import version_info as ODOO_VERSION_INFO
+    from openerp.addons.base.ir.ir_mail_server import encode_rfc2822_address_header
 
-from openerp import tools, SUPERUSER_ID
-from openerp.models import Model
+try:
+    from odoo.addons.xopgi_mail_threads.transports import (
+        MailTransportRouter,
+        TransportRouteData
+    )
+except ImportError:
+    from openerp.addons.xopgi_mail_threads.transports import (
+        MailTransportRouter,
+        TransportRouteData
+    )
 
 
 class ForcedStopIteration(StopIteration):
@@ -88,37 +106,67 @@ def joinfirst(iterable, sep, many=40, suffix=''):
     return sep.join(chunks) + (suffix if _nonlocal.forced else '')
 
 
-# XXX: For now, we simply replace the entire function in the signature...
-class Notification(Model):
-    _inherit = _name = 'mail.notification'
+if ODOO_VERSION_INFO < (9, 0):
+    # XXX: For now, we simply replace the entire function in the signature
+    class Notification(models.Model):
+        _inherit = _name = 'mail.notification'
 
-    def get_signature_footer(self, cr, uid, user_id, res_model=None,
-                             res_id=None, context=None, user_signature=True):
-        footer = ""
-        if not user_id:
+        @api.model
+        def get_signature_footer(self, user_id, res_model=None, res_id=None,
+                                 context=None, user_signature=True):
+            footer = ""
+            if not user_id:
+                return footer
+
+            # add user signature
+            cr = self.env.cr
+            user = self.pool.get("res.users").browse(cr, SUPERUSER_ID, [user_id],
+                                                     context=context)[0]
+            if user_signature:
+                if user.signature:
+                    signature = user.signature
+                else:
+                    signature = "--<br />%s" % user.name
+                footer = tools.append_content_to_html(footer, signature,
+                                                      plaintext=False)
+            if res_model and res_id:
+                message = self.pool[res_model].browse(cr, SUPERUSER_ID, res_id)
+                partners = (partner.name
+                            for partner in message.message_follower_ids
+                            if partner and partner.name)
+                recipients = joinfirst(partners, sep=', ', suffix=', ...')
+                if recipients:
+                    footer += '<br/>'
+                    disclosed = 'Cc: ' + recipients + '<br/>'
+                    footer = tools.append_content_to_html(footer,
+                                                          disclosed,
+                                                          plaintext=False,
+                                                          container_tag='div')
             return footer
 
-        # add user signature
-        user = self.pool.get("res.users").browse(cr, SUPERUSER_ID, [user_id],
-                                                 context=context)[0]
-        if user_signature:
-            if user.signature:
-                signature = user.signature
-            else:
-                signature = "--<br />%s" % user.name
-            footer = tools.append_content_to_html(footer,
-                                                  signature, plaintext=False)
-        if res_model and res_id:
-            message = self.pool[res_model].browse(cr, SUPERUSER_ID, res_id)
-            partners = (partner.name
-                        for partner in message.message_follower_ids
-                        if partner and partner.name)
-            recipients = joinfirst(partners, sep=', ', suffix=', ...')
-            if recipients:
-                footer += '<br/>'
-                disclosed = 'Cc: ' + recipients + '<br/>'
-                footer = tools.append_content_to_html(footer,
-                                                      disclosed,
-                                                      plaintext=False,
-                                                      container_tag='div')
-        return footer
+
+class DiscloseRecipientsTransport(MailTransportRouter):
+    @classmethod
+    def query(cls, obj, message):
+        return True, None
+
+    def prepare_message(self, obj, message, data=None):
+        from email.utils import COMMASPACE
+        msg, _ = self.get_message_objects(obj, message)
+        if msg:
+            if ODOO_VERSION_INFO < (9, 0):
+                # Since Odoo 9, followers are not partners, but a model
+                # (channel, follower) that points to the partner.  In Odoo 8,
+                # however, the related follower is the partner itself.
+                get_partner = lambda partner: partner
+            elif (9, 0) <= ODOO_VERSION_INFO < (11, 0):
+                get_partner = lambda follower: follower.partner_id
+            thread = msg.env[msg.model].browse(msg.res_id)
+            reply_to = ''
+            partners = (
+                encode_rfc2822_address_header('"%s" <%s>' % (partner.name, reply_to))
+                for partner in thread.message_follower_ids.mapped(get_partner)
+                if partner and partner.name
+            )
+            message['Cc'] = COMMASPACE.join(partners)
+        return TransportRouteData(message, {})
