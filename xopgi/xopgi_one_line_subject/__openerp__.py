@@ -23,9 +23,12 @@ dict(
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    installable=(8, 0) <= ODOO_VERSION_INFO < (10, 0),   # noqa
+    installable=(8, 0) <= ODOO_VERSION_INFO < (11, 0),   # noqa
 
     summary='One line subjects',
     description='Ensure one line subjects on outgoing messages.',
     depends=['mail', 'xopgi_mail_threads'],
+
+    # This is a kind of bug-avoiding addon.  So let it be auto-installed.
+    auto_install=True,
 )
