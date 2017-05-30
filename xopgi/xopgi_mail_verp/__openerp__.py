@@ -23,7 +23,7 @@ dict(
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them:  Supported versions 8 and 10.
-    installable=ODOO_VERSION_INFO[0] in (8, 10),   # noqa
+    installable=(8, 0) < ODOO_VERSION_INFO < (11, 0),   # noqa
 
     summary='Variable Envelop Return Path (VERP)',
     description=('Allows to track email bounces and add them to the '
@@ -31,8 +31,9 @@ dict(
     depends=['mail', 'xopgi_mail_threads'],
     external_dependencies={'python': ['flufl.bounce']},
     data=[
+        'data/init.xml',
+
         'data/cron.xml',
         'data/acl.xml',
-        'data/init.xml',
     ],
 )
