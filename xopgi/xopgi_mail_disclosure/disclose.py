@@ -30,7 +30,7 @@ try:
     from odoo.release import version_info as ODOO_VERSION_INFO
     from odoo import api, models
     from odoo import tools
-    from openerp.addons.base.ir.ir_mail_server import encode_rfc2822_address_header
+    from odoo.addons.base.ir.ir_mail_server import encode_rfc2822_address_header
 except ImportError:
     from openerp import tools, SUPERUSER_ID
     from openerp import api, models
