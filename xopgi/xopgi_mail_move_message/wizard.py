@@ -15,10 +15,18 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp import api, fields, models, SUPERUSER_ID, _
-from openerp.exceptions import AccessError
-from openerp.addons.xopgi_move_copy_msg_commons.common import \
-    get_model_selection
+
+try:
+    from odoo import api, fields, models, SUPERUSER_ID, _
+    from odoo.exceptions import AccessError
+    from odoo.addons.xopgi_move_copy_msg_commons.common import \
+        get_model_selection
+except ImportError:
+    from openerp import api, fields, models, SUPERUSER_ID, _
+    from openerp.exceptions import AccessError
+    from openerp.addons.xopgi_move_copy_msg_commons.common import \
+        get_model_selection
+
 
 from xoeuf.ui import RELOAD_UI
 
@@ -37,17 +45,15 @@ class MoveMessageWizard(models.TransientModel):
         'Preserve original messages',
         help="Check for no remove message from original thread.", default=True)
 
-    @api.guess
-    def fields_view_get(self, cr, uid, view_id=None, view_type='form',
-                        context=None, toolbar=False, submenu=False):
-        if uid != SUPERUSER_ID and not self.pool['res.users'].has_group(
-                cr, uid, 'xopgi_mail_move_message.group_move_message'):
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False,
+                        submenu=False):
+        if self._uid != SUPERUSER_ID and not self.env['res.users'].has_group(
+                'xopgi_mail_move_message.group_move_message'):
             raise AccessError(_('Access denied.'))
         result = super(MoveMessageWizard, self).fields_view_get(
-            cr, uid,
             view_id=view_id,
             view_type=view_type,
-            context=context,
             toolbar=toolbar,
             submenu=submenu
         )
@@ -82,4 +88,5 @@ class MoveMessageWizard(models.TransientModel):
         except AccessError:
             return RELOAD_UI
         else:
+            # Returns an ir.actions.act_window given an res_id
             return self.get_thread_action(res_id=self.thread_id.id)
