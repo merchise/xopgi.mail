@@ -11,31 +11,20 @@
 #
 # @created: 2013-04-11
 
-
-{
-    'name': "Merchise Autrement's Email Templates",
-    'version': '1.4',
-    'author': 'Merchise Autrement',
-    'category': 'Marketing',
-    'depends': ['email_template'],
-    'description': """
-Email Templating (extended version of OpenERP's Email Templates).
-==============================================================================
-
-Adds translations.
-Allow add readonly elements on email templates.
-
-    """,
-    'data': [
-        'views/mail_compose_message_view.xml',
-        'views/email_template_view.xml'
+dict(
+    name="Merchise Autrement's Email Templates",
+    version='1.4',
+    author='Merchise Autrement',
+    category='Mail',
+    depends=['email_template' if ODOO_VERSION_INFO < (9, 0) else 'mail'],  # noqa
+    data=[
+        'views/%d/mail_compose_message_view.xml' % ODOO_VERSION_INFO[0],  # noqa
+        'views/%d/email_template_view.xml' % ODOO_VERSION_INFO[0],  # noqa
     ],
-    'demo': [],
+    demo=[],
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
-
-    'auto_install': True,
-    'images': [],
-}
+    installable=(8, 0) <= ODOO_VERSION_INFO[0] < (11, 0),   # noqa
+    auto_install=True,
+)
