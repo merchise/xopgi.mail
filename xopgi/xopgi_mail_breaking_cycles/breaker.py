@@ -19,17 +19,17 @@ from xoutil import logger as _logger
 from email.utils import getaddresses
 
 try:
-    # Odoo 8
-    from openerp.addons.mail.mail_thread import decode_header
+    from odoo.addons.xopgi_mail_threads.utils import decode_header
+    from odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
+    from odoo.addons.xopgi_mail_threads import TransportRouteData
+    from odoo.addons.xopgi_mail_threads.utils import set_message_from
+    from odoo.addons.xopgi_mail_threads.utils import set_message_sender
 except ImportError:
-    # Odoo 9 fallback
-    from openerp.addons.mail.models.mail_thread import decode_header
-
-from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
-from openerp.addons.xopgi_mail_threads import TransportRouteData
-from openerp.addons.xopgi_mail_threads.utils import set_message_from
-from openerp.addons.xopgi_mail_threads.utils import set_message_sender
-
+    from openerp.addons.xopgi_mail_threads.utils import decode_header
+    from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
+    from openerp.addons.xopgi_mail_threads import TransportRouteData
+    from openerp.addons.xopgi_mail_threads.utils import set_message_from
+    from openerp.addons.xopgi_mail_threads.utils import set_message_sender
 
 #
 # This pair of Router & Transport avoid the mail-sending cycles when two
@@ -62,27 +62,22 @@ BREAKING_ALIAS_PARAMETER = 'mail.breaking-cycle.alias'
 
 class BreakingCyclesTransport(MailTransportRouter):
     @classmethod
-    def query(self, obj, cr, uid, message, context=None):
-        msg, _ = self.get_message_objects(obj, cr, uid, message,
-                                          context=context)
+    def query(self, obj, message):
         if message['Auto-Submitted']:
-            address = self._get_breaking_address(
-                obj, cr, uid, msg.thread_index, context=context)
+            msg, _ = self.get_message_objects(obj, message)
+            address = self._get_breaking_address(obj, msg.thread_index)
             _logger.info('Re-sending auto-submitted message with a '
                          'breaking-cycle address %s', address)
             return bool(address), address
         return False, None
 
-    def prepare_message(self, obj, cr, uid, message, data=None,
-                        context=None):
+    def prepare_message(self, obj, message, data=None):
         address = data  # data is always a keyword argument.
-        self._set_headers(obj, cr, uid, message, address,
-                          context=context)
+        self._set_headers(obj, message, address)
         return TransportRouteData(message, {})
 
     @classmethod
-    def _set_headers(cls, obj, cr, uid, message, address,
-                     context=None):
+    def _set_headers(cls, obj, message, address):
         del message['Reply-To']
         message['Reply-To'] = address
         del message['Return-Path']
@@ -91,11 +86,11 @@ class BreakingCyclesTransport(MailTransportRouter):
         set_message_from(message, address, address_only=True)
 
     @classmethod
-    def _get_breaking_address(cls, obj, cr, uid, thread_index, context=None):
-        get_param = obj.pool['ir.config_parameter'].get_param
-        alias = get_param(cr, uid, BREAKING_ALIAS_PARAMETER,
-                          default=DEFAULT_BREAKING_PREFIX, context=context)
-        domain = get_param(cr, uid, 'mail.catchall.domain', context=context)
+    def _get_breaking_address(cls, obj, thread_index):
+        get_param = obj.env['ir.config_parameter'].get_param
+        alias = get_param(BREAKING_ALIAS_PARAMETER,
+                          default=DEFAULT_BREAKING_PREFIX)
+        domain = get_param('mail.catchall.domain')
         if domain:
             return '%s+%s@%s' % (alias, thread_index, domain)
         else:
@@ -104,7 +99,7 @@ class BreakingCyclesTransport(MailTransportRouter):
 
 class BreakingCyclesRouter(MailRouter):
     @classmethod
-    def query(cls, obj, cr, uid, message, context=None):
+    def query(cls, obj, message):
         headers = [
             decode_header(message, 'To'),
             decode_header(message, 'Cc'),
@@ -120,19 +115,19 @@ class BreakingCyclesRouter(MailRouter):
             # 4. Later Party B (the human) replies but uses the address in the
             #    auto-submitted message to do it.
             #
-            # In this, although the address would be a breaking cycle is not
-            # actually a cycle.
+            # In this case, although the address would be a breaking cycle is
+            # not actually a cycle.
             #
             # The only problem with this is there's a auto-responder that does
             # not use the Auto-Submitted header.  As we've seen some use the
             # From address as the recipient for the auto-submitted message and
             # that's not what the RFC recommends.  However, the previous
-            # depiction is likely to happen is we ever allow an auto-submitted
+            # depiction is likely to happen if we ever allow an auto-submitted
             # message to go out (as we do).
             #
             recipients = [
                 email for _, email in getaddresses(headers)
-                if cls._is_breaking_cycle_address(cls, obj, cr, uid, email)
+                if cls._is_breaking_cycle_address(obj, email)
             ]
             # If any recipient is a breaking cycle address, break it!
             return bool(recipients)
@@ -140,14 +135,14 @@ class BreakingCyclesRouter(MailRouter):
             return False
 
     @classmethod
-    def _is_breaking_cycle_address(cls, obj, cr, uid, address, context=None):
-        get_param = obj.pool['ir.config_parameter'].get_param
-        prefix = get_param(cr, uid, BREAKING_ALIAS_PARAMETER,
-                           default=DEFAULT_BREAKING_PREFIX, context=context)
+    def _is_breaking_cycle_address(cls, obj, address):
+        get_param = obj.env['ir.config_parameter'].get_param
+        prefix = get_param(BREAKING_ALIAS_PARAMETER,
+                           default=DEFAULT_BREAKING_PREFIX)
         return address.startswith(prefix + '+')
 
     @classmethod
-    def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
+    def apply(cls, obj, routes, message, data=None):
         # This method is only called when the router match the breaking-cycles
         # alias.  This means we detected a cycle, and NOTHING should be done
         # with this message.
