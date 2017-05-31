@@ -23,26 +23,17 @@
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+    'installable': (8, 0) <= ODOO_VERSION_INFO < (11, 0),   # noqa
 
     'summary': 'Allow to forward messages including the text of the original',
     'depends': ['mail', 'web'],
-    'description': '',
+    'description': 'In any conversation thread that includes messaging Allow'
+                    'to forward messages including the text of the original',
     'data': [
         'views/mail_forward_wizard.xml',
-        (
-            'views/assets.xml'
-            if ODOO_VERSION_INFO >= (8, 0)  # noqa
-            else 'views/dummy.xml'
-        ),
-    ],
-    'css': [
-        'static/src/css/mail_forward.css',
-    ],
-    'js': [
-        'static/src/js/mail_forward.js',
+        'views/%d/assets.xml' % ODOO_VERSION_INFO[0],  # noqa
     ],
     'qweb': [
-        'static/src/xml/mail_forward.xml',
+        'static/src/xml/%d/mail_forward.xml' % ODOO_VERSION_INFO[0],  # noqa
     ],
 }
