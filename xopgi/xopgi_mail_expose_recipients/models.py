@@ -30,7 +30,10 @@ try:
     from odoo.addons.mail.models.mail_message import Message
     from odoo.addons.xopgi_mail_threads.utils import decode_header
 except ImportError:
-    from openerp.addons.mail.mail_message import mail_message as Message
+    try:
+        from openerp.addons.mail.mail_message import mail_message as Message
+    except ImportError:
+        from openerp.addons.mail.models.mail_message import Message
     from openerp.addons.xopgi_mail_threads.utils import decode_header
 
 
