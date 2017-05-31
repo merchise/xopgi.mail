@@ -16,36 +16,40 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp import api, fields, models
-from openerp.tools.mail import email_split_and_format
+try:
+    from openerp import api, fields, models
+    from openerp.tools.mail import email_split_and_format
+except ImportError:
+    from odoo import api, fields, models
+    from odoo.tools.mail import email_split_and_format
+
 
 from xoeuf.osv.orm import get_modelname
 
 try:
-    # Odoo 8
-    from openerp.addons.mail.mail_thread import mail_thread, decode_header
-    from openerp.addons.mail.mail_message import mail_message
+    from odoo.addons.mail.models.mail_message import Message
+    from odoo.addons.xopgi_mail_threads.utils import decode_header
 except ImportError:
-    # Odoo 9 fallback
-    from openerp.addons.mail.models.mail_thread import mail_thread, decode_header
-    from openerp.addons.mail.models.mail_message import mail_message
+    from openerp.addons.mail.mail_message import mail_message as Message
+    from openerp.addons.xopgi_mail_threads.utils import decode_header
 
 
-class MailMessage(models.Model):
-    _name = get_modelname(mail_message)
+class MessageRecipients(models.Model):
+    _name = get_modelname(Message)
     _inherit = _name
 
     recipients = fields.Char()
 
 
-class MailThread(models.Model):
-    _name = get_modelname(mail_thread)
+class MailThreadExpand(models.AbstractModel):
+    _name = 'mail.thread'
     _inherit = _name
 
     @api.model
     def message_parse(self, message, save_original=False):
-        result = super(MailThread, self).message_parse(
-            message, save_original=save_original)
+        result = super(MailThreadExpand, self).message_parse(
+            message, save_original=save_original
+        )
         # Save all original recipients on mail message cc field.
         raw_recipients = []
         for header in ('To', 'Cc'):

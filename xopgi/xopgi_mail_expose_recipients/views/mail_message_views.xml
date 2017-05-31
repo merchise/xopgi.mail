@@ -9,7 +9,8 @@
         <field name="partner_ids" position="replace">
           <label for="partner_ids"/>
           <div>
-            <field name="partner_ids" readonly="1" widget="many2many_tags_email"/>
+            <field name="partner_ids"
+                   readonly="1" widget="many2many_tags_email"/>
             <field name="recipients" readonly="1"/>
           </div>
         </field>
