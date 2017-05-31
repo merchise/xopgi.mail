@@ -4,7 +4,7 @@ dict(
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    installable=(8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+    installable=ODOO_VERSION_INFO[0] in (8, 9, 10),   # noqa
 
     application=False,
     category='Mail',
@@ -12,6 +12,6 @@ dict(
              'replying to direct emails before converting them to '
              'proper object'),
     data=[
-        'views/assets.xml',
+        'views/%d/assets.xml' % ODOO_VERSION_INFO[0],   # noqa
     ]
 )
