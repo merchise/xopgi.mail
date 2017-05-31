@@ -17,13 +17,21 @@ from __future__ import (absolute_import as _py3_abs_imports,
                         unicode_literals as _py3_unicode)
 
 
-from openerp.osv import fields, osv
-from openerp.addons.mail.mail_message import mail_message as mail_msg
-from xoeuf.osv.orm import get_modelname
-from xoeuf.osv.model_extensions import search_value, search_read
+try:
+    from odoo import fields, models
+    from odoo.addons.mail.models.mail_message import Message as mail_msg
+except ImportError:
+    from openerp import fields, models
+    try:
+        from openerp.addons.mail.mail_message import mail_message as mail_msg
+    except ImportError:
+        from openerp.addons.mail.models.mail_message import Message as mail_msg
+
+from xoeuf import api
+from xoeuf.models import get_modelname
 
 
-def translate_model_name(pool, cr, uid, model, context=None):
+def translate_model_name(self, model):
     """Translate the `text` into language codes.
 
     :param model: Model name like 'crm.partner'
@@ -31,84 +39,57 @@ def translate_model_name(pool, cr, uid, model, context=None):
     :return: A list of different possible translations of `model` name.
 
     """
-    model_names = search_value(
-        pool.get('ir.model'), cr, uid,
-        [('model', '=', model)],
-        'name'
-    )
-    model_names = (
-        model_names.values() if isinstance(model_names, dict) else [model_names]
-    )
-    ir_translation = pool.get('ir.translation')
-    translations = search_value(
-        ir_translation, cr, uid,
-        [
+    model_names = {
+        m.name
+        for m in self.env['ir.model'].search([('model', '=', model)])
+    }
+    ir_translation = self.env['ir.translation']
+    translations = {
+        t.value
+        for t in ir_translation.search([
             ('name', '=', 'ir.model,name'),     # Search in model names only
             ('src', 'in', model_names),         # Search for model name
             ('state', '=', 'translated'),       # Search a translated name
-        ],
-        'value',
-        context=context
-    )
-    translations = set(
-        translations.values()
-        if isinstance(translations, dict)
-        else [translations]
-    )
-    return list(translations.union(set(model_names)))
+        ])
+    }
+    return list(translations.union(model_names))
 
 
-class mail_message(osv.Model):
+class mail_message(models.Model):
     """Store the translated name of the model that the message reference to."""
 
-    _name = get_modelname(mail_msg)
-    _inherit = get_modelname(mail_msg)
+    _name = _inherit = get_modelname(mail_msg)
 
-    def _get_model_names(self, cr, uid, ids, name, args=None, context=None):
-        result = {}
-        messages = self.read(
-            cr, uid, ids=ids, fields=['model'], context=context
-        )
-        for message in messages:
-            names = ''
-            if message['model']:
+    model_names = fields.Char(
+        compute='_get_model_names',
+        search='_search_model_names',
+        string='Associated to',
+    )
+
+    @api.multi
+    def _get_model_names(self):
+        for message in self:
+            if message.model:
                 translations = translate_model_name(
-                    self.pool, cr, uid,
+                    self,
                     message['model'],
-                    context=context
                 )
-                names = ' | '.join(translations)
-            result[message['id']] = names
-        return result
+                message.model_names = ' | '.join(translations)
 
-    def _search_model_names(self, cr, uid, obj, name, args, context=None):
-        field, operator, value = args[0]
-        ir_translation = self.pool.get('ir.translation')
-
-        translations = search_read(
-            ir_translation, cr, uid,
+    @api.model
+    def _search_model_names(self, operator, value):
+        ir_translation = self.env['ir.translation']
+        translations = ir_translation.search(
             [
                 ('name', '=', 'ir.model,name'),     # Search in model names
                 '|',                                # If any of:
                 ('src', operator, value),           # source matches value
                 ('value', operator, value),         # translation matches value
             ],
-            fields=['src', 'value'],
-            context=context
         )
-        model_names = list(set(trans['src'] for trans in translations))
-        models = search_value(
-            self.pool.get('ir.model'),
-            cr, uid, [('name', 'in', model_names)], 'model'
-        )
-        models = models.values() if isinstance(models, dict) else [models]
+        model_names = list({trans.src for trans in translations})
+        models = [
+            m.model
+            for m in self.env['ir.model'].search([('name', 'in', model_names)])
+        ]
         return [('model', 'in', models)]
-
-    _columns = {
-        'model_names': fields.function(
-            _get_model_names,
-            fnct_search=_search_model_names,
-            string='Associated to',
-            type='char',
-        ),
-    }
