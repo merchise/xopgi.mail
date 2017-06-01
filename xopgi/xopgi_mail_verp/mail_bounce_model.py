@@ -159,7 +159,7 @@ class MailBounce(models.TransientModel):
         return params
 
 
-if ODOO_VERSION_INFO < (9, 0):
+if (8, 0) <= ODOO_VERSION_INFO < (9, 0):
     # Though, Odoo 10 resurrects the mail.notification model it's not used
     # anymore to 'update_message_notification', so the followers need to be
     # forced elsewhere.
@@ -177,13 +177,12 @@ if ODOO_VERSION_INFO < (9, 0):
                 cr, uid, ids, message_id, partner_ids, context=context
             )
 
-elif ODOO_VERSION_INFO < (11, 0):
+elif (9, 0) <= ODOO_VERSION_INFO < (11, 0):
     class MessageBounceNotification(models.Model):
         _inherit = 'mail.message'
 
         @api.multi
-        def _notify(self, force_send=False, send_after_commit=True,
-                    user_signature=True):
+        def _notify(self, *args, **kwargs):
             forced_followers = self.env.context.get('forced_followers', Unset)
             if forced_followers is not Unset and self.model:
                 thread = self.env[self.model].browse(self.res_id).sudo()
@@ -197,9 +196,7 @@ elif ODOO_VERSION_INFO < (11, 0):
                 followers = None
             try:
                 return super(MessageBounceNotification, self)._notify(
-                    force_send=force_send,
-                    send_after_commit=send_after_commit,
-                    user_signature=user_signature,
+                    *args, **kwargs
                 )
             finally:
                 if followers and thread:

@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
-{
-    'name': 'xopgi.posting_group',
-    'summary': 'Allow to enable/disable auto-subscription in groups',
+dict(
+    name='xopgi.posting_group',
+    summary='Allow to enable/disable auto-subscription in groups',
 
-    'author': 'Merchise Autrement',
-    'website': 'http://xhg.ca.merchise.org/addons/xopgi_posting_group',
-    'category': 'Hidden',
-    'version': '1.0',
+    author='Merchise Autrement',
+    category='Hidden',
+    version='1.0',
+    depends=['mail', ],
+    data=[
+        'views/mail_group_view.xml',
+    ],
 
-    'depends': ['mail', ],
-
-    'data': ['views/mail_group_view.xml', ]
-}
+    # MIGRATION POLICY: All addons are not included until someone work on them
+    # and upgrade them.
+    #
+    # Note: mail.group disappear since in Odoo 9. Instead the channel it's
+    # brought to live. As channels behave like we need, we keep them
+    # untouched.
+    installable=(8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+)

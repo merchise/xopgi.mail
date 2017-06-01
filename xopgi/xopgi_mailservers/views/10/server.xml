@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <!-- Includes the "develired" column into the configuration of SMTP
+         servers. -->
+    <record id="mail_server_delivered_column" model="ir.ui.view">
+      <field name="name">xopgi.mail.server.delivered.column</field>
+      <field name="model">ir.mail_server</field>
+      <field name="inherit_id" ref="base.ir_mail_server_form" />
+      <field name="arch" type="xml">
+        <xpath expr="//group[position()=last()]" position="after">
+          <group col="2" string="Origin server detection">
+            <field name="delivered_address"/>
+          </group>
+        </xpath>
+      </field>
+    </record>
+
+  </data>
+</openerp>

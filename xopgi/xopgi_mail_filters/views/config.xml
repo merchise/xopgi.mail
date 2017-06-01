@@ -9,8 +9,8 @@
       <field name="arch" type="xml">
         <xpath expr="//div[@name='email']" position='inside'>
           <div>
-            <button string="Add Followers filter" type="object"
-                    name="add_followers_filter"/>
+            <button class="btn btn-sm oe_highlight" string="Add Followers filter"
+		    type="object" name="add_followers_filter"/>
           </div>
         </xpath>
       </field>

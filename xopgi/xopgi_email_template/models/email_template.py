@@ -15,22 +15,30 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from lxml.html import fromstring
+from lxml.html import fromstring as html_fromstring
 
-from openerp import api, fields, models
+try:
+    from odoo import api, fields, models
+    from odoo.release import version_info as ODOO_VERSION_INFO
+except ImportError:
+    from openerp import api, fields, models
+    from openerp.release import version_info as ODOO_VERSION_INFO
 
 
-class EmailTempla(models.Model):
-    _inherit = 'email.template'
+class EmailTemplate(models.Model):
+    _inherit = 'email.template' if ODOO_VERSION_INFO < (10, 0) else 'mail.template'
 
     use_default_subject = fields.Boolean()
 
     @api.one
     def get_body_readonly_elements(self, res_id):
-        msg_dict = super(EmailTempla, self).generate_email_batch(
-            [self.res_id], fields=['body_html'])
+        if ODOO_VERSION_INFO < (10, 0):
+            _super = super(EmailTemplate, self).generate_email_batch
+        else:
+            _super = super(EmailTemplate, self).generate_email
+        msg_dict = _super([self.res_id], fields=['body_html'])
         template_body = msg_dict.get(res_id, {}).get('body_html')
         if not template_body:
             return []
-        html_element = fromstring(template_body)
+        html_element = html_fromstring(template_body)
         return html_element.find_class('readonly')

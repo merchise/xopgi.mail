@@ -17,7 +17,7 @@
                            of this mail aliases will be notify to all project
                            members and assigned to project Manager."
                    class="oe_grey"/>
-            <field name="alias_ids" nolabel="1" widget="one2many_list"
+            <field name="alias_ids" readonly="0" nolabel="1" widget="one2many_list"
                    context="{'default_project_id': active_id,
                              'default_user_id': user_id,
                              'default_alias_name': name},

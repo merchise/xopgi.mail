@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <!-- Case Sections Form View -->
+
+    <record id="xopgi_crm_case_section_view_form" model="ir.ui.view">
+      <field name="name">xopgi.crm.case.section.form</field>
+      <field name="model">crm.team</field>
+      <field name="inherit_id" ref="crm.sales_team_form_view_in_crm"/>
+      <field name="priority" eval="8"/>
+      <field name="arch" type="xml">
+        <xpath expr="//notebook" position="inside">
+          <page string="Mail Aliases">
+            <label for="alias_ids"
+                   string="Information: Every Lead/Opportunity created by any
+                           of these mail aliases will be notify to all of team
+                           members and assigned to team leader."
+                   class="oe_grey"/>
+            <field name="alias_ids" readonly="0" nolabel="1" widget="one2many_list"
+                   context="{'default_section_id': active_id,
+                             'default_user_id': user_id,
+                             'default_type': 'lead',
+                             'default_alias_name': name},
+                             'default_alias_defaults': '{}'}">
+              <tree editable="bottom">
+                <field name="team_id" invisible="1"/>
+                <field name="user_id" invisible="1"/>
+                <field name="alias_name"/>
+                <field name="alias_domain"/>
+                <field name="type"/>
+                <field name="alias_force_thread_id"/>
+                <field name="alias_defaults" widget="char"/>
+              </tree>
+            </field>
+          </page>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</openerp>

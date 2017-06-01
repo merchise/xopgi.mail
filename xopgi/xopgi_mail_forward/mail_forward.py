@@ -6,9 +6,6 @@
 # Copyright (c) 2014-2017 Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
-# Author: Eddy Ernesto del Valle Pino <eddy@merchise.org>
-# Contributors: see CONTRIBUTORS and HISTORY file
-#
 # This is free software; you can redistribute it and/or modify it under the
 # terms of the LICENCE attached (see LICENCE file) in the distribution
 # package.
@@ -21,39 +18,88 @@ from __future__ import (absolute_import as _py3_abs_imports,
 from lxml import html
 from xoutil.string import cut_prefixes
 
-from openerp.osv import orm
-from openerp.tools.translate import _
+try:
+    from odoo import models, api
+    from odoo.tools.translate import _
+except ImportError:
+    from openerp import models, api
+    from openerp.tools.translate import _
 
 
-class mail_compose_forward(orm.TransientModel):
+# We need the first two empty paragraph so that the cursor goes there.  Also
+# the new-line chars in this text will allow for the trick in JS converting an
+# HTML to text to format nicely.
+MAIL_BODY_TEMPLATE = '''
+<p></p><p></p>
+<p><i>----------Original message----------</i></p>
+<p>Subject: %(subject)s <br/>
+From: %(author)s <br/>
+To: %(partners)s <br/>
+Date: %(date)s <br/></p>
+
+%(body)s
+'''
+
+
+class ForwardMail(models.TransientModel):
     """Allow forwarding a message.
 
     It duplicates the message and optionally attaches it to another object of
     the database and sends it to another recipients than the original one.
 
     """
-
-    # TODO:  Use xouef's get_modelname
     _name = 'mail.compose.message'
     _inherit = _name
 
-    def default_get(self, cr, uid, fields, context=None):
-        result = super(mail_compose_forward, self).default_get(
-            cr, uid, fields, context=context
+    @api.model
+    def get_forward_action(self, message_id):
+        message = self.env['mail.message'].browse(message_id)
+        get_partner = lambda follower: follower.partner_id
+        thread = self.env[message.model].browse(message.res_id)
+        partners = thread.message_follower_ids.mapped(get_partner)
+        partner_list = [
+            partner.name
+            for partner in partners
+            if partner and partner.name
+        ]
+        body = MAIL_BODY_TEMPLATE % dict(
+            subject=message.subject,
+            author=message.author_id.name,
+            partners=', '.join(partner_list),
+            date=message.date,
+            body=message.body
         )
+        context = dict(
+            default_body=body,
+            default_model=message.model,
+            default_res_id=message.res_id,
+            default_subject=("Fwd: %s" % message.record_name),
+            mail_post_autofollow=True
+        )
+        return dict(
+            type='ir.actions.act_window',
+            res_model='mail.compose.message',
+            view_mode='form',
+            view_type='form',
+            views=[[False, 'form']],
+            target='new',
+            context=context
+        )
+
+    @api.model
+    def default_get(self, fields):
+        result = super(ForwardMail, self).default_get(fields)
         result['subject'] = (
-            context.get('default_subject') or result.get('subject')
+            self._context.get('default_subject') or result.get('subject')
         )
         # Fix unclosed HTML tags.
         body = result.get('body', '')
         if body:
             result['body'] = html.tostring(html.document_fromstring(body))
-        model = context.get('default_model', None)
-        res_id = context.get('default_res_id')
+        model = self._context.get('default_model', None)
+        res_id = self._context.get('default_res_id')
         if model and res_id:
-            name = self.pool[model].name_get(
-                cr, uid, [int(res_id)], context=context
-            )[0][1]
+            name = self.env[model].browse(int(res_id)).name_get()[0][1]
             result['record_name'] = name
             if not result['subject']:
                 result['subject'] = _('Fwd:') + cut_prefixes(

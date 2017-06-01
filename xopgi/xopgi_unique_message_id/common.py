@@ -19,20 +19,18 @@ import re
 CATCHALL_DOMAIN = 'mail.catchall.domain'
 
 
-def encode_message_id(self, cr, uid, message_id):
-    domain = self.pool['ir.config_parameter'].get_param(
-        cr, uid, CATCHALL_DOMAIN)
-    seq = self.pool['ir.sequence'].get(cr, uid, 'mail.message.id.seq')
+def encode_message_id(self, message_id):
+    domain = self.env['ir.config_parameter'].get_param(CATCHALL_DOMAIN)
+    seq = self.env['ir.sequence'].get('mail.message.id.seq')
     return "<%s-%s+%s>" % (seq, domain, message_id.strip('<>'))
 
 
-def decode_message_id(self, cr, uid, message_id):
-    return message_id_is_encoded(self, cr, uid, message_id) or message_id
+def decode_message_id(self, message_id):
+    return message_id_is_encoded(self, message_id) or message_id
 
 
-def message_id_is_encoded(self, cr, uid, message_id):
-    domain = self.pool['ir.config_parameter'].get_param(
-        cr, uid, CATCHALL_DOMAIN)
+def message_id_is_encoded(self, message_id):
+    domain = self.env['ir.config_parameter'].get_param(CATCHALL_DOMAIN)
     message_id_re = re.compile("(\d+)-%s+?([^@]+)?" % re.escape(domain),
                                re.UNICODE)
     match = message_id_re.search(message_id.strip('<>'))

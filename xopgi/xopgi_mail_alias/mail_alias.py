@@ -15,42 +15,36 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp import tools
-from openerp.models import Model
-from openerp.osv import fields
-from openerp.addons.xopgi_mail_threads import MailRouter
+
 try:
-    # Odoo 8
-    from openerp.addons.mail.mail_thread import decode_header
+    from odoo import tools, fields, api
+    from odoo.models import Model
+    from odoo.addons.xopgi_mail_threads.utils import decode_header
+    from odoo.addons.xopgi_mail_threads import MailRouter
 except ImportError:
-    # Odoo 9 fallback
-    from openerp.addons.mail.models.mail_thread import decode_header
+    from openerp import tools, fields, api
+    from openerp.models import Model
+    from openerp.addons.xopgi_mail_threads.utils import decode_header
+    from openerp.addons.xopgi_mail_threads import MailRouter
 
 
-def get_default_alias_domain(pool, cr, uid, context=None):
-    '''
-
-    '''
-    get_param = pool['ir.config_parameter'].get_param
-    res = get_param(cr, uid, 'mail.catchall.domain', '', context=context)
+def get_default_alias_domain(self):
+    get_param = self.env['ir.config_parameter'].get_param
+    res = get_param('mail.catchall.domain', '')
     return res
 
 
 class MailAlias(Model):
     _inherit = 'mail.alias'
 
-    def _get_alias_domain(self, cr, uid, ids, name, args, context=None):
-        default_domain = get_default_alias_domain(self.pool, cr, uid,
-                                                  context=context)
-        res = dict.fromkeys(ids, default_domain or "")
-        cr.execute(
-            'SELECT id, custom_domain FROM mail_alias WHERE id in %s',
-            (tuple(ids),))
-        res.update({_id: domain for _id, domain in cr.fetchall()
-                    if domain})
-        return res
+    @api.multi
+    def _get_alias_domain(self):
+        default_domain = get_default_alias_domain(self)
+        for record in self:
+            record.alias_domain = record.custom_domain or default_domain
 
-    def _search_alias_domain(self, cr, uid, obj, name, args, context):
+    @api.model
+    def _search_alias_domain(self, args):
         res = []
         for cond in args:
             new_arg = cond
@@ -59,21 +53,18 @@ class MailAlias(Model):
             res.append(new_arg)
         return res
 
-    def _set_alias_domain(self, cr, uid, ids, name, value, arg, context=None):
-        self.write(cr, uid, ids, {'custom_domain': value}, context=context)
+    @api.multi
+    def _set_alias_domain(self):
+        for record in self:
+            self.custom_domain = self.alias_domain
 
-    _columns = dict(
-        custom_domain=fields.char('Alias domain'),
-        alias_domain=fields.function(_get_alias_domain,
-                                     fnct_inv=_set_alias_domain,
-                                     fnct_search=_search_alias_domain,
-                                     string="Alias domain",
-                                     type='char'),
-    )
-
-    _defaults = dict(
-        alias_domain=lambda s, c, u, ctx: get_default_alias_domain(
-            s.pool, c, u, context=ctx)
+    custom_domain = fields.Char('Alias domain')
+    alias_domain = fields.Char(
+        compute='_get_alias_domain',
+        inverse='_set_alias_domain',
+        search='_search_alias_domain',
+        string="Alias domain",
+        default=get_default_alias_domain
     )
 
     def fields_get(self, *args, **kargs):
@@ -87,11 +78,11 @@ class MailAlias(Model):
 
 class AliasMailRouter(MailRouter):
     @classmethod
-    def query(cls, obj, cr, uid, message, context=None):
+    def query(cls, obj, message):
         return True, None
 
     @classmethod
-    def apply(cls, obj, cr, uid, routes, message, data=None, context=None):
+    def apply(cls, obj, routes, message, data=None):
         result = []
         rcpt_tos = tools.email_split(
             ','.join([decode_header(message, 'Delivered-To'),

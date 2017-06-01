@@ -32,40 +32,45 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from openerp.models import Model, AbstractModel
-from openerp.addons.xopgi_mail_threads import MailTransportRouter
-from openerp.addons.xopgi_mail_threads import TransportRouteData
 try:
-    # Odoo 8
-    from openerp.addons.mail.mail_thread \
-        import decode_header, mail_header_msgid_re
+    from odoo import api, models
+    from odoo.addons.xopgi_mail_threads import MailTransportRouter
+    from odoo.addons.xopgi_mail_threads import TransportRouteData
+    from odoo.addons.xopgi_mail_threads.utils import decode_header
+    from odoo.tools import mail_header_msgid_re
 except ImportError:
-    # Odoo 9 fallback
-    from openerp.addons.mail.models.mail_thread \
-        import decode_header, mail_header_msgid_re
+    from openerp import api, models
+    from openerp.addons.xopgi_mail_threads import MailTransportRouter
+    from openerp.addons.xopgi_mail_threads import TransportRouteData
+    from openerp.addons.xopgi_mail_threads.utils import decode_header
+    try:
+        from openerp.addons.mail.mail_thread \
+            import mail_header_msgid_re
+    except ImportError:
+        from openerp.addons.mail.models.mail_thread \
+            import mail_header_msgid_re
 
 from .common import message_id_is_encoded, encode_message_id
 
 
-class MailMessage(Model):
-    _inherit = str('mail.message')
+class MailMessage(models.Model):
+    _inherit = 'mail.message'
 
-    def create(self, cr, uid, values, context=None):
-        context = dict(context or {})
+    @api.model
+    def create(self, values):
         message_id = values.get('message_id', False)
-        if message_id and self.search(
-                cr, uid, [('message_id', '=', message_id)], count=True):
-            values['message_id'] = encode_message_id(self, cr, uid, message_id)
-        id = super(MailMessage, self).create(cr, uid, values, context=context)
-        return id
+        if message_id and self.search([('message_id', '=', message_id)]):
+            values['message_id'] = encode_message_id(self, message_id)
+        return super(MailMessage, self).create(values)
 
 
-class MailThread(AbstractModel):
+class MailThread(models.AbstractModel):
     _name = str('mail.thread')
     _inherit = _name
 
-    def message_route(self, cr, uid, message, message_dict, model=None,
-                      thread_id=None, custom_values=None, context=None):
+    @api.model
+    def message_route(self, message, message_dict, model=None,
+                      thread_id=None, custom_values=None):
         ''' Remove original Message-ID if message References has both
         original and encoded.
 
@@ -82,20 +87,21 @@ class MailThread(AbstractModel):
         if msg_references and len(msg_references) > 1:
             result_references = msg_references[:]
             for ref in msg_references:
-                original_ref = message_id_is_encoded(self, cr, uid, ref)
+                original_ref = message_id_is_encoded(self, ref)
                 if original_ref and original_ref in references:
                     result_references.remove(original_ref)
             del message['References']
             message['References'] = ' '.join(result_references)
         result = super(MailThread, self).message_route(
-            cr, uid, message, message_dict, model=model, thread_id=thread_id,
-            custom_values=custom_values, context=context)
+            message, message_dict, model=model, thread_id=thread_id,
+            custom_values=custom_values
+        )
         return result
 
 
 class OriginalReferenceTransport(MailTransportRouter):
     @classmethod
-    def query(cls, obj, cr, uid, message, context=None):
+    def query(cls, obj, message):
         ''' If Message-ID or any reference is encoded decode and add it to
         References to allow correct threading.
 
@@ -106,13 +112,13 @@ class OriginalReferenceTransport(MailTransportRouter):
         result = False
         if iter_references:
             for ref in iter_references:
-                original_ref = message_id_is_encoded(obj, cr, uid, ref)
+                original_ref = message_id_is_encoded(obj, ref)
                 if original_ref and original_ref not in references:
                     references.append(original_ref)
                     result = True
         return result, dict(references=' '.join(references))
 
-    def prepare_message(self, obj, cr, uid, message, data=None, context=None):
+    def prepare_message(self, obj, message, data=None):
         '''Replace message References by query method data result.
 
         '''

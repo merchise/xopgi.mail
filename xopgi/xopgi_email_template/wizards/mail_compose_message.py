@@ -17,7 +17,12 @@ from __future__ import (division as _py3_division,
 
 from lxml.html import fromstring, tostring
 
-from openerp import api, fields, exceptions, models, _
+try:
+    from odoo import api, fields, exceptions, models, _
+    from odoo.release import version_info as ODOO_VERSION_INFO
+except ImportError:
+    from openerp import api, fields, exceptions, models, _
+    from openerp.release import version_info as ODOO_VERSION_INFO
 
 FIND_CLASS_XPATH_EXPRESSION = (
     "descendant-or-self::*[@class and "
@@ -30,19 +35,17 @@ FIND_CLASS_XPATH_EXPRESSION = (
 class MailComposeMessage(models.TransientModel):
     _inherit = 'mail.compose.message'
 
-    def _have_body_readonly_elements(self):
-        return True
-
     body_readonly_elements = fields.Boolean()
     template_subject_readonly = fields.Boolean(
         related="template_id.use_default_subject")
 
+    def _have_body_readonly_elements(self):
+        return True
+
     @api.multi
     def onchange_template_id(self, template_id, composition_mode, model,
                              res_id):
-        ''' Add style to readonly tokens
-
-        '''
+        'Add style to readonly tokens.'
         result = super(MailComposeMessage, self).onchange_template_id(
             template_id, composition_mode, model, res_id)
         body = result.get('value', {}).get('body', '')
@@ -62,11 +65,16 @@ class MailComposeMessage(models.TransientModel):
         '''Ensure readonly elements aren't modify.
 
         '''
+        self.ensure_one()
         if not self.template_id:
             return True
-        template_dict = self.pool['email.template'].generate_email_batch(
-            self.env.cr, self.env.uid, self.template_id.id, [self.res_id],
-            context=self._context).get(self.res_id, {})
+        if ODOO_VERSION_INFO < (9, 0):
+            template_dict = self.pool['email.template'].generate_email_batch(
+                self.env.cr, self.env.uid, self.template_id.id, [self.res_id],
+                context=self._context).get(self.res_id, {})
+        else:
+            template_dict = self.template_id.generate_email(self.res_id)
+
         template_body = template_dict.get('body_html', False)
         if not template_body:
             return True
@@ -106,23 +114,22 @@ class MailComposeMessage(models.TransientModel):
             self.body = tostring(result)
 
     @api.multi
-    def send_mail(self):
-        ''' Validate no readonly token was modified and remove added style.
+    def send_mail(self, **kwargs):  # Odoo 10 introduced auto_commit
+        '''Validate no readonly token was modified and remove added style.
 
         '''
         self.ensure_one()
         if self._validate_template_restrictions():
-            return super(MailComposeMessage, self).send_mail()
+            return super(MailComposeMessage, self).send_mail(**kwargs)
         else:
             raise exceptions.ValidationError(
                 _('Non-editable items were modified.'))
 
     @api.multi
     def save_as_template(self):
-        ''' Remove added style from readonly tokens.
+        '''Remove added style from readonly tokens.
 
         '''
-        # FIXME: _remove_readonly_style access self.body, it's not decorated
-        # with @api.one, though.  It may break.
+        self.ensure_one()
         self._remove_readonly_style()
         return super(MailComposeMessage, self).save_as_template()

@@ -23,13 +23,23 @@
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    'installable': (8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+    #
+    # WARNING: Although we allow this addon to be installed in Odoo 9 it does
+    # not do much.  It's only allowed to ease the migration from Odoo 8 to
+    # Odoo 10.
+    'installable': ODOO_VERSION_INFO[0] in (8, 9, 10),   # noqa
 
-    'summary': 'Extend project module to relate many alias per project to '
+    'summary': 'Mail Alias Project.',
+    'description': 'Extend project module to relate many alias per project to '
                'do different thinks.',
-    'depends': ['project', 'project_issue', 'xopgi_mail_alias'],
-    'data': [
-        'view/project_view.xml',
-        'security/security.xml'
+    'depends': [
+        'project',
+        'project_issue',
+        'xopgi_mail_alias'
     ],
+
+    'data': [
+         'view/project_view.xml',
+         'security/security.xml'
+    ] if ODOO_VERSION_INFO[0] in (8, 10) else [],   # noqa
 }

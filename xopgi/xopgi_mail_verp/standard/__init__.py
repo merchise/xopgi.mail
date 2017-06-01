@@ -55,13 +55,15 @@ try:
     from odoo import fields
     from odoo.addons.xopgi_mail_threads import MailTransportRouter
     from odoo.addons.xopgi_mail_threads import TransportRouteData
-    from odoo.tools.mail import decode_smtp_header as decode_header
+    from odoo.addons.xopgi_mail_threads.utils \
+        import decode_smtp_header as decode_header
 except ImportError:
     from openerp.models import Model
     from openerp import fields
     from openerp.addons.xopgi_mail_threads import MailTransportRouter
     from openerp.addons.xopgi_mail_threads import TransportRouteData
-    from openerp.addons.mail.mail_message import decode as decode_header
+    from openerp.addons.xopgi_mail_threads.utils \
+        import decode_smtp_header as decode_header
 
 from ..common import (
     VOID_EMAIL_ADDRESS,
