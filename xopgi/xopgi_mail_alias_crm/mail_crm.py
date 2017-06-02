@@ -175,8 +175,8 @@ class crm_case_section(models.Model):
             values['alias_name'] = normalize_slug(values['name'])
             Alias = self.env['mail.alias']
             vals = {}
-            if values['alias_ids']:
-                valias = values.pop('alias_ids')
+            valias = values.pop('alias_ids', None)
+            if valias:
                 use_lead = values.get('use_leads', None)
                 use_opportunitie = values.get('use_opportunities', None)
                 aliases_create = self.set_values(valias, use_lead, use_opportunitie)
