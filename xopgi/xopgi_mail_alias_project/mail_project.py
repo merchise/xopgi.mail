@@ -180,8 +180,10 @@ class project_project(models.Model):
                 use_issue = values.get('use_issues', None)
                 use_task = values.get('use_tasks', None)
                 aliases_create = self.set_values(valias, use_issue, use_task)
+            else:
+                aliases_create = []
             project = super(project_project, self).create(values)
-            if project:
+            if project and aliases_create:
                 for alias in aliases_create:
                     record = Alias.browse(alias)
                     values_default = eval(record.alias_defaults)
