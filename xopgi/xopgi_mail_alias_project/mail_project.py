@@ -170,8 +170,9 @@ class project_project(models.Model):
            create more than one mail alias since a project is created for the
            first time.
         """
-        if not values['alias_name']:
-            values['alias_name'] = values['name']
+        from xoutil.string import normalize_slug
+        if not values.get('alias_name'):
+            values['alias_name'] = normalize_slug(values['name'])
         if ODOO_VERSION_INFO < (10, 0):
             Alias = self.env['mail.alias']
             vals = {}
@@ -180,8 +181,10 @@ class project_project(models.Model):
                 use_issue = values.get('use_issues', None)
                 use_task = values.get('use_tasks', None)
                 aliases_create = self.set_values(valias, use_issue, use_task)
+            else:
+                aliases_create = []
             project = super(project_project, self).create(values)
-            if project:
+            if project and aliases_create:
                 for alias in aliases_create:
                     record = Alias.browse(alias)
                     values_default = eval(record.alias_defaults)
