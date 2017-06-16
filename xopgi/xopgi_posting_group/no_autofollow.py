@@ -34,10 +34,10 @@ class MailGroup(models.Model):
     @api.returns('self', lambda value: value.id)
     def message_post(self, **kwargs):
         if not self.enable_auto_subscribe:
-            _super = super(MailGroup, self).with_context(
+            _super = super(MailGroup, self.with_context(
                 mail_create_nosubscribe=True,
                 mail_post_autofollow=False
-            )
+            ))
         else:
             _super = super(MailGroup, self)
         return _super.message_post(**kwargs)
