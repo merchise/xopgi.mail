@@ -31,7 +31,6 @@ class MailGroup(models.Model):
     )
 
     @api.multi
-    @api.returns('self', lambda value: value.id)
     def message_post(self, **kwargs):
         if not self.enable_auto_subscribe:
             _super = super(MailGroup, self.with_context(
