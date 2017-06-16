@@ -162,7 +162,7 @@ class DiscloseRecipientsTransport(MailTransportRouter):
     def prepare_message(self, obj, message, data=None):
         from email.utils import COMMASPACE
         msg, _ = self.get_message_objects(obj, message)
-        if msg:
+        if msg and msg.model:
             thread = msg.env[msg.model].browse(msg.res_id)
             reply_to = ''
             partners = (
