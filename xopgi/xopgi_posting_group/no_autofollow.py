@@ -32,7 +32,10 @@ class MailGroup(models.Model):
 
     @api.multi
     def message_post(self, **kwargs):
-        if not self.enable_auto_subscribe:
+        nosubscribe = self.env.context.get('mail_create_nosubscribe')
+        autofollow = self.env.context.get('mail_post_autofollow', True)
+        overwritten = nosubscribe and not autofollow
+        if not self.enable_auto_subscribe and not overwritten:
             _super = super(MailGroup, self.with_context(
                 mail_create_nosubscribe=True,
                 mail_post_autofollow=False
