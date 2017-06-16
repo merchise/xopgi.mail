@@ -145,6 +145,15 @@ if ODOO_VERSION_INFO < (9, 0):
             return footer
 
 
+if ODOO_VERSION_INFO < (9, 0):
+    # Since Odoo 9, followers are not partners, but a model
+    # (channel, follower) that points to the partner.  In Odoo 8,
+    # however, the related follower is the partner itself.
+    get_partner = lambda partner: partner
+elif (9, 0) <= ODOO_VERSION_INFO < (11, 0):
+    get_partner = lambda follower: follower.partner_id
+
+
 class DiscloseRecipientsTransport(MailTransportRouter):
     @classmethod
     def query(cls, obj, message):
@@ -154,13 +163,6 @@ class DiscloseRecipientsTransport(MailTransportRouter):
         from email.utils import COMMASPACE
         msg, _ = self.get_message_objects(obj, message)
         if msg:
-            if ODOO_VERSION_INFO < (9, 0):
-                # Since Odoo 9, followers are not partners, but a model
-                # (channel, follower) that points to the partner.  In Odoo 8,
-                # however, the related follower is the partner itself.
-                get_partner = lambda partner: partner
-            elif (9, 0) <= ODOO_VERSION_INFO < (11, 0):
-                get_partner = lambda follower: follower.partner_id
             thread = msg.env[msg.model].browse(msg.res_id)
             reply_to = ''
             partners = (
