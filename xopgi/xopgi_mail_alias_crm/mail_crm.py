@@ -28,14 +28,10 @@ from xoeuf.osv.orm import CREATE_RELATED, UPDATE_RELATED, REMOVE_RELATED
 
 
 if ODOO_VERSION_INFO < (10, 0):
-    def get_team(alias):
-        return alias.section_id
-
+    TEAM_ID_NAME = 'section_id'
     TEAM_MODEL_NAME = 'crm.case.section'
 else:
-    def get_team(alias):
-        return alias.team_id
-
+    TEAM_ID_NAME = 'team_id'
     TEAM_MODEL_NAME = 'crm.team'
 
 
@@ -67,18 +63,18 @@ class crm_case_section(models.Model):
         model_obj = self.env['ir.model']
         return model_obj.search([('model', '=', 'crm.lead')]).id
 
-    # @api.take_one(warn=True)
+    @api.multi
     def _get_alias(self):
         """Returns aliases related to a sale_team.
         """
         Alias = self.env['mail.alias']
         Virtual = self.env['crm.valias']
         model_id = self._get_model_id()
-        aliases = Alias.search([('alias_model_id', '=', model_id)], order='id asc')\
-                       .filtered(lambda alias: get_team(Virtual.browse(alias.id)) == self)\
-                       .mapped(lambda alias: Virtual.browse(alias.id))
-        self.alias_ids = aliases
-        return aliases
+        for record in self:
+            aliases = Alias.search([('alias_model_id', '=', model_id)])\
+                           .filtered(lambda a: eval(a.alias_defaults).get(TEAM_ID_NAME, 0) == record.id)\
+                           .mapped('id')
+            record.alias_ids = Virtual.browse(aliases)
 
     @api.multi
     def _unlink_alias(self, alias_id):
