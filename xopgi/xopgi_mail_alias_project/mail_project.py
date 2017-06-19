@@ -65,7 +65,7 @@ class project_valias(models.Model):
 class project_project(models.Model):
     _inherit = _name = 'project.project'
 
-    # @api.take_one(warn=True)
+    @api.multi
     def _get_alias(self):
         """Check if each section_ids are referenced on any mail.alias and
         return a list of alias_ids per section_id.
@@ -73,11 +73,11 @@ class project_project(models.Model):
         Alias = self.env['mail.alias']
         Virtual = self.env['project.valias']
         models = _get_model_ids(self)
-        aliases = Alias.search([('alias_model_id', 'in', models.ids)], order='id asc')\
-                       .filtered(lambda alias: Virtual.browse(alias.id).project_id == self)\
-                       .mapped(lambda alias: Virtual.browse(alias.id))
-        self.alias_ids = aliases
-        return aliases
+        for record in self:
+            aliases = Alias.search([('alias_model_id', 'in', models.ids)])\
+                           .filtered(lambda a: eval(a.alias_defaults).get('project_id', 0) == record.id)\
+                           .mapped('id')
+            record.alias_ids = Virtual.browse(aliases)
 
     @api.multi
     def _unlink_alias(self, alias_id):
