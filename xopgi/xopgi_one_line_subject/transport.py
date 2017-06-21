@@ -15,16 +15,20 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
+from xoutil.string import safe_encode
+
 try:
     from odoo.addons.xopgi_mail_threads import MailTransportRouter
     from odoo.addons.xopgi_mail_threads import TransportRouteData
     from odoo.addons.xopgi_mail_threads.utils \
         import decode_smtp_header as decode
+    from odoo.addons.base.ir.ir_mail_server import encode_header
 except ImportError:
     from openerp.addons.xopgi_mail_threads import MailTransportRouter
     from openerp.addons.xopgi_mail_threads import TransportRouteData
     from openerp.addons.xopgi_mail_threads.utils \
         import decode_smtp_header as decode
+    from openerp.addons.base.ir.ir_mail_server import encode_header
 
 
 class OneLineSubjectTransport(MailTransportRouter):
@@ -37,9 +41,11 @@ class OneLineSubjectTransport(MailTransportRouter):
         '''Remove new line character from message subject.
 
         '''
-        subject = decode(message['subject'])
+        # We need the safe_encode because we can get a email.header.Header
+        # instance instead of text.
+        subject = decode(safe_encode(message['subject']))
         # Remove new line character.
         subject = decode(subject.replace('\n', ' '))
         del message['subject']  # Ensure a single subject
-        message['subject'] = subject
+        message['subject'] = encode_header(subject)
         return TransportRouteData(message, {})
