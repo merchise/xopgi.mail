@@ -15,7 +15,7 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from xoutil.string import safe_encode
+from xoutil.string import safe_encode, safe_decode
 
 try:
     from odoo.addons.xopgi_mail_threads import MailTransportRouter
@@ -42,10 +42,11 @@ class OneLineSubjectTransport(MailTransportRouter):
 
         '''
         # We need the safe_encode because we can get a email.header.Header
-        # instance instead of text.
-        subject = decode(safe_encode(message['subject']))
-        # Remove new line character.
-        subject = decode(subject.replace('\n', ' '))
+        # instance instead of text.  Also, safe_decode normalizes to unicode
+        # so that we avoid any UnicodeError.
+        subject = safe_decode(decode(safe_encode(message['subject'])))
+        # Remove new line character
+        subject = subject.replace(u'\n', u' ')
         del message['subject']  # Ensure a single subject
         message['subject'] = encode_header(subject)
         return TransportRouteData(message, {})
