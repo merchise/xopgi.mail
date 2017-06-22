@@ -26,7 +26,7 @@ except ImportError:
 
 
 class EmailTemplate(models.Model):
-    _inherit = 'email.template' if ODOO_VERSION_INFO < (10, 0) else 'mail.template'
+    _inherit = 'email.template' if ODOO_VERSION_INFO < (9, 0) else 'mail.template'
 
     use_default_subject = fields.Boolean()
 
