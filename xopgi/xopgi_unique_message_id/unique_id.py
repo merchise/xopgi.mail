@@ -38,11 +38,13 @@ try:
     from odoo.addons.xopgi_mail_threads import TransportRouteData
     from odoo.addons.xopgi_mail_threads.utils import decode_header
     from odoo.tools import mail_header_msgid_re
+    from odoo.addons.base.ir.ir_mail_server import encode_header
 except ImportError:
     from openerp import api, models
     from openerp.addons.xopgi_mail_threads import MailTransportRouter
     from openerp.addons.xopgi_mail_threads import TransportRouteData
     from openerp.addons.xopgi_mail_threads.utils import decode_header
+    from openerp.addons.base.ir.ir_mail_server import encode_header
     try:
         from openerp.addons.mail.mail_thread \
             import mail_header_msgid_re
@@ -123,5 +125,5 @@ class OriginalReferenceTransport(MailTransportRouter):
 
         '''
         del message['References']
-        message['References'] = data['references']
+        message['References'] = encode_header(data['references'])
         return TransportRouteData(message, {})
