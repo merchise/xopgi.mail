@@ -1,5 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
+
+    <record id="move_message_wizard_view" model="ir.ui.view">
+      <!-- The expanded form of a message -->
+      <field name="name">move.message.wizard.view</field>
+      <field name="model">move.message.wizard</field>
+      <field name="arch" type="xml">
+        <form version="7.0">
+          <sheet>
+            <field name="model_id" invisible="1" nolabel="1"/>
+            <group>
+              <field name="leave_msg"/>
+              <field name="thread_id"/>
+            </group>
+            <group string="Messages">
+              <field name="message_ids" nolabel="1"/>
+              <field name="view"
+                     options="{'no_open': True, 'no_create': True}"
+                     attrs="{'invisible': [('views_count','&lt;=', 1)],
+                             'required': [('views_count','&gt;', 1)]}"/>
+              <field name="views_count" invisible="1"/>
+            </group>
+          </sheet>
+          <footer>
+            <button string="Confirm" type="object" name="confirm"
+                    confirm="Are you sure you want to move/copy this messages."
+                    class="oe_highlight"/> or
+            <button string="Cancel" class="oe_link" special="cancel"/>
+          </footer>
+        </form>
+      </field>
+    </record>
+
+    <record id="move_message_wizard_action" model="ir.actions.act_window">
+      <field name="name">Copy/Move Messages</field>
+      <field name="res_model">move.message.wizard</field>
+      <field name="src_model">mail.message</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="view_id" ref="move_message_wizard_view"/>
+      <field name="view_type">form</field>
+      <field name="view_mode">form</field>
+      <field name="target">new</field>
+    </record>
+
+    <record id="move_message_wizard_action_multi" model="ir.values">
+      <field name="name">Copy/Move Messages</field>
+      <field name="key">action</field>
+      <field name="key2">client_action_multi</field>
+      <field name="model">mail.message</field>
+      <field name="value"
+             eval="'ir.actions.act_window,'+str(ref('move_message_wizard_action'))"/>
+    </record>
   </data>
 </openerp>
