@@ -1,5 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
+
+    <record id="view_general_configuration_mail_alias_domain" model="ir.ui.view">
+      <field name="name">base.config.settings.mail.alias</field>
+      <field name="model">base.config.settings</field>
+      <field name="inherit_id" ref="mail.view_general_configuration_mail_alias_domain"/>
+      <field name="arch" type="xml">
+        <xpath expr="//div[@name='email']" position='inside'>
+          <label for="default_views" string="Configure default views"/>
+          <div>
+            <field name="default_views"/>
+          </div>
+        </xpath>
+      </field>
+    </record>
+
+    <record id="view_selectable_view_tree" model="ir.ui.view">
+      <field name="name">xopgi.selectable.view.tree</field>
+      <field name="model">xopgi.selectable.view</field>
+      <field name="type">tree</field>
+      <field name="priority" eval="8"/>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="label"/>
+          <field name="model_id"/>
+          <field name="view"/>
+          <field name="priority"/>
+          <button string="Preview" type="object" name="try_selected_view"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id="view_selectable_view_form" model="ir.ui.view">
+      <field name="name">xopgi.selectable.view.form</field>
+      <field name="model">xopgi.selectable.view</field>
+      <field name="type">form</field>
+      <field name="priority" eval="8"/>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+            <div class="oe_title">
+              <h1>
+                <label string="label" class="oe_edit_only"/>
+                <field name="label"/>
+              </h1>
+            </div>
+            <div class="oe_right oe_button_box" name="button_box">
+              <button name="try_selected_view" type="object" string="Preview"
+                      class="oe_stat_button" icon="fa-calendar">
+              </button>
+            </div>
+            <group>
+              <field name="model_id"/>
+              <field name="view"
+                     options="{'no_open': True, 'no_create': True}"
+                     domain="[('model','=', model_id), ('type', '=', 'form')]"/>
+              <field name="priority"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
   </data>
 </openerp>
