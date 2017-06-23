@@ -27,7 +27,7 @@ from xoeuf import api
 from xoeuf.osv.orm import CREATE_RELATED, UPDATE_RELATED, REMOVE_RELATED
 
 
-if ODOO_VERSION_INFO < (10, 0):
+if ODOO_VERSION_INFO < (9, 0):
     TEAM_ID_NAME = 'section_id'
     TEAM_MODEL_NAME = 'crm.case.section'
 else:
@@ -47,7 +47,7 @@ class crm_valias(models.Model):
         help="Type of object to create by incoming messages."
     )
 
-    if ODOO_VERSION_INFO < (10, 0):
+    if ODOO_VERSION_INFO < (9, 0):
         section_id = fields.Many2one(TEAM_MODEL_NAME, string='Sale Team')
     else:
         team_id = fields.Many2one(TEAM_MODEL_NAME, string='Sale Team')
@@ -121,7 +121,7 @@ class crm_case_section(models.Model):
         alias_model_id = self._get_model_id()
 
         def update_values(id, vals):
-            if ODOO_VERSION_INFO < (10, 0):
+            if ODOO_VERSION_INFO < (9, 0):
                 vals['section_id'] = self.id
             else:
                 vals['team_id'] = self.id
@@ -183,10 +183,10 @@ class crm_case_section(models.Model):
                 for alias in aliases_create:
                     record = Alias.browse(alias)
                     defaults = eval(record.alias_defaults)
-                    if ODOO_VERSION_INFO < (10, 0):
+                    if ODOO_VERSION_INFO < (9, 0):
                         defaults.update(section_id=sale_team.id)
                     else:
-                        # Odoo 10 changed the section_id to a team_id.
+                        # Odoo 9 and 10 changed the section_id to a team_id.
                         defaults.update(team_id=sale_team.id)
                     vals['alias_defaults'] = repr(defaults)
                     record.write(vals)
