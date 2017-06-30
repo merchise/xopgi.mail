@@ -1,3 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <template>
+  <t t-extend="mail.ChatThread.Message">
+    <t t-jquery=".o_mail_info span:last-child" t-operation="append">
+      <i t-if="message.merchise_extra.can_new_thread &amp;&amp; message.model"
+         t-att-data-message-id="message.id"
+         class="fa fa-lg fa-file-o o_thread_message_forward o_thread_message_new_thread"
+         title="Create new document"/>
+    </t>
+  </t>
 </template>

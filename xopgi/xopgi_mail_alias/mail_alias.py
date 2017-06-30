@@ -37,6 +37,15 @@ def get_default_alias_domain(self):
 class MailAlias(Model):
     _inherit = 'mail.alias'
 
+    custom_domain = fields.Char('Alias domain')
+    alias_domain = fields.Char(
+        compute='_get_alias_domain',
+        inverse='_set_alias_domain',
+        search='_search_alias_domain',
+        string="Alias domain",
+        default=get_default_alias_domain
+    )
+
     @api.multi
     def _get_alias_domain(self):
         default_domain = get_default_alias_domain(self)
@@ -57,15 +66,6 @@ class MailAlias(Model):
     def _set_alias_domain(self):
         for record in self:
             self.custom_domain = self.alias_domain
-
-    custom_domain = fields.Char('Alias domain')
-    alias_domain = fields.Char(
-        compute='_get_alias_domain',
-        inverse='_set_alias_domain',
-        search='_search_alias_domain',
-        string="Alias domain",
-        default=get_default_alias_domain
-    )
 
     def fields_get(self, *args, **kargs):
         # Hack to make alias_domain editable. I don't know why it's not!
