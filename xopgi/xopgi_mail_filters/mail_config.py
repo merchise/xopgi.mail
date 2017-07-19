@@ -88,7 +88,7 @@ class MailConfig(models.TransientModel):
                 self._cr.execute(insert_query, (view.model, view.id, name))
         view_obj.invalidate_cache()
 
-    @api.take_one
+    @api.model
     def add_followers_filter(self):
         '''Method called by config button for add followers filters.
 
