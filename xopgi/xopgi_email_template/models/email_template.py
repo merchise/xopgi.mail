@@ -17,22 +17,17 @@ from __future__ import (division as _py3_division,
 
 from lxml.html import fromstring as html_fromstring
 
-try:
-    from odoo import api, fields, models
-    from odoo.release import version_info as ODOO_VERSION_INFO
-except ImportError:
-    from openerp import api, fields, models
-    from openerp.release import version_info as ODOO_VERSION_INFO
+from xoeuf import api, fields, models, MAJOR_ODOO_VERSION
 
 
 class EmailTemplate(models.Model):
-    _inherit = 'email.template' if ODOO_VERSION_INFO < (9, 0) else 'mail.template'
+    _inherit = 'email.template' if MAJOR_ODOO_VERSION < 9 else 'mail.template'
 
     use_default_subject = fields.Boolean()
 
     @api.one
     def get_body_readonly_elements(self, res_id):
-        if ODOO_VERSION_INFO < (10, 0):
+        if MAJOR_ODOO_VERSION < (10, 0):
             _super = super(EmailTemplate, self).generate_email_batch
         else:
             _super = super(EmailTemplate, self).generate_email

@@ -16,12 +16,8 @@ from __future__ import (absolute_import as _py3_abs_imports,
                         division as _py3_division,
                         print_function as _py3_print)
 
-try:
-    from odoo import models, api
-    from odoo.release import version_info as ODOO_VERSION_INFO
-except ImportError:
-    from openerp import models, api
-    from openerp.release import version_info as ODOO_VERSION_INFO
+from xoeuf import models, api
+from xoeuf import MAJOR_ODOO_VERSION
 
 
 class Message(models.Model):
@@ -33,7 +29,7 @@ class Message(models.Model):
         res_id = self.res_id
         if model and res_id:
             resource = self.env[model].browse(res_id)
-        if ODOO_VERSION_INFO < (9, 0):
+        if MAJOR_ODOO_VERSION < 9:
             # Since Odoo 9 the method get_access_action in models.py now
             # returns a single dictionary.
             _result = dict(resource.get_access_action()[0])

@@ -35,7 +35,7 @@ def migrate(self, cr, version):
 def create_crons(self, cr):
     from openerp.addons.xopgi_mail_alias.mail_alias \
         import MailAlias, get_default_alias_domain
-    from xoeuf.osv.orm import get_modelname
+    from xoeuf.models import get_modelname
     alias_obj = self.pool[get_modelname(MailAlias)]
     alias_ids = alias_obj.search(cr, SUPERUSER_ID, [])
     domain = get_default_alias_domain(self.pool, cr, SUPERUSER_ID)

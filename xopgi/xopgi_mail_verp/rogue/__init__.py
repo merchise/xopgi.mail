@@ -33,10 +33,12 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from xoutil import logger
-
 from . import _probes
 from ..mail_bounce_model import BounceVirtualId
+
+import logging
+logger = logging.getLogger(__name__)
+del logging
 
 
 class RogueBounceProber(object):

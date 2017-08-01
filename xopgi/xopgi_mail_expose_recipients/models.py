@@ -16,25 +16,13 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-try:
-    from openerp import api, fields, models
-    from openerp.tools.mail import email_split_and_format
-except ImportError:
-    from odoo import api, fields, models
-    from odoo.tools.mail import email_split_and_format
+from xoeuf import api, fields, models
 
+from xoeuf.models import get_modelname
+from xoeuf.models.proxy import MailMessage as Message
 
-from xoeuf.osv.orm import get_modelname
-
-try:
-    from odoo.addons.mail.models.mail_message import Message
-    from odoo.addons.xopgi_mail_threads.utils import decode_header
-except ImportError:
-    try:
-        from openerp.addons.mail.mail_message import mail_message as Message
-    except ImportError:
-        from openerp.addons.mail.models.mail_message import Message
-    from openerp.addons.xopgi_mail_threads.utils import decode_header
+from xoeuf.odoo.tools.mail import email_split_and_format
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
 
 
 class MessageRecipients(models.Model):

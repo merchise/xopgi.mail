@@ -16,17 +16,11 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 
-try:
-    from odoo import api, fields, models, SUPERUSER_ID, _
-    from odoo.exceptions import AccessError
-    from odoo.addons.xopgi_move_copy_msg_commons.common import \
-        get_model_selection
-except ImportError:
-    from openerp import api, fields, models, SUPERUSER_ID, _
-    from openerp.exceptions import AccessError
-    from openerp.addons.xopgi_move_copy_msg_commons.common import \
-        get_model_selection
-
+from xoeuf import api, fields, models
+from xoeuf.odoo import SUPERUSER_ID, _
+from xoeuf.odoo.exceptions import AccessError
+from xoeuf.odoo.addons.xopgi_move_copy_msg_commons.common \
+    import get_model_selection
 
 from xoeuf.ui import RELOAD_UI
 

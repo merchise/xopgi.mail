@@ -18,12 +18,8 @@ from __future__ import (absolute_import as _py3_abs_imports,
 from lxml import html
 from xoutil.string import cut_prefixes
 
-try:
-    from odoo import models, api
-    from odoo.tools.translate import _
-except ImportError:
-    from openerp import models, api
-    from openerp.tools.translate import _
+from xoeuf import models, api
+from xoeuf.odoo.tools.translate import _
 
 
 # We need the first two empty paragraph so that the cursor goes there.  Also

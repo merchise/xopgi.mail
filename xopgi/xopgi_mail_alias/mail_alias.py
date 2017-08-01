@@ -16,16 +16,10 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 
-try:
-    from odoo import tools, fields, api
-    from odoo.models import Model
-    from odoo.addons.xopgi_mail_threads.utils import decode_header
-    from odoo.addons.xopgi_mail_threads import MailRouter
-except ImportError:
-    from openerp import tools, fields, api
-    from openerp.models import Model
-    from openerp.addons.xopgi_mail_threads.utils import decode_header
-    from openerp.addons.xopgi_mail_threads import MailRouter
+from xoeuf import fields, api, models
+from xoeuf.odoo import tools
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
+from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter
 
 
 def get_default_alias_domain(self):
@@ -34,7 +28,7 @@ def get_default_alias_domain(self):
     return res
 
 
-class MailAlias(Model):
+class MailAlias(models.Model):
     _inherit = 'mail.alias'
 
     custom_domain = fields.Char('Alias domain')

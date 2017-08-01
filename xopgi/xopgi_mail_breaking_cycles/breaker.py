@@ -15,21 +15,17 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from xoutil import logger as _logger
 from email.utils import getaddresses
 
-try:
-    from odoo.addons.xopgi_mail_threads.utils import decode_header
-    from odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
-    from odoo.addons.xopgi_mail_threads import TransportRouteData
-    from odoo.addons.xopgi_mail_threads.utils import set_message_from
-    from odoo.addons.xopgi_mail_threads.utils import set_message_sender
-except ImportError:
-    from openerp.addons.xopgi_mail_threads.utils import decode_header
-    from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
-    from openerp.addons.xopgi_mail_threads import TransportRouteData
-    from openerp.addons.xopgi_mail_threads.utils import set_message_from
-    from openerp.addons.xopgi_mail_threads.utils import set_message_sender
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
+from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
+from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_from
+from xouef.odoo.addons.xopgi_mail_threads.utils import set_message_sender
+
+import logging
+_logger = logging.getLogger(__name__)
+del logging
 
 #
 # This pair of Router & Transport avoid the mail-sending cycles when two

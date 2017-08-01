@@ -17,18 +17,11 @@ from __future__ import (division as _py3_division,
 
 from xoutil.string import safe_encode, safe_decode
 
-try:
-    from odoo.addons.xopgi_mail_threads import MailTransportRouter
-    from odoo.addons.xopgi_mail_threads import TransportRouteData
-    from odoo.addons.xopgi_mail_threads.utils \
-        import decode_smtp_header as decode
-    from odoo.addons.base.ir.ir_mail_server import encode_header
-except ImportError:
-    from openerp.addons.xopgi_mail_threads import MailTransportRouter
-    from openerp.addons.xopgi_mail_threads import TransportRouteData
-    from openerp.addons.xopgi_mail_threads.utils \
-        import decode_smtp_header as decode
-    from openerp.addons.base.ir.ir_mail_server import encode_header
+from xoeuf.odoo.addons.xopgi_mail_threads import MailTransportRouter
+from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
+from xoeuf.odoo.addons.xopgi_mail_threads.utils \
+    import decode_smtp_header as decode
+from xoeuf.odoo.addons.base.ir.ir_mail_server import encode_header
 
 
 class OneLineSubjectTransport(MailTransportRouter):

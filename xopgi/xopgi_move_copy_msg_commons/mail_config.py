@@ -15,10 +15,7 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-try:
-    from odoo import api, fields, models
-except ImportError:
-    from openerp import api, fields, models
+from xoeuf import api, fields, models
 
 
 class MailConfig(models.TransientModel):

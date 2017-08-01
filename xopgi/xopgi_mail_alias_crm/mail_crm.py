@@ -15,19 +15,13 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-try:
-    from odoo import models, fields, exceptions
-    from odoo.release import version_info as ODOO_VERSION_INFO
-except ImportError:
-    from openerp import models, fields, exceptions
-    from openerp.release import version_info as ODOO_VERSION_INFO
-
-
-from xoeuf import api
+from xoeuf import api, models, fields, MAJOR_ODOO_VERSION
+from xoeuf.odoo import _
+from xoeuf.odoo.exceptions import Warning as UserError
 from xoeuf.osv.orm import CREATE_RELATED, UPDATE_RELATED, REMOVE_RELATED
 
 
-if ODOO_VERSION_INFO < (9, 0):
+if MAJOR_ODOO_VERSION < 9:
     TEAM_ID_NAME = 'section_id'
     TEAM_MODEL_NAME = 'crm.case.section'
 else:
@@ -47,7 +41,7 @@ class crm_valias(models.Model):
         help="Type of object to create by incoming messages."
     )
 
-    if ODOO_VERSION_INFO < (9, 0):
+    if MAJOR_ODOO_VERSION < 9:
         section_id = fields.Many2one(TEAM_MODEL_NAME, string='Sale Team')
     else:
         team_id = fields.Many2one(TEAM_MODEL_NAME, string='Sale Team')
@@ -96,14 +90,17 @@ class crm_case_section(models.Model):
         if use_opportunity is None:
             use_opportunity = self.use_opportunities
         if not use_lead and type_valias == 'lead':
-            raise exceptions.Warning(
-                "This sale team not use 'Leads' then cant alias with 'Lead'."
-                "please select the 'Leads' option from 'Sales team'")
+            raise UserError(_(
+                "This sale team not use 'Leads' then cant alias with "
+                "'Lead'.  Please select the 'Leads' option from "
+                "'Sales team'"
+            ))
         if not use_opportunity and type_valias == 'opportunity':
-            raise exceptions.Warning(
-                "This sale team not use 'Opportunities' then cant alias with"
-                "'Opportunity' please select the Opportunities' option from"
-                "'Sales team'")
+            raise UserError(_(
+                "This sale team not use 'Opportunities' then cant alias with "
+                "'Opportunity' please select the Opportunities' option from "
+                "'Sales team'."
+            ))
         return vals
 
     @api.multi
@@ -121,7 +118,7 @@ class crm_case_section(models.Model):
         alias_model_id = self._get_model_id()
 
         def update_values(id, vals):
-            if ODOO_VERSION_INFO < (9, 0):
+            if MAJOR_ODOO_VERSION < 9:
                 vals['section_id'] = self.id
             else:
                 vals['team_id'] = self.id
@@ -183,7 +180,7 @@ class crm_case_section(models.Model):
                 for alias in aliases_create:
                     record = Alias.browse(alias)
                     defaults = eval(record.alias_defaults)
-                    if ODOO_VERSION_INFO < (9, 0):
+                    if MAJOR_ODOO_VERSION < 9:
                         defaults.update(section_id=sale_team.id)
                     else:
                         # Odoo 9 and 10 changed the section_id to a team_id.

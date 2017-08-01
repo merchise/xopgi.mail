@@ -24,20 +24,17 @@ from __future__ import (division as _py3_division,
 
 from email.utils import getaddresses
 
-try:
-    from odoo import SUPERUSER_ID
-    from odoo.addons.xopgi_mail_threads.utils import decode_header
-    from odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
-    from odoo.addons.xopgi_mail_threads import TransportRouteData
-    from odoo.addons.xopgi_mail_threads.utils import set_message_from
-    from odoo.addons.xopgi_mail_threads.utils import set_message_sender
-except ImportError:
-    from openerp import SUPERUSER_ID
-    from openerp.addons.xopgi_mail_threads.utils import decode_header
-    from openerp.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
-    from openerp.addons.xopgi_mail_threads import TransportRouteData
-    from openerp.addons.xopgi_mail_threads.utils import set_message_from
-    from openerp.addons.xopgi_mail_threads.utils import set_message_sender
+from xoeuf import SUPERUSER_ID
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
+from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
+from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_from
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_sender
+
+import logging
+_logger = logging.getLogger(__name__)
+del logging
+
 
 # The default prefix for a Reply-To address.  NOTICE: we suggest to use the
 # same as the mail.catchall.alias.  The Reply-To address is constructed as
@@ -55,13 +52,12 @@ class UniqueAddressTransport(MailTransportRouter):
             # XXX: Temporarily record all the indexes:
             indexes = {m.thread_index for m in msg}
             if len(indexes) > 1:
-                from xoutil import logger
-                logger.warn('More than one index retrieved for the same '
-                            'message.  Refusing to dispatch the '
-                            'message using a unique address and hoping for '
-                            'the best.', extra=dict(
-                                message_id=message['Message-Id'],
-                                indexes=indexes))
+                _logger.warn('More than one index retrieved for the same '
+                             'message.  Refusing to dispatch the '
+                             'message using a unique address and hoping for '
+                             'the best.', extra=dict(
+                                 message_id=message['Message-Id'],
+                                 indexes=indexes))
                 msg = None
             else:
                 msg = msg[0]

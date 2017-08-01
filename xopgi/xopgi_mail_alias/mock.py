@@ -19,12 +19,10 @@ from __future__ import (division as _py3_division,
 
 from xoutil import Unset
 
-try:
-    from odoo import api, models, fields, exceptions
-    from odoo.tools.safe_eval import safe_eval
-except ImportError:
-    from openerp import api, models, fields, exceptions
-    from openerp.tools.safe_eval import safe_eval
+from xoeuf import api, models, fields
+from xoeuf.odoo import _
+from xoeuf.odoo.exceptions import ValidationError
+from xoeuf.odoo.tools.safe_eval import safe_eval
 
 from .mail_alias import get_default_alias_domain
 
@@ -166,6 +164,8 @@ def str2dict(maybedict, field_name=None, default=Unset):
         else:
             raise TypeError
     except(ValueError, TypeError):
-        raise exceptions.ValidationError(
-            "The format's field '%s' is incorrect because not have structure"
-            " dictionary Example: {'field1': value1, 'field2': value2}" % field_name)
+        raise ValidationError(
+            _("The format's field '%s' is incorrect because not have "
+              "structure dictionary. "
+              "Example: {'field1': value1, 'field2': value2}") % field_name
+        )

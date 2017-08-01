@@ -16,12 +16,8 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-try:
-    from odoo import SUPERUSER_ID
-    from odoo import models, fields, api
-except ImportError:
-    from openerp import SUPERUSER_ID
-    from openerp import models, fields, api
+from xoeuf import models, fields, api
+from xoeuf.odoo import SUPERUSER_ID
 
 from xoutil.context import context
 from xoutil.objects import get_first_of

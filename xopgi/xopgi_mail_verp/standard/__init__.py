@@ -48,22 +48,11 @@ from __future__ import (division as _py3_division,
 
 from xoutil.string import safe_encode
 
-from xoeuf import api
-
-try:
-    from odoo.models import Model
-    from odoo import fields
-    from odoo.addons.xopgi_mail_threads import MailTransportRouter
-    from odoo.addons.xopgi_mail_threads import TransportRouteData
-    from odoo.addons.xopgi_mail_threads.utils \
-        import decode_smtp_header as decode_header
-except ImportError:
-    from openerp.models import Model
-    from openerp import fields
-    from openerp.addons.xopgi_mail_threads import MailTransportRouter
-    from openerp.addons.xopgi_mail_threads import TransportRouteData
-    from openerp.addons.xopgi_mail_threads.utils \
-        import decode_smtp_header as decode_header
+from xoeuf import api, models, fields
+from xoeuf.odoo.addons.xopgi_mail_threads import MailTransportRouter
+from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
+from xoeuf.odoo.addons.xopgi_mail_threads.utils \
+    import decode_smtp_header as decode_header
 
 from ..common import (
     VOID_EMAIL_ADDRESS,
@@ -74,7 +63,7 @@ from ..common import (
 from ..mail_bounce_model import BOUNCE_MODEL, BounceVirtualId
 
 
-class BounceRecord(Model):
+class BounceRecord(models.Model):
     '''An index for bounce address to message, thread and recipient.
 
     This model encodes the same information of old VERP addresses but allow a
