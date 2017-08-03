@@ -21,7 +21,7 @@ from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
 from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
 from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
 from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_from
-from xouef.odoo.addons.xopgi_mail_threads.utils import set_message_sender
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_sender
 
 import logging
 _logger = logging.getLogger(__name__)

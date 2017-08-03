@@ -28,7 +28,7 @@ from __future__ import (division as _py3_division,
 
 from xoeuf import api, models, MAJOR_ODOO_VERSION
 from xoeuf.odoo import tools, SUPERUSER_ID
-from xouef.odoo.addons.base.ir.ir_mail_server import encode_rfc2822_address_header
+from xoeuf.odoo.addons.base.ir.ir_mail_server import encode_rfc2822_address_header
 from xoeuf.odoo.addons.xopgi_mail_threads.transports import (
     MailTransportRouter,
     TransportRouteData
