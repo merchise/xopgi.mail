@@ -17,12 +17,10 @@ from __future__ import (division as _py3_division,
 
 from lxml.html import fromstring, tostring
 
-try:
-    from odoo import api, fields, exceptions, models, _
-    from odoo.release import version_info as ODOO_VERSION_INFO
-except ImportError:
-    from openerp import api, fields, exceptions, models, _
-    from openerp.release import version_info as ODOO_VERSION_INFO
+from xoeuf import api, fields, models, MAJOR_ODOO_VERSION
+from xoeuf.odoo import _
+from xoeuf.odoo.exceptions import ValidationError
+
 
 FIND_CLASS_XPATH_EXPRESSION = (
     "descendant-or-self::*[@class and "
@@ -37,7 +35,8 @@ class MailComposeMessage(models.TransientModel):
 
     body_readonly_elements = fields.Boolean()
     template_subject_readonly = fields.Boolean(
-        related="template_id.use_default_subject")
+        related="template_id.use_default_subject"
+    )
 
     def _have_body_readonly_elements(self):
         return True
@@ -47,7 +46,8 @@ class MailComposeMessage(models.TransientModel):
                              res_id):
         'Add style to readonly tokens.'
         result = super(MailComposeMessage, self).onchange_template_id(
-            template_id, composition_mode, model, res_id)
+            template_id, composition_mode, model, res_id
+        )
         body = result.get('value', {}).get('body', '')
         if body and template_id:
             doc = fromstring(body)
@@ -58,7 +58,8 @@ class MailComposeMessage(models.TransientModel):
                                   "color: #4C4C4C")
             result['value'].update(
                 body_readonly_elements=bool(read_only_elements),
-                body=tostring(doc))
+                body=tostring(doc)
+            )
         return result
 
     def _validate_template_restrictions(self):
@@ -68,10 +69,11 @@ class MailComposeMessage(models.TransientModel):
         self.ensure_one()
         if not self.template_id:
             return True
-        if ODOO_VERSION_INFO < (9, 0):
+        if MAJOR_ODOO_VERSION < 9:
             template_dict = self.pool['email.template'].generate_email_batch(
                 self.env.cr, self.env.uid, self.template_id.id, [self.res_id],
-                context=self._context).get(self.res_id, {})
+                context=self._context
+            ).get(self.res_id, {})
         else:
             template_dict = self.template_id.generate_email(self.res_id)
 
@@ -122,8 +124,7 @@ class MailComposeMessage(models.TransientModel):
         if self._validate_template_restrictions():
             return super(MailComposeMessage, self).send_mail(**kwargs)
         else:
-            raise exceptions.ValidationError(
-                _('Non-editable items were modified.'))
+            raise ValidationError(_('Non-editable items were modified.'))
 
     @api.multi
     def save_as_template(self):

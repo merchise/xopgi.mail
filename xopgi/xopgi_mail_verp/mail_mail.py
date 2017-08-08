@@ -15,12 +15,7 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from xoeuf import api
-
-try:
-    from odoo import models
-except ImportError:
-    from openerp import models
+from xoeuf import api, models
 
 
 class Mail(models.Model):

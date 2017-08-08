@@ -20,15 +20,10 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-try:
-    from odoo import fields
-    from odoo.models import TransientModel
-except ImportError:
-    from openerp import fields
-    from openerp.models import TransientModel
+from xoeuf import fields, models
 
 
-class MailConfig(TransientModel):
+class MailConfig(models.TransientModel):
     _name = _inherit = 'base.config.settings'
 
     module_xopgi_mail_full_expand = fields.Boolean(

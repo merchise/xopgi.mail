@@ -40,16 +40,13 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from xoutil import logger as _logger
+from xoeuf import models, fields
+from xoeuf.odoo.addons.xopgi_mail_threads import MailTransportRouter
+from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
 
-try:
-    from odoo import models, fields
-    from odoo.addons.xopgi_mail_threads import MailTransportRouter
-    from odoo.addons.xopgi_mail_threads import TransportRouteData
-except ImportError:
-    from openerp import models, fields
-    from openerp.addons.xopgi_mail_threads import MailTransportRouter
-    from openerp.addons.xopgi_mail_threads import TransportRouteData
+import logging
+_logger = logging.getLogger(__name__)
+del logging
 
 
 class MailServer(models.Model):

@@ -41,5 +41,5 @@
     'data': [
          'view/project_view.xml',
          'security/security.xml'
-    ] if ODOO_VERSION_INFO[0] in (8, 10) else [],   # noqa
+    ]
 }

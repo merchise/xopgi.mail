@@ -15,15 +15,9 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-try:
-    from odoo import models, fields, exceptions
-    from odoo.release import version_info as ODOO_VERSION_INFO
-except ImportError:
-    from openerp import models, fields, exceptions
-    from openerp.release import version_info as ODOO_VERSION_INFO
-
-
-from xoeuf import api
+from xoeuf import api, models, fields, MAJOR_ODOO_VERSION
+from xoeuf.odoo import _
+from xoeuf.odoo.exceptions import Warning as UserError
 
 
 def _get_model_ids(self, model_names=[]):
@@ -102,13 +96,15 @@ class project_project(models.Model):
         if use_task is None:
             use_task = self.use_tasks
         if not use_issue and model_id == _get_model_ids(self, ['project.issue']).id:
-            raise exceptions.Warning(
+            raise UserError(_(
                 "This project not use 'Issues' then cant alias with 'project.issue'"
-                " please select the 'Isuues option' from the project form.")
+                " please select the 'Isuues option' from the project form."
+            ))
         if not use_task and model_id == _get_model_ids(self, ['project.task']).id:
-            raise exceptions.Warning(
+            raise UserError(_(
                 "This project not use 'Tasks' then cant alias with 'project.task'"
-                " please select the 'Tasks option' from the project form.")
+                " please select the 'Tasks option' from the project form."
+            ))
         return vals
 
     @api.multi
@@ -173,7 +169,7 @@ class project_project(models.Model):
         from xoutil.string import normalize_slug
         if not values.get('alias_name'):
             values['alias_name'] = normalize_slug(values['name'])
-        if ODOO_VERSION_INFO < (10, 0):
+        if MAJOR_ODOO_VERSION < 10:
             Alias = self.env['mail.alias']
             vals = {}
             if 'alias_ids' in values:
@@ -191,7 +187,7 @@ class project_project(models.Model):
                     values_default.update(project_id=project.id, user_id=project.user_id.id)
                     vals['alias_defaults'] = repr(values_default)
                     record.write(vals)
-        if ODOO_VERSION_INFO > (9, 0):
+        if MAJOR_ODOO_VERSION > 9:
             project = super(project_project, self).create(values)
         return project
 

@@ -15,12 +15,9 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-try:
-    from odoo import api, exceptions, fields, models, SUPERUSER_ID, _
-    from odoo.addons.xopgi_mail_threads.mail_messages import RAW_EMAIL_ATTR
-except ImportError:
-    from openerp import api, exceptions, fields, models, SUPERUSER_ID, _
-    from openerp.addons.xopgi_mail_threads.mail_messages import RAW_EMAIL_ATTR
+from xoeuf import api, fields, models
+from xoeuf.odoo import exceptions, SUPERUSER_ID, _
+from xoeuf.odoo.addons.xopgi_mail_threads.mail_messages import RAW_EMAIL_ATTR
 
 from xoeuf import signals
 

@@ -18,10 +18,7 @@ from __future__ import (division as _py3_division,
 
 from email.utils import getaddresses
 
-try:
-    from odoo.addons.xopgi_mail_threads.utils import decode_header
-except ImportError:
-    from openerp.addons.xopgi_mail_threads.utils import decode_header
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
 
 
 # The name configuration parameter for VERP bounces.  Don't use the

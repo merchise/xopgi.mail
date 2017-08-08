@@ -23,10 +23,7 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-try:
-    from odoo.addons.xopgi_mail_threads.routers import MailRouter
-except ImportError:
-    from openerp.addons.xopgi_mail_threads.routers import MailRouter
+from xoeuf.odoo.addons.xopgi_mail_threads.routers import MailRouter
 
 
 MODEL_INDEX = 0

@@ -16,13 +16,10 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-try:
-    from openerp.release import version_info as ODOO_VERSION_INFO
-except ImportError:
-    from odoo.release import version_info as ODOO_VERSION_INFO
+from xoeuf import MAJOR_ODOO_VERSION
 
 
-if (8, 0) <= ODOO_VERSION_INFO < (11, 0):
+if 8 <= MAJOR_ODOO_VERSION < 11:
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
 

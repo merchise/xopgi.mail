@@ -32,22 +32,20 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
+from xoeuf import api, models
+from xoeuf.odoo.addons.xopgi_mail_threads import MailTransportRouter
+from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
+from xoeuf.odoo.addons.base.ir.ir_mail_server import encode_header
+
 try:
-    from odoo import api, models
-    from odoo.addons.xopgi_mail_threads import MailTransportRouter
-    from odoo.addons.xopgi_mail_threads import TransportRouteData
-    from odoo.addons.xopgi_mail_threads.utils import decode_header
-    from odoo.tools import mail_header_msgid_re
+    from xoeuf.odoo.tools import mail_header_msgid_re
 except ImportError:
-    from openerp import api, models
-    from openerp.addons.xopgi_mail_threads import MailTransportRouter
-    from openerp.addons.xopgi_mail_threads import TransportRouteData
-    from openerp.addons.xopgi_mail_threads.utils import decode_header
     try:
-        from openerp.addons.mail.mail_thread \
+        from xoeuf.odoo.addons.mail.mail_thread \
             import mail_header_msgid_re
     except ImportError:
-        from openerp.addons.mail.models.mail_thread \
+        from xoeuf.odoo.addons.mail.models.mail_thread \
             import mail_header_msgid_re
 
 from .common import message_id_is_encoded, encode_message_id
@@ -123,5 +121,5 @@ class OriginalReferenceTransport(MailTransportRouter):
 
         '''
         del message['References']
-        message['References'] = data['references']
+        message['References'] = encode_header(data['references'])
         return TransportRouteData(message, {})

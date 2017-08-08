@@ -18,14 +18,7 @@ from __future__ import (division as _py3_division,
 
 from datetime import datetime
 
-from xoeuf import api
-
-try:
-    from odoo import models
-    from odoo.release import version_info as ODOO_VERSION_INFO
-except ImportError:
-    from openerp import models
-    from openerp.release import version_info as ODOO_VERSION_INFO
+from xoeuf import api, models, MAJOR_ODOO_VERSION
 
 
 MODULE_NAME = 'xopgi_mail_filter'
@@ -55,7 +48,7 @@ class MailConfig(models.TransientModel):
         columns = [
             'model',
             'type',
-            'arch' if ODOO_VERSION_INFO < (9, 0) else 'arch_db',
+            'arch' if MAJOR_ODOO_VERSION < 9 else 'arch_db',
             'priority',
             'create_uid',
             'create_date',
@@ -88,7 +81,7 @@ class MailConfig(models.TransientModel):
                 self._cr.execute(insert_query, (view.model, view.id, name))
         view_obj.invalidate_cache()
 
-    @api.take_one
+    @api.model
     def add_followers_filter(self):
         '''Method called by config button for add followers filters.
 

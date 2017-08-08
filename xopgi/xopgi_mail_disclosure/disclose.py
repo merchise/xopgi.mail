@@ -26,27 +26,13 @@ from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-try:
-    from odoo.release import version_info as ODOO_VERSION_INFO
-    from odoo import api, models
-    from odoo import tools
-    from odoo.addons.base.ir.ir_mail_server import encode_rfc2822_address_header
-except ImportError:
-    from openerp import tools, SUPERUSER_ID
-    from openerp import api, models
-    from openerp.release import version_info as ODOO_VERSION_INFO
-    from openerp.addons.base.ir.ir_mail_server import encode_rfc2822_address_header
-
-try:
-    from odoo.addons.xopgi_mail_threads.transports import (
-        MailTransportRouter,
-        TransportRouteData
-    )
-except ImportError:
-    from openerp.addons.xopgi_mail_threads.transports import (
-        MailTransportRouter,
-        TransportRouteData
-    )
+from xoeuf import api, models, MAJOR_ODOO_VERSION
+from xoeuf.odoo import tools, SUPERUSER_ID
+from xoeuf.odoo.addons.base.ir.ir_mail_server import encode_rfc2822_address_header
+from xoeuf.odoo.addons.xopgi_mail_threads.transports import (
+    MailTransportRouter,
+    TransportRouteData
+)
 
 
 class ForcedStopIteration(StopIteration):
@@ -106,7 +92,7 @@ def joinfirst(iterable, sep, many=40, suffix=''):
     return sep.join(chunks) + (suffix if _nonlocal.forced else '')
 
 
-if ODOO_VERSION_INFO < (9, 0):
+if MAJOR_ODOO_VERSION < 9:
     # XXX: For now, we simply replace the entire function in the signature
     class Notification(models.Model):
         _inherit = _name = 'mail.notification'
@@ -145,12 +131,12 @@ if ODOO_VERSION_INFO < (9, 0):
             return footer
 
 
-if ODOO_VERSION_INFO < (9, 0):
+if MAJOR_ODOO_VERSION < 9:
     # Since Odoo 9, followers are not partners, but a model
     # (channel, follower) that points to the partner.  In Odoo 8,
     # however, the related follower is the partner itself.
     get_partner = lambda partner: partner
-elif (9, 0) <= ODOO_VERSION_INFO < (11, 0):
+elif 9 <= MAJOR_ODOO_VERSION < 11:
     get_partner = lambda follower: follower.partner_id
 
 

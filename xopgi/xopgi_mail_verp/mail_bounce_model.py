@@ -20,21 +20,15 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 from xoutil import Unset
-from xoutil import logger as _logger
 
-from xoeuf import api
-
-try:
-    from odoo import tools, models
-    from odoo.tools.translate import _
-    from odoo.release import version_info as ODOO_VERSION_INFO
-except ImportError:
-    from openerp import tools, models
-    from openerp.tools.translate import _
-    from openerp.release import version_info as ODOO_VERSION_INFO
-
+from xoeuf import api, models, MAJOR_ODOO_VERSION
+from xoeuf.odoo import tools, _
 
 from .common import BOUNCE_MODEL, VOID_EMAIL_ADDRESS
+
+import logging
+_logger = logging.getLogger(__name__)
+del logging
 
 
 class BounceVirtualId(object):
@@ -159,7 +153,7 @@ class MailBounce(models.TransientModel):
         return params
 
 
-if (8, 0) <= ODOO_VERSION_INFO < (9, 0):
+if 8 <= MAJOR_ODOO_VERSION < 9:
     # Though, Odoo 10 resurrects the mail.notification model it's not used
     # anymore to 'update_message_notification', so the followers need to be
     # forced elsewhere.
@@ -177,7 +171,7 @@ if (8, 0) <= ODOO_VERSION_INFO < (9, 0):
                 cr, uid, ids, message_id, partner_ids, context=context
             )
 
-elif (9, 0) <= ODOO_VERSION_INFO < (11, 0):
+elif 9 <= MAJOR_ODOO_VERSION < 11:
     class MessageBounceNotification(models.Model):
         _inherit = 'mail.message'
 
