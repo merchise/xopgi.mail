@@ -52,7 +52,7 @@ setup(name=project_name,
           'xoutil>=1.7.1,<1.8',
           'lxml',
           'xopgi.mail_threads',
-          'flufl.bounce>=2.3'
+          'flufl.bounce>=2.3,<3.0'
       ],
       entry_points="""
       [xoeuf.addons]
