@@ -90,7 +90,7 @@ class ForwardMail(models.TransientModel):
         )
         # Fix unclosed HTML tags.
         body = result.get('body', '')
-        if body:
+        if body.strip():
             result['body'] = html.tostring(html.document_fromstring(body))
         model = self._context.get('default_model', None)
         res_id = self._context.get('default_res_id')
