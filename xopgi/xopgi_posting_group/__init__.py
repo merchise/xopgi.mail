@@ -1,15 +1,11 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------
-# xhg_ca_coordination_board.reports.confirmation_time
-# ---------------------------------------------------------------------
-# Copyright (c) 2016-2017 Merchise Autrement
+# Copyright (c) Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
-# This is free software; you can redistribute it and/or modify it under the
-# terms of the LICENCE attached (see LICENCE file) in the distribution
-# package.
+# This is free software; you can do what the LICENCE file allows you to.
 #
-# @created: 2016-02-20
 
 try:
     from odoo.release import version_info as ODOO_VERSION_INFO
