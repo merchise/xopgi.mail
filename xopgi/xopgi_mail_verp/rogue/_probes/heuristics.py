@@ -23,7 +23,7 @@ class FLUFLProbe(object):
         failed_addresses = scan_message(msg)
         if failed_addresses:
             message_id = msg['Message-Id']
-            _logger.warn(
+            logger.warn(
                 'Possible bounce: %s',
                 message_id,
                 extra=dict(

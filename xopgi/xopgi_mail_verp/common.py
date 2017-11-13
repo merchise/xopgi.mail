@@ -47,7 +47,7 @@ def get_bounce_alias(self):
 def valid_email(name, email):
     try:
         return '@' in email
-    except:
+    except Exception:
         return False
 
 
