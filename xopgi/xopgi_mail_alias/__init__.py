@@ -1,19 +1,15 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-# --------------------------------------------------------------------------
-# xopgi_mail_verp
-# --------------------------------------------------------------------------
-# Copyright (c) 2015-2017 Merchise Autrement [~º/~] and Contributors
+# -*- coding: utf-8 -*-
+# ---------------------------------------------------------------------
+# Copyright (c) Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
-# Author: Merchise Autrement [~º/~]
-# Contributors: see CONTRIBUTORS and HISTORY file
+# This is free software; you can do what the LICENCE file allows you to.
 #
-# This is free software; you can redistribute it and/or modify it under the
-# terms of the LICENCE attached (see LICENCE file) in the distribution
-# package.
 
-from __future__ import absolute_import as _py3_abs_imports
+from __future__ import (division as _py3_division,
+                        print_function as _py3_print,
+                        absolute_import as _py3_abs_import)
 
 from xoeuf import MAJOR_ODOO_VERSION
 

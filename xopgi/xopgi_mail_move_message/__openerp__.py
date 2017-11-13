@@ -1,14 +1,11 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-# --------------------------------------------------------------------------
-# xopgi_mail_move_message
-# --------------------------------------------------------------------------
-# Copyright (c) 2015-2017 Merchise Autrement [~º/~] and Contributors
+# -*- coding: utf-8 -*-
+# ---------------------------------------------------------------------
+# Copyright (c) Merchise Autrement [~º/~] and Contributors
 # All rights reserved.
 #
-# This is free software; you can redistribute it and/or modify it under the
-# terms of the LICENCE attached (see LICENCE file) in the distribution
-# package.
+# This is free software; you can do what the LICENCE file allows you to.
+#
 
 {
     'name': 'XOPGI Mail Move/Copy Messages',
@@ -37,7 +34,7 @@
         'views/%d/assets.xml' % ODOO_VERSION_INFO[0],  # noqa
     ],
     'qweb': [
-        'static/src/xml/%d/mail_move_message.xml' % ODOO_VERSION_INFO[0],  #noqa
+        'static/src/xml/%d/mail_move_message.xml' % ODOO_VERSION_INFO[0],  # noqa
     ],
 
 }
