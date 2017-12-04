@@ -16,7 +16,7 @@
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    'installable': (8, 0) <= ODOO_VERSION_INFO < (11, 0),   # noqa
+    'installable': 8 <= MAJOR_ODOO_VERSION < 11,   # noqa
 
     'summary': 'Add an option to open the mail in a big window.',
     'depends': [
@@ -24,12 +24,12 @@
         'web',
         'xopgi_mail_threads'
     ],
-    'description': 'This add-ons allows you to expand a message in a new window as a master detail',
+    'description': 'Allows you to expand a message in a new window',
     'data': [
-        'views/%d/mail_full_expand_view.xml' % ODOO_VERSION_INFO[0],
-        'views/%d/assets.xml' % ODOO_VERSION_INFO[0],
+        'views/%d/mail_full_expand_view.xml' % MAJOR_ODOO_VERSION,  # noqa
+        'views/%d/assets.xml' % MAJOR_ODOO_VERSION,  # noqa
     ],
     'qweb': [
-        'static/src/xml/%d/mail_full_expand.xml' % ODOO_VERSION_INFO[0],
+        'static/src/xml/%d/mail_full_expand.xml' % MAJOR_ODOO_VERSION,  # noqa
     ],
 }

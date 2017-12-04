@@ -25,5 +25,5 @@ dict(
     # Note: mail.group disappear since in Odoo 9. Instead the channel it's
     # brought to live. As channels behave like we need, we keep them
     # untouched.
-    installable=(8, 0) <= ODOO_VERSION_INFO < (9, 0),   # noqa
+    installable=8 <= MAJOR_ODOO_VERSION < 9,   # noqa
 )

@@ -22,5 +22,5 @@ dict(
     data=[
          'views/mail_message_views.xml'
     ],
-    installable=ODOO_VERSION_INFO[0] in (8, 9, 10),   # noqa
+    installable=MAJOR_ODOO_VERSION in (8, 9, 10),   # noqa
 )

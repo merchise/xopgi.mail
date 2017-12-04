@@ -7,13 +7,10 @@
 # This is free software; you can do what the LICENCE file allows you to.
 #
 
-try:
-    from odoo.release import version_info as ODOO_VERSION_INFO
-except ImportError:
-    from openerp.release import version_info as ODOO_VERSION_INFO
+from xoeuf import MAJOR_ODOO_VERSION
 
 
-if ODOO_VERSION_INFO[0] in (8, 9, 10):
+if MAJOR_ODOO_VERSION in (8, 9, 10):
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
 

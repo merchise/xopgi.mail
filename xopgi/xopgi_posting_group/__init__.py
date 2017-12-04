@@ -7,11 +7,8 @@
 # This is free software; you can do what the LICENCE file allows you to.
 #
 
-try:
-    from odoo.release import version_info as ODOO_VERSION_INFO
-except ImportError:
-    from openerp.release import version_info as ODOO_VERSION_INFO
+from xoeuf import MAJOR_ODOO_VERSION
 
 
-if ODOO_VERSION_INFO < (9, 0):
+if MAJOR_ODOO_VERSION < 9:
     from . import no_autofollow  # noqa
