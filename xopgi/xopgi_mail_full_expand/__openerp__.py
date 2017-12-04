@@ -6,7 +6,6 @@
 #
 # This is free software; you can do what the LICENCE file allows you to.
 #
-# flake8: noqa
 
 {
     'name': 'XOPGI Mail Full Expand',
