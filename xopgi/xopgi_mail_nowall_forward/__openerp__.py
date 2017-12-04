@@ -17,7 +17,7 @@ dict(
     application=False,
 
     data=[
-        'views/%d/assets.xml' % ODOO_VERSION_INFO[0],   # noqa
+        'views/%d/assets.xml' % MAJOR_ODOO_VERSION,   # noqa
     ],
 
     auto_install=True,
@@ -28,6 +28,6 @@ dict(
     # Note: This addon will not be used in Odoo 10 because in the Inbox the
     # 'Reply with copy' functionality will not be displayed. Instead, the
     # 'Reply' functionality will be used.
-    installable=(8, 0) <= ODOO_VERSION_INFO < (10, 0),   # noqa
+    installable=8 <= MAJOR_ODOO_VERSION < 10,   # noqa
 
 )

@@ -16,7 +16,7 @@
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    'installable': ODOO_VERSION_INFO[0] in (8, 9, 10),   # noqa
+    'installable': MAJOR_ODOO_VERSION in (8, 9, 10),   # noqa
 
     'summary': 'Add method to move messages.',
     'depends': [
@@ -24,6 +24,6 @@
         'xopgi_mail_threads',
     ],
     'data': [
-        'views/%d/config.xml' % ODOO_VERSION_INFO[0],  # noqa
+        'views/%d/config.xml' % MAJOR_ODOO_VERSION,  # noqa
     ],
 }

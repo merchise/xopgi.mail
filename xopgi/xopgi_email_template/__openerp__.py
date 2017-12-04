@@ -12,15 +12,15 @@ dict(
     version='1.4',
     author='Merchise Autrement',
     category='Mail',
-    depends=['email_template' if ODOO_VERSION_INFO < (9, 0) else 'mail'],  # noqa
+    depends=['email_template' if MAJOR_ODOO_VERSION < 9 else 'mail'],  # noqa
     data=[
-        'views/%d/mail_compose_message_view.xml' % ODOO_VERSION_INFO[0],  # noqa
-        'views/%d/email_template_view.xml' % ODOO_VERSION_INFO[0],  # noqa
+        'views/%d/mail_compose_message_view.xml' % MAJOR_ODOO_VERSION,  # noqa
+        'views/%d/email_template_view.xml' % MAJOR_ODOO_VERSION,  # noqa
     ],
     demo=[],
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    installable=(8, 0) <= ODOO_VERSION_INFO < (11, 0),   # noqa
+    installable=8 <= MAJOR_ODOO_VERSION < 11,   # noqa
     auto_install=True,
 )

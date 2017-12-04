@@ -19,7 +19,7 @@
     #
     # BIG WARNING: Although we make this installable in Odoo 9, it's done so
     # for the sake of easy migrations.  This addon won't work in Odoo 9.
-    'installable': ODOO_VERSION_INFO[0] in (8, 9, 10),   # noqa
+    'installable': MAJOR_ODOO_VERSION in (8, 9, 10),   # noqa
 
     'summary': 'Add an option to create new mail capable object from '
                'existing message.',
@@ -33,10 +33,10 @@
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
-        'views/%d/mail_new_thread_wizard.xml' % ODOO_VERSION_INFO[0],  # noqa
-        'views/%d/assets.xml' % ODOO_VERSION_INFO[0],  # noqa
+        'views/%d/mail_new_thread_wizard.xml' % MAJOR_ODOO_VERSION,  # noqa
+        'views/%d/assets.xml' % MAJOR_ODOO_VERSION,  # noqa
     ],
     'qweb': [
-        'static/src/xml/%d/mail_new_thread.xml' % ODOO_VERSION_INFO[0]  # noqa
+        'static/src/xml/%d/mail_new_thread.xml' % MAJOR_ODOO_VERSION  # noqa
     ],
 }
