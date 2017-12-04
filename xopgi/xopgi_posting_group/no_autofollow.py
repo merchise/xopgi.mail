@@ -14,6 +14,10 @@ from __future__ import (division as _py3_division,
 from xoeuf import api, fields, models
 
 
+def maybe_downgrade(value):
+    return value.id if isinstance(value, models.BaseModel) else value
+
+
 class MailGroup(models.Model):
     _inherit = 'mail.group'
 
@@ -23,8 +27,12 @@ class MailGroup(models.Model):
         help='If checked, this group will auto subscribe mail senders'
     )
 
+    # Needs at least the first two positional arguments to avoid silly
+    # failures in tests from YML/XML that call message_post.  They pass
+    # positional arguments.
     @api.multi
-    def message_post(self, **kwargs):
+    @api.returns('self', maybe_downgrade)
+    def message_post(self, body='', subject=None, **kwargs):
         nosubscribe = self.env.context.get('mail_create_nosubscribe')
         autofollow = self.env.context.get('mail_post_autofollow', True)
         overwritten = nosubscribe and not autofollow
@@ -35,4 +43,8 @@ class MailGroup(models.Model):
             ))
         else:
             _super = super(MailGroup, self)
-        return _super.message_post(**kwargs)
+        return _super.message_post(
+            body=body,
+            subject=subject,
+            **kwargs
+        )
