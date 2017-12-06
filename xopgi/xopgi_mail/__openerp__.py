@@ -17,11 +17,11 @@ dict(
     description='Provides a configurable interface to Messaging Extensions',
     depends=['mail', 'web'],
     data=[
-        'views/config.xml',
+        'views/%d/config.xml' % MAJOR_ODOO_VERSION,  # noqa
     ],
     auto_install=True,
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    installable=(8, 0) <= ODOO_VERSION_INFO < (11, 0),  # noqa
+    installable=8 <= MAJOR_ODOO_VERSION < 12,  # noqa
 )

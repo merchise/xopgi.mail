@@ -16,7 +16,7 @@
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    'installable': ODOO_VERSION_INFO[0] in (8, 9, 10),   # noqa
+    'installable': MAJOR_ODOO_VERSION in (8, 9, 10),   # noqa
 
     'summary': 'Add an option to move/mopy existing messages to other mail'
                'threads.',
@@ -30,11 +30,11 @@
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
-        'views/%d/mail_move_message_wizard.xml' % ODOO_VERSION_INFO[0],  # noqa
-        'views/%d/assets.xml' % ODOO_VERSION_INFO[0],  # noqa
+        'views/%d/mail_move_message_wizard.xml' % MAJOR_ODOO_VERSION,  # noqa
+        'views/%d/assets.xml' % MAJOR_ODOO_VERSION,  # noqa
     ],
     'qweb': [
-        'static/src/xml/%d/mail_move_message.xml' % ODOO_VERSION_INFO[0],  # noqa
+        'static/src/xml/%d/mail_move_message.xml' % MAJOR_ODOO_VERSION,  # noqa
     ],
 
 }
