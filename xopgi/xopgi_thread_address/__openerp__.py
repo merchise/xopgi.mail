@@ -16,7 +16,7 @@ dict(
 
     # MIGRATION POLICY: All addons are not included until someone work on them
     # and upgrade them.
-    installable=8 < MAJOR_ODOO_VERSION < 11,   # noqa
+    installable=8 <= MAJOR_ODOO_VERSION < 11,   # noqa
 
     summary='Unique thread address',
     description=('Ensure each mail thread has a unique address to respond '
