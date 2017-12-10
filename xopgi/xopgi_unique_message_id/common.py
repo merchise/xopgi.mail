@@ -27,7 +27,7 @@ def decode_message_id(self, message_id):
 
 def message_id_is_encoded(self, message_id):
     domain = self.env['ir.config_parameter'].get_param(CATCHALL_DOMAIN, '')
-    message_id_re = re.compile("(\d+)-%s+?([^@]+)?" % re.escape(domain),
+    message_id_re = re.compile(r'(\d+)-%s\+([^@]+)?' % re.escape(domain),
                                re.UNICODE)
     match = message_id_re.search(message_id.strip('<>'))
     if match:
