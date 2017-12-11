@@ -29,7 +29,7 @@ class MailAlias(models.Model):
 
     custom_domain = fields.Char('Alias domain')
     alias_domain = fields.Char(
-        compute='_get_alias_domain',
+        compute='_compute_alias_domain',
         inverse='_set_alias_domain',
         search='_search_alias_domain',
         string="Alias domain",
@@ -37,7 +37,7 @@ class MailAlias(models.Model):
     )
 
     @api.multi
-    def _get_alias_domain(self):
+    def _compute_alias_domain(self):
         default_domain = get_default_alias_domain(self)
         for record in self:
             record.alias_domain = record.custom_domain or default_domain
