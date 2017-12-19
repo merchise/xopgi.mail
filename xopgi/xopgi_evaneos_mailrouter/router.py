@@ -31,7 +31,7 @@ class EvaneosMailRouter(MailRouter):
 
     @classmethod
     def get_all_matches(cls, obj, message):
-        from xoutil.iterators import map
+        from xoutil.future.itertools import map
         from re import compile as _re_compile
         config = obj.env['ir.config_parameter']
         pattern = config.get_param(

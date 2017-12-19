@@ -72,7 +72,7 @@ class SameOriginTransport(MailTransportRouter):
 
     def prepare_message(self, obj, message, data=None):
         import email
-        from xoutil.string import safe_encode
+        from xoutil.future.codecs import safe_encode
         _, refs = self.get_message_objects(obj, message)
         connection_data = {}
         if refs:
