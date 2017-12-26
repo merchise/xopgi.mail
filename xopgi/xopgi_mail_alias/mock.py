@@ -12,7 +12,7 @@ from __future__ import (division as _py3_division,
                         absolute_import as _py3_abs_import)
 
 
-from xoutil import Unset
+from xoutil.symbols import Unset
 
 from xoeuf import api, models, fields
 from xoeuf.odoo import _
