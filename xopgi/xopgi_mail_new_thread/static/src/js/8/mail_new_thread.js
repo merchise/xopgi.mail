@@ -15,14 +15,14 @@ openerp.xopgi_mail_new_thread = function (instance) {
             // Get the action data and execute it to open the
             // new_thread_wizard
             var do_action = this.do_action,
-            msg_id = this.id;
+                msg_id = this.id;
             this.rpc("/web/action/load", {
                 "action_id": "xopgi_mail_new_thread.new_thread_wizard_action",
             })
-		.done(function(action) {
+                .done(function(action) {
                     action.context = {'default_message_id': msg_id};
                     do_action(action);
-		});
+                });
         }
     });
 };

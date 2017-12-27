@@ -8,7 +8,7 @@
       <field name="inherit_id" ref="mail.view_general_configuration_mail_alias_domain"/>
       <field name="arch" type="xml">
         <xpath expr="//div[@name='email']" position='inside'>
-	  <div>
+          <div>
             <field name="module_xopgi_mail_full_expand"/>
             <label for="module_xopgi_mail_full_expand"/><br/>
 

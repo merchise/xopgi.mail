@@ -9,7 +9,7 @@
       <field name="arch" type="xml">
         <field name="group_ids" position="after">
           <field name="enable_auto_subscribe"/>
-	    </field>
+        </field>
       </field>
     </record>
   </data>

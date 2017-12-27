@@ -15,18 +15,18 @@ openerp.xopgi_mail_move_message = function (instance) {
             // Get the action data and execute it to open the
             // move_message_wizard
             var do_action = this.do_action,
-            msg_id = this.id;
+                msg_id = this.id;
             this.rpc("/web/action/load", {
                 "action_id":
-                    "xopgi_mail_move_message.move_message_wizard_action"
+                "xopgi_mail_move_message.move_message_wizard_action"
             })
-		.done(function(action) {
+                .done(function(action) {
                     action.context = {
                         'active_id': msg_id,
                         'active_ids': [msg_id]
                     };
                     do_action(action);
-		});
+                });
         }
     });
 };
