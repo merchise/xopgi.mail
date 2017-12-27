@@ -2,15 +2,15 @@
 <openerp>
   <data>
     <template id="assets_backend"
-	      name="xopgi mail full expand"
-	      inherit_id="mail.assets_backend">
+              name="xopgi mail full expand"
+              inherit_id="mail.assets_backend">
       <xpath expr="." position="inside">
-	<link
-	    rel="stylesheet"
-	    href="/xopgi_mail_full_expand/static/src/css/8/mail_full_expand.css"/>
+        <link
+            rel="stylesheet"
+            href="/xopgi_mail_full_expand/static/src/css/8/mail_full_expand.css"/>
         <script type="text/javascript"
-		src="/xopgi_mail_full_expand/static/src/js/8/mail_full_expand.js">
-	</script>
+                src="/xopgi_mail_full_expand/static/src/js/8/mail_full_expand.js">
+        </script>
       </xpath>
     </template>
   </data>

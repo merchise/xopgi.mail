@@ -28,14 +28,14 @@
             <page string="Raw email" groups="base.group_no_one">
               <field name="raw_email" readonly="1"/>
             </page>
-	  </notebook>
-	  <!-- In Odoo 10 the buttons on a form come by default in the footer.
-	       If a footer is defined to the form with at least one button it
-	       overwrites the default. In this case it is used as a mockery to
-	       not show the buttons because it is an information window -->
-	  <footer invisible="1">
-	    <button invisible="1"/>
-	  </footer>
+          </notebook>
+          <!-- In Odoo 10 the buttons on a form come by default in the footer.
+               If a footer is defined to the form with at least one button it
+               overwrites the default. In this case it is used as a mockery to
+               not show the buttons because it is an information window -->
+          <footer invisible="1">
+            <button invisible="1"/>
+          </footer>
         </form>
       </field>
     </record>

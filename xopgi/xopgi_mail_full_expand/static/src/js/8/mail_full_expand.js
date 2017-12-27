@@ -8,15 +8,15 @@ openerp.xopgi_mail_full_expand = function (instance) {
         on_message_full_expand: function() {
             // Get the action data and execute it to open the full view
             var do_action = this.do_action,
-            msg_id = this.id;
+                msg_id = this.id;
 
             this.rpc("/web/action/load", {
                 "action_id": "xopgi_mail_full_expand.act_window",
             })
-		.done(function(action) {
+                .done(function(action) {
                     action.res_id = msg_id;
                     do_action(action);
-		});
+                });
         }
     });
 };
