@@ -16,7 +16,6 @@
     'summary': 'Add default filters for messages.',
     'depends': ['base', 'mail'],
     'data': [
-        'data/extend_search_views.xml',
         'views/config.xml',
         'views/mail_message_search.xml',
         'views/search.xml'

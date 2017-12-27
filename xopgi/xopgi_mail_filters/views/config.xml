@@ -10,7 +10,7 @@
         <xpath expr="//div[@name='email']" position='inside'>
           <div>
             <button class="btn btn-sm oe_highlight" string="Add Followers filter"
-		    type="object" name="add_followers_filter"/>
+                    type="object" name="add_followers_filter"/>
           </div>
         </xpath>
       </field>
