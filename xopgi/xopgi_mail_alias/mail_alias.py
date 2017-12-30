@@ -17,6 +17,10 @@ from xoeuf.odoo import tools
 from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
 from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter
 
+import logging
+logger = logging.getLogger(__name__)
+del logging
+
 
 def get_default_alias_domain(self):
     get_param = self.env['ir.config_parameter'].get_param
@@ -74,20 +78,24 @@ class AliasMailRouter(MailRouter):
     @classmethod
     def apply(cls, obj, routes, message, data=None):
         result = []
-        rcpt_tos = tools.email_split(
+        recipients = tools.email_split(
             ','.join([decode_header(message, 'Delivered-To'),
                       decode_header(message, 'To'),
                       decode_header(message, 'Cc'),
                       decode_header(message, 'Resent-To'),
                       decode_header(message, 'Resent-Cc')])
         )
+        logger.info('Checking incoming for %r', recipients)
         for route in routes:
             alias = route[-1] if len(route) == 5 else None
             if alias:
                 if alias.alias_domain:
                     alias_mail = '%s@%s' % (alias.alias_name, alias.alias_domain)
-                    if rcpt_tos and any(alias_mail.lower() == rcpt.lower() for rcpt in rcpt_tos):
+                    if recipients and any(alias_mail.lower() == rcpt.lower()
+                                          for rcpt in recipients):
                         result.append(route)
+                    else:
+                        logger.warning('Discarding alias %r', alias_mail)
                 else:
                     result.append(route)
             else:
