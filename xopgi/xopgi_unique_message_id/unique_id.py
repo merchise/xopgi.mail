@@ -100,16 +100,22 @@ class OriginalReferenceTransport(MailTransportRouter):
         References to allow correct threading.
 
         '''
-        references = mail_header_msgid_re.findall(
-            decode_header(message, 'References') or '')
-        iter_references = references + [message.get('Message-ID')]
+        refs = decode_header(message, 'References')
+        if refs:
+            references = mail_header_msgid_re.findall(refs)
+        else:
+            references = []
+        message_id = message.get('Message-ID')
+        if message_id:
+            iter_references = references + [message_id]
+        else:
+            iter_references = references[:]
         result = False
-        if iter_references:
-            for ref in iter_references:
-                original_ref = message_id_is_encoded(obj, ref)
-                if original_ref and original_ref not in references:
-                    references.append(original_ref)
-                    result = True
+        for ref in iter_references:
+            original_ref = message_id_is_encoded(obj, ref)
+            if original_ref and original_ref not in references:
+                references.append(original_ref)
+                result = True
         return result, dict(references=' '.join(references))
 
     def prepare_message(self, obj, message, data=None):
