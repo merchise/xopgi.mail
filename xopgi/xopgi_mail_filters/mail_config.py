@@ -76,10 +76,15 @@ class MailConfig(models.TransientModel):
                 self._cr.execute(insert_query, (view.model, view.id, name))
         view_obj.invalidate_cache()
 
-    @api.model
+    # See api method below!
     def add_followers_filter(self):
         '''Method called by config button for add followers filters.
 
         '''
         self.extend_search_views()
         return {'type': 'ir.actions.client', 'tag': 'reload', }
+
+    if MAJOR_ODOO_VERSION < 9:
+        add_followers_filter = api.model(add_followers_filter)
+    else:
+        add_followers_filter = api.multi(add_followers_filter)
