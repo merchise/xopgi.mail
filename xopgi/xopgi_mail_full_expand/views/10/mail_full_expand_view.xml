@@ -25,7 +25,7 @@
               <field name="attachment_ids" widget="many2many_binary"
                      readonly="1"/>
             </page>
-            <page string="Raw email" groups="base.group_no_one">
+            <page string="Raw email" groups="base.group_user">
               <field name="raw_email" readonly="1"/>
             </page>
           </notebook>
