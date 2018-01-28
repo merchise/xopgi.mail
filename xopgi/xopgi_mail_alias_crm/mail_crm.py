@@ -33,7 +33,7 @@ class crm_valias(models.Model):
         [('lead', 'Lead'),
          ('opportunity', 'Opportunity')],
         'Type',
-        select=True,
+        index=True,
         help="Type of object to create by incoming messages."
     )
 
