@@ -160,6 +160,7 @@ class crm_case_section(models.Model):
            first time.
         """
         from xoutil.string import normalize_slug
+        aliases_create = []
         if not values.get('alias_name'):
             values['alias_name'] = normalize_slug(values['name'])
             Alias = self.env['mail.alias']
@@ -169,20 +170,18 @@ class crm_case_section(models.Model):
                 use_lead = values.get('use_leads', None)
                 use_opportunitie = values.get('use_opportunities', None)
                 aliases_create = self.set_values(valias, use_lead, use_opportunitie)
-            else:
-                aliases_create = []
-            sale_team = super(crm_case_section, self).create(values)
-            if sale_team and aliases_create:
-                for alias in aliases_create:
-                    record = Alias.browse(alias)
-                    defaults = eval(record.alias_defaults)
-                    if MAJOR_ODOO_VERSION < 9:
-                        defaults.update(section_id=sale_team.id)
-                    else:
-                        # Odoo 9 and 10 changed the section_id to a team_id.
-                        defaults.update(team_id=sale_team.id)
-                    vals['alias_defaults'] = repr(defaults)
-                    record.write(vals)
+        sale_team = super(crm_case_section, self).create(values)
+        if sale_team and aliases_create:
+            for alias in aliases_create:
+                record = Alias.browse(alias)
+                defaults = eval(record.alias_defaults)
+                if MAJOR_ODOO_VERSION < 9:
+                    defaults.update(section_id=sale_team.id)
+                else:
+                    # Odoo 9 and 10 changed the section_id to a team_id.
+                    defaults.update(team_id=sale_team.id)
+                vals['alias_defaults'] = repr(defaults)
+                record.write(vals)
         return sale_team
 
     @api.multi
