@@ -159,7 +159,6 @@ class crm_case_section(models.Model):
            create more than one mail alias since a project is created for the
            first time.
         """
-
         from xoutil.string import normalize_slug
         aliases_create = []
         if not values.get('alias_name'):
