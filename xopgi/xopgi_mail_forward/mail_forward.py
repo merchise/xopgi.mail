@@ -22,7 +22,8 @@ from xoeuf.odoo.tools.translate import _
 # the new-line chars in this text will allow for the trick in JS converting an
 # HTML to text to format nicely.
 MAIL_BODY_TEMPLATE = '''
-<p></p><p></p>
+<p id="stopSpelling"></p>
+<br/><br/>
 <p><i>----------Original message----------</i></p>
 <p>Subject: %(subject)s <br/>
 From: %(author)s <br/>
