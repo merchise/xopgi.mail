@@ -37,7 +37,7 @@ class EvaneosMailRouter(MailRouter):
         pattern = config.get_param(
             'evaneos.mailrouter.pattern',
             # The default allows to tests pass.
-            default=r'_(?P<thread>\d+)@.*(?<=[@\.])evaneos\.com$'
+            default=r'_(?P<thread>\d+)(?:_[^@]+)?@.*(?<=[@\.])evaneos\.com$'
         )
         senders = cls.get_senders(message)
         regex = _re_compile(pattern)
@@ -81,7 +81,6 @@ class EvaneosMailRouter(MailRouter):
         mail_message = obj.env['mail.message']
         result = mail_message.search(query)
         if result:
-            # search_browse may return a list or a single browse record
             result = result[0] if len(result) > 1 else result
             model = result.model
             thread_id = result.res_id
