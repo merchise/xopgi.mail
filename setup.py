@@ -49,7 +49,7 @@ setup(name=project_name,
       zip_safe=False,
       install_requires=[
           'xoeuf',
-          'xoutil>=1.8.4,<1.9',
+          'xoutil>=1.8.4,<2.0',
           'lxml',
           'xopgi.mail_threads',
           'flufl.bounce>=2.3,<3.0'
