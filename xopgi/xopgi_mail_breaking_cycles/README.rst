@@ -2,8 +2,8 @@
  Breaking Cycles of auto-submitted messages
 ============================================
 
-We try to avoid the scenario where two subscribes a single object engage in a
-never-ending cycle of auto-submitted messages:
+We try to avoid the scenario where two subscribers of a single object engage
+in a never-ending cycle of auto-submitted messages:
 
 #. Some user sends a message to A and B
 
@@ -12,7 +12,7 @@ never-ending cycle of auto-submitted messages:
 
 #. Odoo resends the message to B
 
-#. B's auto-responders send the automatic message to Odoo (again with good
+#. B's auto-responder sends the automatic message to Odoo (again with good
    headers)
 
 #. Odoo resends to A
