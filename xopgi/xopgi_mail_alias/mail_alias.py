@@ -85,7 +85,15 @@ class AliasMailRouter(MailRouter):
                       decode_header(message, 'Resent-To'),
                       decode_header(message, 'Resent-Cc')])
         )
-        logger.info('Checking incoming for %r', recipients)
+        logger.info(
+            'Checking incoming for %r',
+            recipients,
+            extra=dict(
+                delivered_to=message.get('Delivered-To'),
+                to=message.get('To'),
+                cc=message.get('Cc'),
+            )
+        )
         for route in routes:
             alias = route[-1] if len(route) == 5 else None
             if alias:
