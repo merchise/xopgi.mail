@@ -10,44 +10,123 @@
 '''A MailRouter for messages delivered via Evaneos MTA.
 
 '''
-
 from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
-from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter
+import logging
+from email.utils import getaddresses, formataddr
+from re import compile as _re_compile
+from xoutil.future.itertools import map
+
+from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
+from xoeuf.odoo.addons.base.ir.ir_mail_server import encode_rfc2822_address_header  # noqa
 
 
-class EvaneosMailRouter(MailRouter):
-    @staticmethod
-    def get_senders(msg):
-        from email.utils import getaddresses
-        headers = ['Sender', 'From']
-        senders = []
+logger = logging.getLogger(__name__)
+
+
+class MATCH_TYPE:
+    SENDER = 0
+    RECIPIENT = 1
+
+
+class EvaneosMail(object):
+    @classmethod
+    def get_addresses_headers(cls, msg, headers):
+        result = []
         get = msg.get_all
         for header in headers:
-            senders.extend(email for _, email in getaddresses(get(header, [])))
-        return senders
+            result.extend(getaddresses(get(header, [])))
+        return result
 
     @classmethod
-    def get_all_matches(cls, obj, message):
-        from xoutil.future.itertools import map
-        from re import compile as _re_compile
+    def get_senders_addresses(cls, msg):
+        # The X-Original-From is because we may (or may not) have already
+        # changed the From to another address.  Any addon that changes the
+        # From should keep the previous From in the X-Original-From.
+        headers = ['Sender', 'From', 'X-Original-From']
+        return [
+            email
+            for _, email in cls.get_addresses_headers(msg, headers)
+        ]
+
+    @classmethod
+    def get_recipients(cls, msg):
+        return cls.get_addresses_headers(msg, ['To', 'Cc', 'Bcc'])
+
+    @classmethod
+    def get_recipients_addresses(cls, msg):
+        headers = ['To', 'Cc', 'Bcc']
+        return [
+            email
+            for _, email in cls.get_addresses_headers(msg, headers)
+        ]
+
+    @classmethod
+    def get_evaneos_regexp(cls, obj):
         config = obj.env['ir.config_parameter']
         pattern = config.get_param(
             'evaneos.mailrouter.pattern',
             # The default allows to tests pass.
             default=r'_(?P<thread>\d+)(?:_[^@]+)?@.*(?<=[@\.])evaneos\.com$'
         )
-        senders = cls.get_senders(message)
-        regex = _re_compile(pattern)
-        search = regex.search
-        return (match for match in map(search, senders) if match)
+        return _re_compile(pattern)
 
     @classmethod
-    def get_first_match(cls, obj, message):
-        return next(cls.get_all_matches(obj, message), None)
+    def get_all_matches(cls, obj, message, matchtype=MATCH_TYPE.SENDER):
+        if matchtype is MATCH_TYPE.SENDER:
+            addresses = cls.get_senders_addresses(message)
+        elif matchtype is MATCH_TYPE.RECIPIENT:
+            addresses = cls.get_recipients(message)
+        else:
+            raise ValueError('Invalid match type %r' % matchtype)
+        search = cls.get_evaneos_regexp(obj).search
+        return (match for match in map(search, addresses) if match)
 
+    @classmethod
+    def get_first_match(cls, obj, message, matchtype=MATCH_TYPE.SENDER):
+        return next(
+            cls.get_all_matches(obj, message, matchtype=matchtype),
+            None
+        )
+
+
+class EvaneosMailTransport(EvaneosMail, MailTransportRouter):
+    # Don't send the emails coming from Evaneos to any other Evaneos address
+    @classmethod
+    def query(cls, obj, message):
+        sender = cls.get_first_match(obj, message, matchtype=MATCH_TYPE.SENDER)
+        recipient = cls.get_first_match(obj, message, matchtype=MATCH_TYPE.RECIPIENT)
+        return bool(sender and recipient), None
+
+    def prepare_message(self, obj, message, data=None):
+        # Remove all Evaneos recipients.  Treat each header separately
+        search = self.get_evaneos_regexp(obj).search
+        for header in ['To', 'Cc', 'Bcc']:
+            recipients = [
+                (name, email)
+                for name, email in self.get_addresses_headers(message, [header])
+                if not search(email)
+            ]
+            del message[header]
+            if recipients:
+                message[header] = encode_rfc2822_address_header(
+                    ', '.join(formataddr(address) for address in recipients)
+                )
+
+    def deliver(self, server, message, data, **kwargs):
+        recipients = self.get_recipients(message)
+        if recipients:
+            return super(EvaneosMailTransport, self).deliver(
+                server,
+                message,
+                data,
+                **kwargs
+            )
+
+
+class EvaneosMailRouter(EvaneosMail, MailRouter):
     @classmethod
     def query(cls, obj, message):
         match = cls.get_first_match(obj, message)
