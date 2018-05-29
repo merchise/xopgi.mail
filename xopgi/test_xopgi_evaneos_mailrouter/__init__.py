@@ -16,3 +16,9 @@ from xoeuf import models
 class Model(models.Model):
     _name = 'test_evaneos.model'
     _inherit = ['mail.thread']
+
+
+def _assert_test_mode(*args):
+    from xoeuf import odoo
+    if not odoo.tools.config['test_enable']:
+        raise RuntimeError('You cannot install a test addon in a production DB')
