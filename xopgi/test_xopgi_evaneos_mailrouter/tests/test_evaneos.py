@@ -23,6 +23,15 @@ Message-Id: <1>
 This is the message data.
 '''
 
+REPLY_FROM_SAME_ADDRESS = '''\
+From: traveler_00001@m.evaneos.com
+Subject: Reply
+Message-Id: <2>
+
+I'm replying....
+'''
+
+
 REPLY = '''\
 From: other_00001_other-stuff@m.evaneos.com
 Subject: Reply
@@ -70,6 +79,14 @@ class TestEvaneosRouter(TransactionCase):
         self.env['ir.mail_server']._revert_method('send_email')
 
     def test_receiving_a_reply_reaches_the_same_object(self):
+        MailThread = self.env['mail.thread']
+        reply = MailThread.message_process(
+            'test_evaneos.model',
+            REPLY_FROM_SAME_ADDRESS
+        )
+        self.assertEqual(self.obj, reply)
+
+    def test_receiving_a_reply_from_non_canonical_addr_reaches_the_same_object(self):
         MailThread = self.env['mail.thread']
         reply = MailThread.message_process('test_evaneos.model', REPLY)
         self.assertEqual(self.obj, reply)
