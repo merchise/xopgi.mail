@@ -77,6 +77,7 @@ class TestEvaneosRouter(TransactionCase):
 
     def tearDown(self):
         self.env['ir.mail_server']._revert_method('send_email')
+        super(TestEvaneosRouter, self).tearDown()
 
     def test_receiving_a_reply_reaches_the_same_object(self):
         MailThread = self.env['mail.thread']
