@@ -132,7 +132,11 @@ class MailBounce(models.TransientModel):
     def _build_bounce(self, rfc_message, message, recipient, params):
         '''Rewrites the bounce email.
         '''
-        params['subject'] = rfc_message['subject'] or _('Mail Returned to Sender')
+        subject = rfc_message['subject']
+        if subject:
+            params['subject'] = subject + _(' -- Detected as bounce')
+        else:
+            params['subject'] = _('Mail Returned to Sender')
         params['type'] = 'notification'
         params['email_from'] = VOID_EMAIL_ADDRESS
         context = params.setdefault('context', {})
