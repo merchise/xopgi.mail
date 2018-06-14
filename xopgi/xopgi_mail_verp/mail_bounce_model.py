@@ -132,7 +132,11 @@ class MailBounce(models.TransientModel):
     def _build_bounce(self, rfc_message, message, recipient, params):
         '''Rewrites the bounce email.
         '''
-        params['subject'] = rfc_message['subject'] or _('Mail Returned to Sender')
+        subject = rfc_message['subject']
+        if subject:
+            params['subject'] = subject + _(' -- Detected as bounce')
+        else:
+            params['subject'] = _('Mail Returned to Sender')
         params['type'] = 'notification'
         params['email_from'] = VOID_EMAIL_ADDRESS
         context = params.setdefault('context', {})
@@ -149,48 +153,29 @@ class MailBounce(models.TransientModel):
         return params
 
 
-if 8 <= MAJOR_ODOO_VERSION < 9:
-    # Though, Odoo 10 resurrects the mail.notification model it's not used
-    # anymore to 'update_message_notification', so the followers need to be
-    # forced elsewhere.
-    class mail_notification(models.Model):
-        _inherit = 'mail.notification'
+class MessageBounceNotification(models.Model):
+    _inherit = 'mail.message'
 
-        def update_message_notification(self, cr, uid, ids, message_id,
-                                        partner_ids, context=None):
-            # If the forced_followers is set, override the partner_ids.
-            context = dict(context or {})
-            forced_followers = context.pop('forced_followers', Unset)
-            if forced_followers is not Unset:
-                partner_ids = forced_followers
-            return super(mail_notification, self).update_message_notification(
-                cr, uid, ids, message_id, partner_ids, context=context
+    @api.multi
+    def _notify(self, *args, **kwargs):
+        forced_followers = self.env.context.get('forced_followers', Unset)
+        if forced_followers is not Unset and self.model:
+            thread = self.env[self.model].browse(self.res_id).sudo()
+            ID = lambda x: x.id
+            followers = thread.message_follower_ids.mapped(lambda f: f.partner_id)
+            channels = thread.message_channel_ids.mapped(ID)
+            thread.message_unsubscribe(followers.mapped(ID), channels)
+            thread.message_subscribe(forced_followers)
+        else:
+            thread = None
+            followers = None
+        try:
+            return super(MessageBounceNotification, self)._notify(
+                *args, **kwargs
             )
-
-elif 9 <= MAJOR_ODOO_VERSION < 11:
-    class MessageBounceNotification(models.Model):
-        _inherit = 'mail.message'
-
-        @api.multi
-        def _notify(self, *args, **kwargs):
-            forced_followers = self.env.context.get('forced_followers', Unset)
-            if forced_followers is not Unset and self.model:
-                thread = self.env[self.model].browse(self.res_id).sudo()
-                ID = lambda x: x.id
-                followers = thread.message_follower_ids.mapped(lambda f: f.partner_id)
-                channels = thread.message_channel_ids.mapped(ID)
-                thread.message_unsubscribe(followers.mapped(ID), channels)
-                thread.message_subscribe(forced_followers)
-            else:
-                thread = None
-                followers = None
-            try:
-                return super(MessageBounceNotification, self)._notify(
-                    *args, **kwargs
-                )
-            finally:
-                if followers and thread:
-                    thread.message_subscribe(followers.mapped(ID), channels)
+        finally:
+            if followers and thread:
+                thread.message_subscribe(followers.mapped(ID), channels)
 
 
 class Mail(models.Model):

@@ -11,11 +11,9 @@
 address.
 
 '''
-
 from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
-
 
 from email.utils import getaddresses
 
@@ -23,8 +21,11 @@ from xoeuf import SUPERUSER_ID
 from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
 from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
 from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_from
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_sender
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import (
+    set_message_from,
+    set_message_sender,
+    set_message_address_header,
+)
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -81,6 +82,7 @@ class UniqueAddressTransport(MailTransportRouter):
         '''
         del message['Reply-To']
         message['Reply-To'] = address
+        set_message_address_header(message, 'X-Original-From', message['From'])
         set_message_sender(message, address)
         set_message_from(message, address, address_only=True)
 

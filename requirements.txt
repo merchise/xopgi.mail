@@ -1,0 +1,1 @@
+-e git+https://github.com/merchise/xopgi.mail_threads.git@master#egg=xopgi.mail_threads
