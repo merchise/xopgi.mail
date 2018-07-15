@@ -69,7 +69,7 @@ class EvaneosMail(object):
         pattern = config.get_param(
             'evaneos.mailrouter.pattern',
             # The default allows to tests pass.
-            default=r'_(?P<thread>\d+)(?:_[^@]+)?@.*(?<=[@\.])evaneos\.com$'
+            default=r'_(?P<thread>\d+)(?:[_-][^@]+)?@.*(?<=[@\.])evaneos\.com$'
         )
         return _re_compile(pattern)
 
