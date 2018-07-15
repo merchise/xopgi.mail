@@ -115,6 +115,7 @@ class EvaneosMailTransport(EvaneosMail, MailTransportRouter):
                 message[header] = encode_rfc2822_address_header(
                     ', '.join(formataddr(address) for address in recipients)
                 )
+        return message, {}
 
     def deliver(self, server, message, data, **kwargs):
         recipients = self.get_recipients(message)
