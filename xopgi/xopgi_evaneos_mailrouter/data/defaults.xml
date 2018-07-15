@@ -3,7 +3,7 @@
   <data noupdate="1">
     <record model="ir.config_parameter" id="ir_config_parameter_evaneos_mailrouter_pattern">
       <field name="key">evaneos.mailrouter.pattern</field>
-      <field name="value"><![CDATA[_(?P<thread>\d+)(?:[_-][^@]+)?@.*(?<=[@\.])evaneos\.com$]]></field>
+      <field name="value"><![CDATA[_(?P<thread>\d+)(?P<uuid>[_-][^@]+)?(?P<host>@.*(?<=[@\.])evaneos\.com)$]]></field>
     </record>
   </data>
 </openerp>

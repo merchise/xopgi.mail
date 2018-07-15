@@ -69,7 +69,8 @@ class EvaneosMail(object):
         pattern = config.get_param(
             'evaneos.mailrouter.pattern',
             # The default allows to tests pass.
-            default=r'_(?P<thread>\d+)(?:[_-][^@]+)?@.*(?<=[@\.])evaneos\.com$'
+            default=r'_(?P<thread>\d+)(?P<uuid>[_-][^@]+)?(?P<host>@.*(?<=['
+                    r'@\.])evaneos\.com)$ '
         )
         return _re_compile(pattern)
 
@@ -138,6 +139,12 @@ class EvaneosMailRouter(EvaneosMail, MailRouter):
         sender = match.group(0)
         fmodel, fthread = 0, 1
         escape = lambda s: s.replace('_', r'\_').replace('%', r'\%')
+        # Create canonical address for search. When the first non-canonical mail
+        # arrives, the previous one has a canonical address and that's the one we
+        # should looking for.
+        regexp = cls.get_evaneos_regexp(obj)
+        dossier = regexp.search(sender)
+        canonical_sender = dossier.group('thread') + dossier.group('host')
         # The query for any email from the same sender that has a resource id,
         # but its parent has no parent:  Explanation:  When a new message from
         # Evaneos arrives OpenERP actually creates two messages: A
@@ -148,15 +155,18 @@ class EvaneosMailRouter(EvaneosMail, MailRouter):
         # The query is in prefix notation, but some ANDs are omitted since
         # they are implied.
         query = [
-            '&',
-
+            '|',
+            '|',
             '|',
             ('email_from', '=like', "%%%s" % escape(sender)),   # Ends with _XXX@..
             ('email_from', '=like', '%%%s>' % escape(sender)),  # or _XXX@..>
+            ('email_from', '=like', "%%%s" % escape(canonical_sender)),
+            ('email_from', '=like', '%%%s>' % escape(canonical_sender)),
 
             ('parent_id.parent_id', '=', None),
             ('res_id', '!=', 0),
-            ('res_id', '!=', None)]
+            ('res_id', '!=', None)
+        ]
         mail_message = obj.env['mail.message']
         result = mail_message.search(query)
         if result:
