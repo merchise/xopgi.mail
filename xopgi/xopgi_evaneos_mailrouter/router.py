@@ -79,7 +79,7 @@ class EvaneosMail(object):
         if matchtype is MATCH_TYPE.SENDER:
             addresses = cls.get_senders_addresses(message)
         elif matchtype is MATCH_TYPE.RECIPIENT:
-            addresses = cls.get_recipients(message)
+            addresses = cls.get_recipients_addresses(message)
         else:
             raise ValueError('Invalid match type %r' % matchtype)
         search = cls.get_evaneos_regexp(obj).search
