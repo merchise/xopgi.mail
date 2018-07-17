@@ -85,12 +85,12 @@ class TestEvaneosRouter(TransactionCase):
             'test_evaneos.model',
             REPLY_FROM_SAME_ADDRESS
         )
-        self.assertEqual(self.obj, reply)
+        self.assertEqual(self.obj.id, reply)
 
     def test_receiving_a_reply_from_non_canonical_addr_reaches_the_same_object(self):
         MailThread = self.env['mail.thread']
         reply = MailThread.message_process('test_evaneos.model', REPLY)
-        self.assertEqual(self.obj, reply)
+        self.assertEqual(self.obj.id, reply)
 
     def test_receiving_from_evaneos_doesnot_notify_evaneos(self):
         MailThread = self.env['mail.thread']
