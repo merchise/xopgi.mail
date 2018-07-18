@@ -10,14 +10,13 @@
 '''A transient model to avoid send notification mails on bounced messages.
 
 '''
-
 from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
 
 from xoutil.symbols import Unset
 
-from xoeuf import api, models, MAJOR_ODOO_VERSION
+from xoeuf import api, models
 from xoeuf.odoo import tools, _
 
 from .common import BOUNCE_MODEL, VOID_EMAIL_ADDRESS
@@ -161,10 +160,9 @@ class MessageBounceNotification(models.Model):
         forced_followers = self.env.context.get('forced_followers', Unset)
         if forced_followers is not Unset and self.model:
             thread = self.env[self.model].browse(self.res_id).sudo()
-            ID = lambda x: x.id
             followers = thread.message_follower_ids.mapped(lambda f: f.partner_id)
-            channels = thread.message_channel_ids.mapped(ID)
-            thread.message_unsubscribe(followers.mapped(ID), channels)
+            channels = thread.message_channel_ids.mapped('id')
+            thread.message_unsubscribe(followers.mapped('id'), channels)
             thread.message_subscribe(forced_followers)
         else:
             thread = None
@@ -175,7 +173,7 @@ class MessageBounceNotification(models.Model):
             )
         finally:
             if followers and thread:
-                thread.message_subscribe(followers.mapped(ID), channels)
+                thread.message_subscribe(followers.mapped('id'), channels)
 
 
 class Mail(models.Model):
