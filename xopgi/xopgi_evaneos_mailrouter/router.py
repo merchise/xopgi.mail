@@ -70,7 +70,7 @@ class EvaneosMail(object):
             'evaneos.mailrouter.pattern',
             # The default allows to tests pass.
             default=r'_(?P<thread>\d+)(?P<uuid>[_-][^@]+)?(?P<host>@.*(?<=['
-                    r'@\.])evaneos\.com)$ '
+                    r'@\.])evaneos\.com)$'
         )
         return _re_compile(pattern)
 
