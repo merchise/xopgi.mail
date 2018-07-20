@@ -145,7 +145,7 @@ class EvaneosMailRouter(EvaneosMail, MailRouter):
         # should looking for.
         regexp = cls.get_evaneos_regexp(obj)
         dossier = regexp.search(sender)
-        canonical_sender = dossier.group('thread') + dossier.group('host')
+        canonical_sender = '_' + dossier.group('thread') + dossier.group('host')
         # The query for any email from the same sender that has a resource id,
         # but has no parent:  Explanation:  When a new message from
         # Evaneos arrives OpenERP actually creates two messages: A
