@@ -112,3 +112,78 @@ class TestEvaneosRouter(TransactionCase):
         MailThread.message_process('test_evaneos.model', REPLY)
         self.assertIn('user@example.com', self.recipients)
         self.assertNotIn('other_00001@m.evaneos.com', self.recipients)
+
+
+
+# Basically the same, for crm.lead... I don't need to be DRY on tests:
+class TestEvaneosRouterCRM(TransactionCase):
+    at_install = False
+    post_install = not at_install
+
+    def setUp(self):
+        super(TestEvaneosRouterCRM, self).setUp()
+        MailThread = self.env['mail.thread']
+        Partner = self.env['res.partner']
+        obj_id = MailThread.message_process('crm.lead', NEW)
+        self.obj = obj = self.env['crm.lead'].browse(obj_id)
+        obj.message_subscribe(Partner.create(dict(
+            name='Other Evaneos Address',
+            email='other_00001@m.evaneos.com',
+        )).ids)
+        obj.message_subscribe(Partner.create(dict(
+            name='Other Non-Evaneos Address',
+            email='user@example.com',
+        )).ids)
+
+        self.recipients = recipients = []
+
+        @api.model
+        def _collect_recipients(self, message, *args, **kwargs):
+            res = _collect_recipients.origin(self, message, *args, **kwargs)
+            get = message.get_all
+            for header in ['To', 'Cc', 'Bcc']:
+                recipients.extend(
+                    email for _, email in getaddresses(get(header, []))
+                )
+            return res
+
+        self._unpatch_send_email()
+        self.env['ir.mail_server']._patch_method(
+            'send_email',
+            _collect_recipients
+        )
+
+    def tearDown(self):
+        self._unpatch_send_email()
+        super(TestEvaneosRouterCRM, self).tearDown()
+
+    def _unpatch_send_email(self):
+        # The pair of methods _patch_method and _revert_method are
+        # ill-defined.  In this case: the tests of the addon 'mail' patch the
+        # ir.mail_server, and revert, this causes the Model Class to be
+        # modified with by setting the 'origin' code of in the Model Class.
+        # The Model Class should be empty: so we simply remove the send_email
+        # method and allow the MRO to execute smoothly.
+        try:
+            del type(self.env['ir.mail_server']).mro()[0].send_email
+        except:  # noqa
+            pass
+
+    def test_receiving_a_reply_reaches_the_same_object(self):
+        MailThread = self.env['mail.thread']
+        reply = MailThread.message_process(
+            'crm.lead',
+            REPLY_FROM_SAME_ADDRESS
+        )
+        self.assertEqual(self.obj.id, reply)
+
+    def test_receiving_a_reply_from_non_canonical_addr_reaches_the_same_object(self):
+        MailThread = self.env['mail.thread']
+        reply = MailThread.message_process('crm.lead', REPLY)
+        self.assertEqual(self.obj.id, reply)
+
+    def test_receiving_from_evaneos_doesnot_notify_evaneos(self):
+        MailThread = self.env['mail.thread']
+        MailThread.message_process('crm.lead', REPLY)
+        self.assertIn('user@example.com', self.recipients)
+        self.assertNotIn('other_00001@m.evaneos.com', self.recipients)
