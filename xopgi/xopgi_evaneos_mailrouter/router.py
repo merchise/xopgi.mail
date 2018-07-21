@@ -167,9 +167,8 @@ class EvaneosMailRouter(EvaneosMail, MailRouter):
             ('res_id', '!=', None)
         ]
         mail_message = obj.env['mail.message']
-        result = mail_message.search(query)
+        result = mail_message.search(query, limit=1)
         if result:
-            result = result[0] if len(result) > 1 else result
             model = result.model
             thread_id = result.res_id
             # Find the matching route. The matching route is the first its
