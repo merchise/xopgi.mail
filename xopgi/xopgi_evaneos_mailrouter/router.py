@@ -22,6 +22,7 @@ from xoutil.future.itertools import map
 from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
 from xoeuf.odoo.addons.base.ir.ir_mail_server import encode_rfc2822_address_header  # noqa
 
+from xoeuf import models, fields
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,13 @@ logger = logging.getLogger(__name__)
 class MATCH_TYPE:
     SENDER = 0
     RECIPIENT = 1
+
+
+class Message(models.Model):
+    _inherit = 'mail.message'
+    # Make the email_from create an index, the 'search' in the router is slow
+    # without it.
+    email_from = fields.Char(index=True)
 
 
 class EvaneosMail(object):
