@@ -26,6 +26,10 @@ from xoeuf import models, fields
 
 logger = logging.getLogger(__name__)
 
+EVANEOS_REGEXP = _re_compile(
+    r'_(?P<thread>\d+)(?P<uuid>[_-][^@]+)?(?P<host>@.*(?<=[@\.])evaneos\.com)$'
+)
+
 
 class MATCH_TYPE:
     SENDER = 0
@@ -72,17 +76,6 @@ class EvaneosMail(object):
         ]
 
     @classmethod
-    def get_evaneos_regexp(cls, obj):
-        config = obj.env['ir.config_parameter']
-        pattern = config.get_param(
-            'evaneos.mailrouter.pattern',
-            # The default allows to tests pass.
-            default=r'_(?P<thread>\d+)(?P<uuid>[_-][^@]+)?(?P<host>@.*(?<=['
-                    r'@\.])evaneos\.com)$'
-        )
-        return _re_compile(pattern)
-
-    @classmethod
     def get_all_matches(cls, obj, message, matchtype=MATCH_TYPE.SENDER):
         if matchtype is MATCH_TYPE.SENDER:
             addresses = cls.get_senders_addresses(message)
@@ -90,7 +83,7 @@ class EvaneosMail(object):
             addresses = cls.get_recipients_addresses(message)
         else:
             raise ValueError('Invalid match type %r' % matchtype)
-        search = cls.get_evaneos_regexp(obj).search
+        search = EVANEOS_REGEXP.search
         return (match for match in map(search, addresses) if match)
 
     @classmethod
@@ -111,7 +104,7 @@ class EvaneosMailTransport(EvaneosMail, MailTransportRouter):
 
     def prepare_message(self, obj, message, data=None):
         # Remove all Evaneos recipients.  Treat each header separately
-        search = self.get_evaneos_regexp(obj).search
+        search = EVANEOS_REGEXP.search
         for header in ['To', 'Cc', 'Bcc']:
             recipients = [
                 (name, email)
@@ -146,13 +139,11 @@ class EvaneosMailRouter(EvaneosMail, MailRouter):
     def apply(cls, obj, routes, message, data=None):
         match = data
         sender = match.group(0)
-        fmodel, fthread = 0, 1
         escape = lambda s: s.replace('_', r'\_').replace('%', r'\%')
-        # Create canonical address for search. When the first non-canonical mail
-        # arrives, the previous one has a canonical address and that's the one we
-        # should looking for.
-        regexp = cls.get_evaneos_regexp(obj)
-        dossier = regexp.search(sender)
+        # Create canonical address for search.  When the first non-canonical
+        # mail arrives, the previous one has a canonical address and that's
+        # the one we should looking for.
+        dossier = EVANEOS_REGEXP.search(sender)
         canonical_sender = '_' + dossier.group('thread') + dossier.group('host')
         # The query for any email from the same sender that has a resource id,
         # but has no parent:  Explanation:  When a new message from
@@ -185,6 +176,7 @@ class EvaneosMailRouter(EvaneosMail, MailRouter):
             # model is the same as the one found in the root message and
             # its thread id is not set (i.e would create a new
             # conversation).
+            fmodel, fthread = 0, 1
             pred = lambda r: (r[fmodel] == model and
                               (not r[fthread] or r[fthread] == thread_id))
             i, route = next(cls.find_route(routes, pred), (None, None))

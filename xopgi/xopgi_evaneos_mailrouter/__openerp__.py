@@ -24,7 +24,7 @@
                     "to incoming messages when they share the same Evaneos "
                     "'From' or 'Sender'."),
     "depends": ['xopgi_mail_threads', ],
-    "data": ["data/defaults.xml", ],
+    "data": [],
     "application": False,
 
     # MIGRATION POLICY: All addons are not included until someone work on them
