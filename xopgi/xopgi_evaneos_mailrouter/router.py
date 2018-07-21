@@ -145,14 +145,6 @@ class EvaneosMailRouter(EvaneosMail, MailRouter):
         # the one we should looking for.
         dossier = EVANEOS_REGEXP.search(sender)
         canonical_sender = '_' + dossier.group('thread') + dossier.group('host')
-        # The query for any email from the same sender that has a resource id,
-        # but has no parent:  Explanation:  When a new message from
-        # Evaneos arrives OpenERP actually creates two messages: A
-        # Notification for the recently created Lead and the original
-        # message, who really started everything.
-        #
-        # The query is in prefix notation, but some ANDs are omitted since
-        # they are implied.
         query = [
             '|',
             '|',
@@ -162,7 +154,15 @@ class EvaneosMailRouter(EvaneosMail, MailRouter):
             ('email_from', '=like', "%%%s" % escape(canonical_sender)),
             ('email_from', '=like', '%%%s>' % escape(canonical_sender)),
 
+            # We're looking for the first message that (possibly) created the
+            # object in the DB.  Normally, this message will have no parent.
+            # But some models (at least CRM Lead) create a parent message
+            # which is the notification of the creation.  We consider both
+            # cases.
+            '|',
             ('parent_id', '=', None),
+            ('parent_id.parent_id', '=', None),
+
             ('res_id', '!=', 0),
             ('res_id', '!=', None)
         ]
