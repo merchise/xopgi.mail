@@ -18,6 +18,7 @@ import logging
 from email.utils import getaddresses, formataddr
 from re import compile as _re_compile
 from xoutil.future.itertools import map
+from xoutil.future.functools import curry
 
 from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
 from xoeuf.odoo.addons.base.ir.ir_mail_server import encode_rfc2822_address_header  # noqa
@@ -175,13 +176,19 @@ class EvaneosMailRouter(EvaneosMail, MailRouter):
             # model is the same as the one found in the root message and
             # its thread id is not set (i.e would create a new
             # conversation).
-            fmodel, fthread = 0, 1
-            pred = lambda r: (r[fmodel] == model and
-                              (not r[fthread] or r[fthread] == thread_id))
-            i, route = next(cls.find_route(routes, pred), (None, None))
+            i, route = next(cls.find_route(routes, route_match(model, thread_id)),
+                            (None, None))
             if route:
                 routes[i] = (model, thread_id, ) + route[2:]
             else:
                 # Odoo routes are 5-tuple.  The last is the alias
                 # record.  Best not to pass any.
                 routes.append((model, thread_id, {}, obj._uid, None))
+
+
+@curry
+def route_match(model, thread_id, r):
+    return r[FMODEL] == model and (not r[FTHREAD] or r[FTHREAD] == thread_id)
+
+
+FMODEL, FTHREAD = 0, 1
