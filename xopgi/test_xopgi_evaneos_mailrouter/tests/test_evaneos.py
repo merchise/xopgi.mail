@@ -114,7 +114,6 @@ class TestEvaneosRouter(TransactionCase):
         self.assertNotIn('other_00001@m.evaneos.com', self.recipients)
 
 
-
 # Basically the same, for crm.lead... I don't need to be DRY on tests:
 class TestEvaneosRouterCRM(TransactionCase):
     at_install = False
