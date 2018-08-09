@@ -128,6 +128,9 @@ class EvaneosMailTransport(EvaneosMail, MailTransportRouter):
                 data,
                 **kwargs
             )
+        else:
+            # So that mail.mail gets removed in the DB.
+            return message['Message-Id']
 
 
 class EvaneosMailRouter(EvaneosMail, MailRouter):
