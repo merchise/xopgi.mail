@@ -12,8 +12,9 @@ from __future__ import (division as _py3_division,
 
 from xoeuf.odoo.tests.common import TransactionCase
 
-FIRST = '''\
+NEW_MESSAGE = '''\
 From: = User <user@gmail.com>
+Message-Id: 0
 Subject: New deal
 To: <admin@example.com>
 
@@ -21,19 +22,19 @@ This is the message data.
 '''
 
 REPLY = '''\
-From: =User <user@gmail.com>
+From: User <user@gmail.com>
 Subject: Reply
 Message-Id: 1
-To: <catchall+123@example.com>
+To: <catchall+{thread_index}@example.com>
 
 This is the message data.
 '''
 
-NOROUTE = '''\
-From: =User <user@gmail.com>
+REPLY_INVALID_ADDRESS = '''\
+From: User <user@gmail.com>
 Subject: Reply
 Message-Id: 1
-To: <catchall+123dfgh@example.com>
+To: <catchall+impossible-thread-index@example.com>
 
 This is the message data.
 '''
@@ -53,8 +54,8 @@ class TestMailRouter(TransactionCase):
     def tearDown(self):
         super(TestMailRouter, self).tearDown()
 
-    def test_unique_addres_router(self):
-        reply = REPLY.replace('123', self.obj.thread_index)
+    def test_unique_address_router(self):
+        reply = REPLY.format(thread_index=self.obj.thread_index)
         MailThread = self.env['mail.thread']
         thread_id = MailThread.message_process(
             'test_router.model',
@@ -66,6 +67,6 @@ class TestMailRouter(TransactionCase):
         MailThread = self.env['mail.thread']
         thread_id = MailThread.message_process(
             'test_router.model',
-            NOROUTE
+            REPLY_INVALID_ADDRESS
         )
         self.failIf(thread_id)
