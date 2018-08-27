@@ -18,10 +18,13 @@ from __future__ import (division as _py3_division,
 from email.utils import getaddresses
 
 from xoeuf import SUPERUSER_ID
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
-from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
-from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
+from xoeuf.odoo.addons.xopgi_mail_threads import (
+    MailRouter,
+    MailTransportRouter,
+    TransportRouteData,
+)
 from xoeuf.odoo.addons.xopgi_mail_threads.utils import (
+    decode_header,
     set_message_from,
     set_message_sender,
     set_message_address_header,
@@ -137,10 +140,10 @@ class UniqueAddressRouter(MailRouter):
                 model, thread_id = Threads._threadref_by_index(thread_index)
                 found = bool(model and thread_id)
         if not found and matches:
-            # It matches a unique address format but thread not found. Lets
+            # It matches a unique address format but thread not found.  Lets
             # provide a route that allow to process the message properly.
-            # Also sender will be notified that the address given is no
-            # longer valid.
+            # Also sender will be notified that the address given is no longer
+            # valid.
             return (matches, BOUNCE_ROUTE_MODEL, None)
         return (res, model, thread_id) if found else None
 
