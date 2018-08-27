@@ -26,6 +26,8 @@ from xoeuf.odoo.addons.xopgi_mail_threads.utils import (
     set_message_sender,
     set_message_address_header,
 )
+from xoeuf.odoo.addons.xopgi_mail_threads.stdroutes import BOUNCE_ROUTE_MODEL
+
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -139,7 +141,7 @@ class UniqueAddressRouter(MailRouter):
             # provide a route that allow to process the message properly.
             # Also sender will be notified that the address given is no
             # longer valid.
-            return (matches, 'noroute.bounce.model', None)
+            return (matches, BOUNCE_ROUTE_MODEL, None)
         return (res, model, thread_id) if found else None
 
     @classmethod
