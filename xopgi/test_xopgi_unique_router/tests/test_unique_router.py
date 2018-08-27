@@ -15,7 +15,7 @@ from xoeuf.odoo.tests.common import TransactionCase
 FIRST = '''\
 From: = User <user@gmail.com>
 Subject: New deal
-To: <admin@lahavane.com>
+To: <admin@example.com>
 
 This is the message data.
 '''
@@ -24,7 +24,7 @@ REPLY = '''\
 From: =User <user@gmail.com>
 Subject: Reply
 Message-Id: 1
-To: <catchall+123@lahavane.com>
+To: <catchall+123@example.com>
 
 This is the message data.
 '''
@@ -33,7 +33,7 @@ NOROUTE = '''\
 From: =User <user@gmail.com>
 Subject: Reply
 Message-Id: 1
-To: <catchall+123dfgh@lahavane.com>
+To: <catchall+123dfgh@example.com>
 
 This is the message data.
 '''

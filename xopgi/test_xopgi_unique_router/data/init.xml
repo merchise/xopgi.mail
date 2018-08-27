@@ -4,7 +4,7 @@
   <!-- Catchall Email Domain -->
       <record id="icp_mail_catchall_domain" model="ir.config_parameter">
           <field name="key">mail.catchall.domain</field>
-          <field name="value">lahavane.com</field>
+          <field name="value">example.com</field>
       </record>
   </data>
 </openerp>
