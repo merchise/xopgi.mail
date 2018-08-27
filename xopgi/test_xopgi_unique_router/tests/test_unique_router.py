@@ -71,4 +71,5 @@ class TestMailRouter(TransactionCase):
             'test_router.model',
             REPLY_INVALID_ADDRESS
         )
+        # TODO: Test that the bounce route is being taken.
         self.failIf(thread_id)
