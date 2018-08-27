@@ -157,5 +157,5 @@ class UniqueAddressRouter(MailRouter):
         # Must change the current `routes` **in-place**.
         routes[:] = [route for _pos, route in cls.find_route(routes, valid)]
         # TODO: Find the true user_id
-        routes.append((model, thread_id, dict(message=message), SUPERUSER_ID, None))
+        routes.append((model, thread_id, dict(original_message=message), SUPERUSER_ID, None))
         return routes
