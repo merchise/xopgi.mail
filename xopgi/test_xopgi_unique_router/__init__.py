@@ -14,7 +14,7 @@ from xoeuf import models
 
 
 class Model(models.Model):
-    _name = 'test_router.model'
+    _name = 'test_xopgi_unique_router.model'
     _inherit = ['mail.thread']
 
 

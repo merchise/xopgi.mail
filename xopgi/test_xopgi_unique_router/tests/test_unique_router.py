@@ -47,21 +47,23 @@ class TestMailRouter(TransactionCase):
     def setUp(self):
         super(TestMailRouter, self).setUp()
         MailThread = self.env['mail.thread']
-        obj_id = MailThread.message_process('test_router.model', FIRST)
-        mail_msg = self.env['mail.message'].search([('res_id', '=', obj_id)])
-        self.obj = mail_msg[0]
+        obj_id = MailThread.message_process(
+            'test_xopgi_unique_router.model',
+            NEW_MESSAGE
+        )
+        self.thread = self.env['test_xopgi_unique_router.model'].browse(obj_id)
 
     def tearDown(self):
         super(TestMailRouter, self).tearDown()
 
     def test_unique_address_router(self):
-        reply = REPLY.format(thread_index=self.obj.thread_index)
+        reply = REPLY.format(thread_index=self.thread.thread_index)
         MailThread = self.env['mail.thread']
         thread_id = MailThread.message_process(
             'test_router.model',
             reply
         )
-        self.assertEqual(self.obj.res_id, thread_id)
+        self.assertEqual(self.thread.id, thread_id)
 
     def test_no_route_found_generates_bounce(self):
         MailThread = self.env['mail.thread']
