@@ -60,7 +60,7 @@ class TestMailRouter(TransactionCase):
         reply = REPLY.format(thread_index=self.thread.thread_index)
         MailThread = self.env['mail.thread']
         thread_id = MailThread.message_process(
-            'test_router.model',
+            'test_xopgi_unique_router.model',
             reply
         )
         self.assertEqual(self.thread.id, thread_id)
@@ -68,7 +68,7 @@ class TestMailRouter(TransactionCase):
     def test_no_route_found_generates_bounce(self):
         MailThread = self.env['mail.thread']
         thread_id = MailThread.message_process(
-            'test_router.model',
+            'test_xopgi_unique_router.model',
             REPLY_INVALID_ADDRESS
         )
         # TODO: Test that the bounce route is being taken.
