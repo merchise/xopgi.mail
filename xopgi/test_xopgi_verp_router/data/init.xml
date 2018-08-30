@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+  <data noupdate="1">
+  <!-- Catchall Email Domain -->
+      <record id="icp_mail_catchall_domain" model="ir.config_parameter">
+          <field name="key">mail.catchall.domain</field>
+          <field name="value">example.com</field>
+      </record>
+  </data>
+</openerp>
