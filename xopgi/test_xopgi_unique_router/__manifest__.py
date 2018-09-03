@@ -3,5 +3,5 @@
     'author': 'Merchise Autrement',
     'depends': ['xopgi_thread_address'],
     'post_init_hook': '_assert_test_mode',
-    'data': ['data/init.xml'],
+    'data': [],
 }
