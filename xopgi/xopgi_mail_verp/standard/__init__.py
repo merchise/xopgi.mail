@@ -49,8 +49,7 @@ from xoeuf.odoo.addons.xopgi_mail_threads import MailTransportRouter
 from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
 from xoeuf.odoo.addons.xopgi_mail_threads.utils \
     import decode_smtp_header as decode_header
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import \
-    create_ignore_route
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import create_ignore_route
 
 from ..common import (
     VOID_EMAIL_ADDRESS,
@@ -183,8 +182,7 @@ class BouncedMailRouter(object):
                 # be a design error.
                 routes[:] = [route]
             else:
-                # Means message will be ignored and standard route given.
-                routes[:] = [bounce]
+                routes[:] = [create_ignore_route(message)]
         else:
             # Means no route, ie. a bounce but invalid: should not create
             # anything.
@@ -250,7 +248,17 @@ class BouncedMailRouter(object):
 
     @classmethod
     def _message_route_check_bounce(self, obj, message):
+        # type: (Any, email.Message) -> Union[bool, BounceVirtualId]
         """Verify that the email_to is the bounce alias.
+
+        Return False if the message is not being sent to a possible VERP
+        bounce address.
+
+        Return a BounceVirtualId if the message is being sent to known VERP
+        bounce address.
+
+        Return True if the message is being sent to a *possible* VERP bounce
+        address but we might have forgot its record already.
 
         Notice this method will return any route matching a bounce address.
         You should deal with forgery elsewhere.
@@ -278,19 +286,12 @@ class BouncedMailRouter(object):
                             found.message_id, model, thread_id,
                             found.recipient, message
                         )
-                    elif not model and not thread_id:
-                        # It matches a bounce address but thread not found.
-                        # Lets provide a route that allow to process the message
-                        # properly.
-                        return create_ignore_route(message)
-                else:
-                    # Could be a bounce but xopgi.verp.record no longer exits.
-                    # If this is the case, lets provide a route that allow to
-                    # process the message properly.
-                    if alias == get_bounce_alias(obj):
-                        return create_ignore_route(message)
+                    else:
+                        return True
+                elif alias == get_bounce_alias(obj):
+                    return True
         # Not a known bounce
-        return None
+        return False
 
     @classmethod
     def _get_route(self, obj, bouncedata):
