@@ -110,11 +110,9 @@ class TestVerpRouter(TransactionCase):
         )
         with open(message_fname, 'rb') as f:
             nauta_message = f.read()
-        # Get thread_index for replacement
-        parts = nauta_message.split('X-Odoo-Thread-Index:', 1)
-        thread_index = parts[1].split('Thread-Index')[0].strip()
-        nauta_msg = nauta_message.replace(thread_index,
-                                          self.reply[0].thread_index)
+        nauta_msg = nauta_message.format(
+            thread_index=self.reply[0].thread_index
+        )
         virtual_id = MailThread.message_process(
             'test_xopgi_verp_router.model',
             nauta_msg

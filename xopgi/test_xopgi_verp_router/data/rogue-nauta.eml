@@ -1,38 +1,8 @@
 Return-Path: <MAILER-DAEMON>
-Received: from courriel.lahavane.com (localhost.localdomain [127.0.0.1])
-	by courriel.lahavane.com (Postfix) with ESMTP id 42D66C12953
-	for <odoo-trapper@merchise.org>; Mon, 29 Feb 2016 22:44:23 -0500 (CST)
-X-Virus-Scanned: Debian amavisd-new at courriel.lahavane.com
-Received: from courriel.lahavane.com ([127.0.0.1])
-	by courriel.lahavane.com (courriel.lahavane.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9uOhmV53Z5rs for <odoo-trapper@merchise.org>;
-	Mon, 29 Feb 2016 22:44:21 -0500 (CST)
-Received: from mercurio.lahavane.com (unknown [192.168.64.15])
-	by courriel.lahavane.com (Postfix) with ESMTP id 7DB02C12925
-	for <odoo-trapper@merchise.org>; Mon, 29 Feb 2016 22:44:20 -0500 (CST)
-Received: from courriel.lahavane.com (unknown [192.168.64.30])
-	by mercurio.lahavane.com (Postfix) with ESMTPS id 05C2F926247
-	for <catchall+4p9XHIr7@lahavane.com>; Mon, 29 Feb 2016 22:44:20 -0500 (CST)
-Received: from courriel.lahavane.com (localhost.localdomain [127.0.0.1])
-	by courriel.lahavane.com (Postfix) with ESMTP id 02EB6C12953
-	for <catchall+4p9XHIr7@lahavane.com>; Mon, 29 Feb 2016 22:21:37 -0500 (CST)
-X-Virus-Scanned: Debian amavisd-new at courriel.lahavane.com
-Received: from courriel.lahavane.com ([127.0.0.1])
-	by courriel.lahavane.com (courriel.lahavane.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9lDrSW2orowE for <catchall+4p9XHIr7@lahavane.com>;
-	Mon, 29 Feb 2016 22:21:31 -0500 (CST)
-Received: from relay01.etecsa.net (relay01.etecsa.net [181.225.231.71])
-	by courriel.lahavane.com (Postfix) with ESMTP id 0EDC9C12925
-	for <catchall+4p9XHIr7@lahavane.com>; Mon, 29 Feb 2016 22:21:24 -0500 (CST)
-Received: from smtp.nauta.cu (unknown [172.29.8.106])
-	by relay01.etecsa.net (Postfix) with ESMTP id 786DEE0031
-	for <catchall+4p9XHIr7@lahavane.com>; Mon, 29 Feb 2016 22:22:12 -0500 (CST)
-Received: by smtp.nauta.cu (Postfix)
-	id 316679F55E; Mon, 29 Feb 2016 22:21:12 -0500 (CST)
 Date: Mon, 29 Feb 2016 22:21:12 -0500 (CST)
 From: MAILER-DAEMON@nauta.cu (Mail Delivery System)
 Subject: Undelivered Mail Returned to Sender
-To: catchall+4p9XHIr7@lahavane.com
+To: some-rogue-addr@example.com
 Auto-Submitted: auto-replied
 MIME-Version: 1.0
 Content-Type: multipart/report; report-type=delivery-status;
@@ -56,8 +26,8 @@ delete your own text from the attached returned message.
 
                    The mail system
 
-<gperdomo210@nauta.cu>: host 172.29.9.10[172.29.9.10] said: 552 5.2.2
-    <gperdomo210@nauta.cu> Quota exceeded (mailbox for user is full) (in reply
+<someuser@nauta.cu>: host 172.29.9.10[172.29.9.10] said: 552 5.2.2
+    <someuser@nauta.cu> Quota exceeded (mailbox for user is full) (in reply
     to end of DATA command)
 
 --1EE749F6BD.1456802472/smtp.nauta.cu
@@ -66,108 +36,40 @@ Content-Type: message/delivery-status
 
 Reporting-MTA: dns; smtp.nauta.cu
 X-Postfix-Queue-ID: 1EE749F6BD
-X-Postfix-Sender: rfc822; catchall+4p9XHIr7@lahavane.com
+X-Postfix-Sender: rfc822; some-rogue-addr@example.com
 Arrival-Date: Mon, 29 Feb 2016 22:21:12 -0500 (CST)
 
-Final-Recipient: rfc822; gperdomo210@nauta.cu
-Original-Recipient: rfc822;gperdomo210@nauta.cu
+Final-Recipient: rfc822; someuser@nauta.cu
+Original-Recipient: rfc822;someuser@nauta.cu
 Action: failed
 Status: 5.2.2
 Remote-MTA: dns; 172.29.9.10
-Diagnostic-Code: smtp; 552 5.2.2 <gperdomo210@nauta.cu> Quota exceeded (mailbox
+Diagnostic-Code: smtp; 552 5.2.2 <someuser@nauta.cu> Quota exceeded (mailbox
     for user is full)
 
 --1EE749F6BD.1456802472/smtp.nauta.cu
 Content-Description: Undelivered Message
 Content-Type: message/rfc822
 
-Return-Path: <catchall+4p9XHIr7@lahavane.com>
-Received: from emx01.etecsa.net (mail-emx1.etecsa.net [181.225.231.41])
-	by smtp.nauta.cu (Postfix) with ESMTP id 1EE749F6BD
-	for <gperdomo210@nauta.cu>; Mon, 29 Feb 2016 22:21:12 -0500 (CST)
-Received: from mail.havanaclub.cu (mail.havanaclub.cu [200.55.152.181])
-	by emx01.etecsa.net (Postfix) with ESMTP id 5399C9F147
-	for <gperdomo210@nauta.cu>; Mon, 29 Feb 2016 22:21:56 -0500 (CST)
-Received: from mail.mchsol.com (mailer.mchsol.com [69.90.138.6])
-	by mail.havanaclub.cu (mail.havanaclub.cu)
-	(Cipher SSLv3:RC4-MD5:128) (MDaemon PRO v10.0.0)
-	with ESMTP id md50004380506.msg
-	for <contacto.museo@havanaclub.cu>; Mon, 29 Feb 2016 22:17:43 -0500
-Authentication-Results: mail.havanaclub.cu
-	x-ip-ptr=pass dns.ptr=mailer.mchsol.com (ip=69.90.138.6);
-	x-ip-helo=pass smtp.helo=mail.mchsol.com (ip=69.90.138.6);
-	x-ip-mail=hardfail smtp.mail=bounces+f4rb9spch1ligv7ou471fccrfght5@lahavane.com (does not match 69.90.138.6)
-X-Spam-Processed: mail.havanaclub.cu, Mon, 29 Feb 2016 22:17:43 -0500
-	(not processed: spam filter heuristic analysis disabled)
-X-MDPtrLookup-Result: pass dns.ptr=mailer.mchsol.com (ip=69.90.138.6) (mail.havanaclub.cu)
-X-MDHeloLookup-Result: pass smtp.helo=mail.mchsol.com (ip=69.90.138.6) (mail.havanaclub.cu)
-X-MDMailLookup-Result: hardfail smtp.mail=bounces+f4rb9spch1ligv7ou471fccrfght5@lahavane.com (does not match 69.90.138.6) (mail.havanaclub.cu)
-X-MDDK-Result: neutral (mail.havanaclub.cu)
-X-MDDKIM-Result: neutral (mail.havanaclub.cu)
-X-Rcpt-To: contacto.museo@havanaclub.cu
-X-MDRcpt-To: contacto.museo@havanaclub.cu
-X-MDRemoteIP: 69.90.138.6
-X-Envelope-From: bounces+f4rb9spch1ligv7ou471fccrfght5@lahavane.com
-Received: from courriel.lahavane.com ([190.92.124.131])
-        by mail.mchsol.com (MCH MAIL DAEMON v3.0) with ESMTP (SSL) id PGW79303
-        for <contacto.museo@havanaclub.cu>; Mon, 29 Feb 2016 22:21:03 -0500
-Received: from courriel.lahavane.com (localhost.localdomain [127.0.0.1])
-	by courriel.lahavane.com (Postfix) with ESMTP id A177DC12925
-	for <contacto.museo@havanaclub.cu>; Mon, 29 Feb 2016 22:20:56 -0500 (CST)
-X-Virus-Scanned: Debian amavisd-new at courriel.lahavane.com
-Received: from courriel.lahavane.com ([127.0.0.1])
-	by courriel.lahavane.com (courriel.lahavane.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HbeflYquNdTr for <contacto.museo@havanaclub.cu>;
-	Mon, 29 Feb 2016 22:20:52 -0500 (CST)
-Received: from mercurio.lahavane.com (unknown [192.168.64.15])
-	by courriel.lahavane.com (Postfix) with ESMTP id F1BB8C12954
-	for <contacto.museo@havanaclub.cu>; Mon, 29 Feb 2016 22:20:50 -0500 (CST)
-Received: from mercurio.lahavane.com (localhost.localdomain [127.0.0.1])
-	by mercurio.lahavane.com (Postfix) with ESMTP id 16447926234
-	for <contacto.museo@havanaclub.cu>; Mon, 29 Feb 2016 22:20:50 -0500 (CST)
-Content-Type: multipart/mixed; boundary="===============6642276529071442973=="
-MIME-Version: 1.0
+Return-Path: <some-rogue-addr@example.com>
 Message-Id: <20160301032120.9026D9F636@smtp.nauta.cu>
 references: <20160229154459.8F9F59FB0C@smtp.nauta.cu>
 Subject: Undelivered Mail Returned to Sender
-From: Mail Delivery System <catchall+4p9XHIr7@lahavane.com>
-To: Museo del Ron <contacto.museo@havanaclub.cu>
+From: Mail Delivery System <some-rogue-addr@example.com>
+To: Museo del Ron <send-to-user@example2.cu>
 Date: Tue, 01 Mar 2016 03:20:50 -0000
-Reply-To: catchall+4p9XHIr7@lahavane.com
-Sender: catchall+4p9XHIr7@lahavane.com
-X-Odoo-Thread-Index: 4p9XHIr7
-Thread-Index: 4p9XHIr7
+Reply-To: some-rogue-addr@example.com
+Sender: some-rogue-addr@example.com
+X-Odoo-Thread-Index: {thread_index}
+Thread-Index: {thread_index}
 X-MDRedirect: 1
-X-Return-Path: <catchall+4p9XHIr7@lahavane.com>
-X-MDaemon-Deliver-To: <gperdomo210@nauta.cu>
+X-Return-Path: <some-rogue-addr@example.com>
+X-MDaemon-Deliver-To: <someuser@nauta.cu>
 
 --===============6642276529071442973==
-Content-Type: multipart/alternative;
- boundary="===============1475172374579609571=="
-MIME-Version: 1.0
-
---===============1475172374579609571==
 Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
 
-ETDrWF6LCBH
-cmV0aGVsIFBlcmRvbW8sIE11c2VvIGRlbCBSb24sIEFkbWluaXN0cmFkb3IKCgotLQpBZG1pbmlz
-dHJhZG9yCgpDYzogSmVzc2ljYSBPbGl2YSBBbHZhcmV6LCBPbGl2aWEgTGF1cmVuY2lvIETDrWF6
-LCBHcmV0aGVsIFBlcmRvbW8sIE11c2VvIGRlbCBSb24sIEFkbWluaXN0cmFkb3IKCg==
-
---===============1475172374579609571==
-Content-Type: text/html; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-
-ETD
-rWF6LCBHcmV0aGVsIFBlcmRvbW8sIE11c2VvIGRlbCBSb24sIEFkbWluaXN0cmFkb3I8YnI+CgoK
-Ci0tPGJyIC8+QWRtaW5pc3RyYWRvcgo8YnIvPgpDYzogSmVzc2ljYSBPbGl2YSBBbHZhcmV6LCBP
-bGl2aWEgTGF1cmVuY2lvIETDrWF6LCBHcmV0aGVsIFBlcmRvbW8sIE11c2VvIGRlbCBSb24sIEFk
-bWluaXN0cmFkb3I8YnIvPgoK
-
---===============1475172374579609571==--
+Original message here...
 
 --===============6642276529071442973==--
 
