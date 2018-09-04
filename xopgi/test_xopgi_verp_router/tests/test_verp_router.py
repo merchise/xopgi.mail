@@ -103,10 +103,13 @@ class TestVerpRouter(TransactionCase):
 
     def test_rogue_verp_router(self):
         MailThread = self.env['mail.thread']
-        nauta_eml = open(
-            module.get_module_resource('test_xopgi_verp_router', 'data',
-                                       'rogue-nauta.eml'), 'rb')
-        nauta_message = nauta_eml.read()
+        message_fname = module.get_module_resource(
+            'test_xopgi_verp_router',
+            'data',
+            'rogue-nauta.eml'
+        )
+        with open(message_fname, 'rb') as f:
+            nauta_message = f.read()
         # Get thread_index for replacement
         parts = nauta_message.split('X-Odoo-Thread-Index:', 1)
         thread_index = parts[1].split('Thread-Index')[0].strip()
@@ -121,10 +124,13 @@ class TestVerpRouter(TransactionCase):
 
     def test_ignore_rogue_verp_when_no_thread_found(self):
         MailThread = self.env['mail.thread']
-        nauta_eml = open(
-            module.get_module_resource('test_xopgi_verp_router', 'data',
-                                       'rogue-nauta.eml'), 'rb')
-        nauta_message = nauta_eml.read()
+        message_fname = module.get_module_resource(
+            'test_xopgi_verp_router',
+            'data',
+            'rogue-nauta.eml'
+        )
+        with open(message_fname, 'rb') as f:
+            nauta_message = f.read()
         thread_id = MailThread.message_process(
             'test_xopgi_verp_router.model',
             nauta_message
