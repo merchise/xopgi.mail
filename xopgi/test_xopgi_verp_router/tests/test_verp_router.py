@@ -136,4 +136,4 @@ class TestVerpRouter(TransactionCase):
             nauta_message
         )
         thread_found = self.env[IGNORE_MESSAGE_ROUTE_MODEL].browse(thread_id)
-        self.assert_(thread_found)
+        self.assertTrue(thread_found)
