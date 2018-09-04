@@ -18,14 +18,19 @@ from __future__ import (division as _py3_division,
 from email.utils import getaddresses
 
 from xoeuf import SUPERUSER_ID
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
-from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
-from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
+from xoeuf.odoo.addons.xopgi_mail_threads import (
+    MailRouter,
+    MailTransportRouter,
+    TransportRouteData,
+)
 from xoeuf.odoo.addons.xopgi_mail_threads.utils import (
+    decode_header,
     set_message_from,
     set_message_sender,
     set_message_address_header,
 )
+from xoeuf.odoo.addons.xopgi_mail_threads.stdroutes import BOUNCE_ROUTE_MODEL
+
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -126,12 +131,20 @@ class UniqueAddressRouter(MailRouter):
         prefixes = [alias.strip() + '+' for alias in replymarks.split(',')]
         found, model, thread_id = None, None, None
         Threads = obj.env['mail.thread']
+        matches = None
         while not found and recipients:
             res = recipients.pop(0)
             if any(res.startswith(p) and res.endswith(domain) for p in prefixes):
+                matches = res
                 thread_index = res[res.find('+') + 1:res.find('@')]
                 model, thread_id = Threads._threadref_by_index(thread_index)
                 found = bool(model and thread_id)
+        if not found and matches:
+            # It matches a unique address format but thread not found.  Lets
+            # provide a route that allow to process the message properly.
+            # Also sender will be notified that the address given is no longer
+            # valid.
+            return (matches, BOUNCE_ROUTE_MODEL, None)
         return (res, model, thread_id) if found else None
 
     @classmethod
@@ -144,5 +157,5 @@ class UniqueAddressRouter(MailRouter):
         # Must change the current `routes` **in-place**.
         routes[:] = [route for _pos, route in cls.find_route(routes, valid)]
         # TODO: Find the true user_id
-        routes.append((model, thread_id, {}, SUPERUSER_ID, None))
+        routes.append((model, thread_id, dict(original_message=message), SUPERUSER_ID, None))
         return routes

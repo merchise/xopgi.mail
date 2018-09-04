@@ -1,7 +1,0 @@
-Return-Path: <with@example.com>
-From: "Some fancy MTA 2" <mta@example.com>
-To: direction@lahavane.com
-Subject: Not a bounce..
-Date: Tue, 23 Jun 2015 17:38:59 -0400
-
-This a good message...

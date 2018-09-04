@@ -30,7 +30,8 @@ from __future__ import (division as _py3_division,
 
 from . import _probes
 from ..mail_bounce_model import BounceVirtualId
-
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import \
+    create_ignore_route
 import logging
 logger = logging.getLogger(__name__)
 del logging
@@ -73,13 +74,19 @@ class RogueBounceProber(object):
         recipients = values['failures']
         MailThread = obj.env['mail.thread']
         model, thread_id = MailThread._threadref_by_index(index)
-        routes[:] = [
-            cls._get_route(
-                obj,
-                BounceVirtualId(None, model, thread_id, recipient, message)
-            )
-            for recipient in recipients
-        ]
+        if model and thread_id:
+            routes[:] = [
+                cls._get_route(
+                    obj,
+                    BounceVirtualId(None, model, thread_id, recipient, message)
+                )
+                for recipient in recipients
+            ]
+        else:
+            # It matches a rogue bounce but thread not found. Lets provide a
+            # route that allow to process the message properly.
+            routes[:] = [create_ignore_route(message)]
+
         # XXX: Clean up the message so that other routers don't reroute them.
         for header in ('To', 'Cc', 'Delivered-To', 'Resent-To',
                        'Resent-Cc', 'Envelop-To'):

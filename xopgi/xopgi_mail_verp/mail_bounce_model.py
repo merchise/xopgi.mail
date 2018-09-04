@@ -201,7 +201,7 @@ def find_part(msg, type='text/plain'):
     if msg.is_multipart:
         for part in msg.get_payload():
             if not isinstance(part, Message):
-                continue
+                continue   # noqa
             ret = find_part(part)
             if ret:
                 return ret
