@@ -65,10 +65,12 @@ class TestMailRouter(TransactionCase):
             MailThread = self.env['mail.thread']
             msg_txt = email.message_from_string(REPLY_INVALID_ADDRESS)
             msg = MailThread.message_parse(msg_txt)
-            if message['from'].startswith('MAILER-DAEMON') and message[
-                'to'] == msg.get('from') and message['subject'].startswith(
-                    'Re:') and message['subject'].endswith(msg.get('subject')):
-                set_bounce_sent(True)
+            set_bounce_sent(
+                message['from'].startswith('MAILER-DAEMON') and
+                message['to'] == msg.get('from') and
+                message['subject'].startswith('Re:') and
+                message['subject'].endswith(msg.get('subject'))
+            )
             return _check_bounce_sent.origin(self, message, *args, **kwargs)
 
         self._unpatch_send_email()
