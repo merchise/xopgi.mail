@@ -54,7 +54,8 @@ from xoeuf.odoo.addons.xopgi_mail_threads.utils import create_ignore_route
 from ..common import (
     VOID_EMAIL_ADDRESS,
     get_bounce_alias,
-    get_recipients
+    get_recipients,
+    is_automatic_response,
 )
 
 from ..mail_bounce_model import BOUNCE_MODEL, BounceVirtualId
@@ -347,16 +348,17 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
         The address in a positive result is the VERP address generated for the
         message.
 
-        If the message contains the 'Auto-Submitted' header, no VERP will be
-        performed.  The rationale for this, is that automatic responders won't
-        get any useful information from a bounce.
+        If the message is an automatic response (RFCs 3834, 3464 and 3798), no
+        VERP will be performed.  The rationale for this, is that Return-Path
+        and Reply-To headers in automatic responses MUST be treated different
+        for avoiding loops.
 
         '''
         context = obj._context
         mail_id = context.get('verp_mail_id', False) if context else False
         if not mail_id:
             return False, None
-        automatic = message['Auto-Submitted']
+        automatic = is_automatic_response(message)
         if automatic:
             return False, None
         msg, _ = self.get_message_objects(obj, message)
