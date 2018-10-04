@@ -13,11 +13,18 @@ from __future__ import (division as _py3_division,
 
 from email.utils import getaddresses
 
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
-from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
-from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_from
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_sender
+from xoeuf.odoo.addons.xopgi_mail_threads import (
+    MailRouter,
+    MailTransportRouter,
+    TransportRouteData,
+)
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import (
+    decode_header,
+    set_message_from,
+    set_message_sender,
+    create_ignore_route,
+    is_automatic_response
+)
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -55,7 +62,7 @@ BREAKING_ALIAS_PARAMETER = 'mail.breaking-cycle.alias'
 class BreakingCyclesTransport(MailTransportRouter):
     @classmethod
     def query(self, obj, message):
-        if message['Auto-Submitted']:
+        if is_automatic_response(message):
             msg, _ = self.get_message_objects(obj, message)
             address = self._get_breaking_address(obj, msg.thread_index)
             _logger.info('Re-sending auto-submitted message with a '
@@ -97,7 +104,7 @@ class BreakingCyclesRouter(MailRouter):
             decode_header(message, 'Cc'),
             decode_header(message, 'Delivered-To')
         ]
-        if message['Auto-Submitted']:
+        if is_automatic_response(message):
             # If the message we're receiving is not an auto-submitted one,
             # it's not a cycle.  This would be the case of:
             #
@@ -124,6 +131,11 @@ class BreakingCyclesRouter(MailRouter):
             # If any recipient is a breaking cycle address, break it!
             return bool(recipients)
         else:
+            # Two options:
+            # 1. It's the first occurrence of an automatic response (SHOULD be
+            # directed toward a VERP address).  The VERP module will take care
+            # of it.
+            # 2. It's not an auto-submitted message.
             return False
 
     @classmethod
@@ -138,5 +150,5 @@ class BreakingCyclesRouter(MailRouter):
         # This method is only called when the router match the breaking-cycles
         # alias.  This means we detected a cycle, and NOTHING should be done
         # with this message.
-        routes[:] = []
+        routes[:] = [create_ignore_route(message)]
         return routes
