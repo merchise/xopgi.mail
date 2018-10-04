@@ -131,6 +131,8 @@ class MailAutomaticResponse(models.TransientModel):
             forced_followers=partner_ids,
             # Don't make the superuser a follower
             mail_post_autofollow=False,
+            auto_submitted=rfc_message.get('Auto-Submitted', ''),
+            content_type=rfc_message.get('Content-Type', '')
         )
         return model_pool.browse(thread_id).with_context(context).message_post(**kwargs)
 
@@ -206,17 +208,24 @@ class Mail(models.Model):
 
     @api.model
     def create(self, values):
-        # Inject the Auto-Submitted header in the mail.  CURRENTLY NOT
-        # WORKING.
+        # Keep track of automatic responses in outgoing messages.
+        # This way the possibility of mail loops is reduced.
         from xoutil.eight import string_types
+        content_type = self._context.get('content_type')
         auto_submitted = self._context.get('auto_submitted')
-        if auto_submitted:
-            headers = values.get('headers', {})
-            if isinstance(headers, string_types):
-                headers = eval(headers)
-            headers['Auto-Submitted'] = auto_submitted
-            values['headers'] = str(headers)
+        headers = values.get('headers', {})
+        if isinstance(headers, string_types):
+            headers = eval(headers)
+            if self._is_not_empty(content_type):
+                headers['Content-type'] = content_type
+            if self._is_not_empty(auto_submitted):
+                headers['Auto-Submitted'] = auto_submitted
+        values['headers'] = str(headers)
         return super(Mail, self).create(values)
+
+    @classmethod
+    def _is_not_empty(cls, content):
+        return bool(content and content.strip())
 
 
 def find_part(msg, type='text/plain'):
