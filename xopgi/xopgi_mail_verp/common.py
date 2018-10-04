@@ -28,6 +28,10 @@ DEFAULT_BOUNCE_ALIAS = 'postmaster-odoo'
 # is rather internal stuff.
 BOUNCE_MODEL = 'mail.bounce.model'
 
+# The name of the internal model to deal with automatic responses received by
+# Odoo.  This is rather internal stuff.
+AUTOMATIC_RESPONSE_MODEL = 'mail.automatic.model'
+
 # A void email address should as the argument to a MAIL FROM when bouncing a
 # message.  This is such void address.
 VOID_EMAIL_ADDRESS = '<>'
