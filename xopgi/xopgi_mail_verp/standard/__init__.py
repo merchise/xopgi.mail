@@ -176,15 +176,10 @@ class BouncedMailRouter(object):
         bounce = data
         if bounce:
             if isinstance(bounce, BounceVirtualId):
-                if is_automatic_response(bounce.message):
-                    if get_automatic_response_type(bounce.message) != DELIVERY_STATUS_NOTIFICATION:
-                        # Not a bounce
-                        route = cls._get_automatic_response_route(obj, bounce)
-                    else:
-                        route = cls._get_bounce_route(obj, bounce)
+                resp_type = get_automatic_response_type(bounce.message)
+                if resp_type and resp_type != DELIVERY_STATUS_NOTIFICATION:
+                    route = cls._get_automatic_response_route(obj, bounce)
                 else:
-                    # Some MTAs don't follow the RFC recommendations.  If this
-                    # is the case, it will be considered a bounce.
                     route = cls._get_bounce_route(obj, bounce)
                 # We assume a bounce should never create anything else.  What's
                 # the point for creating a lead, or task from abounce...
@@ -328,6 +323,8 @@ class VariableEnvReturnPathTransport(MailTransportRouter):
             return False, None
         automatic = is_automatic_response(message)
         if automatic:
+            # Outgoing Auto-Submitted should not be marked with our VERP
+            # addresses.
             return False, None
         msg, _ = self.get_message_objects(obj, message)
         if msg:
