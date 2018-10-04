@@ -13,13 +13,18 @@ from __future__ import (division as _py3_division,
 
 from email.utils import getaddresses
 
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import decode_header
-from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
-from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_from
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_sender
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import create_ignore_route
-from .common import is_automatic_response
+from xoeuf.odoo.addons.xopgi_mail_threads import (
+    MailRouter,
+    MailTransportRouter,
+    TransportRouteData,
+)
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import (
+    decode_header,
+    set_message_from,
+    set_message_sender,
+    create_ignore_route,
+    is_automatic_response
+)
 
 import logging
 _logger = logging.getLogger(__name__)

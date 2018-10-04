@@ -45,19 +45,22 @@ from __future__ import (division as _py3_division,
 from xoutil.future.codecs import safe_encode
 
 from xoeuf import api, models, fields
-from xoeuf.odoo.addons.xopgi_mail_threads import MailTransportRouter
-from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
-from xoeuf.odoo.addons.xopgi_mail_threads.utils \
-    import decode_smtp_header as decode_header
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import create_ignore_route
+from xoeuf.odoo.addons.xopgi_mail_threads import (
+    MailTransportRouter,
+    TransportRouteData
+)
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import (
+    decode_smtp_header as decode_header,
+    create_ignore_route,
+    is_automatic_response,
+    get_automatic_response_type,
+    DELIVERY_STATUS_NOTIFICATION,
+)
 
 from ..common import (
     VOID_EMAIL_ADDRESS,
     get_bounce_alias,
     get_recipients,
-    is_automatic_response,
-    get_automatic_response_type,
-    DELIVERY_STATUS_NOTIFICATION
 )
 
 from ..mail_bounce_model import (
