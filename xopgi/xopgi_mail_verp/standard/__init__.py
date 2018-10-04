@@ -56,9 +56,15 @@ from ..common import (
     get_bounce_alias,
     get_recipients,
     is_automatic_response,
+    get_automatic_response_type,
+    DELIVERY_STATUS_NOTIFICATION
 )
 
-from ..mail_bounce_model import BOUNCE_MODEL, BounceVirtualId
+from ..mail_bounce_model import (
+    BounceVirtualId,
+    BOUNCE_MODEL,
+    AUTOMATIC_RESPONSE_MODEL
+)
 
 
 class BounceRecord(models.Model):
@@ -157,29 +163,33 @@ class BouncedMailRouter(object):
     def query(cls, obj, message):
         route = cls._message_route_check_bounce(obj, message)
         if route:
-            if cls._is_auto_responded(obj, message):
-                # If the message is an auto-responded (e.g Out of Office)
-                # message it will be also delivered to the bounce VERP
-                # address, but we should not treat it as bounce and let it be
-                # placed according to In-Reply-To.
-                return False, None
-            else:
-                # Some mailers send auto-responses to the Return-Path address
-                # correctly but fail to include the Auto-Submitted header.
-                # However is too hard to find out if this is the case...
-                return True, route
-            return False, None
+            # If the message is an auto-responded (e.g Out of Office) message
+            # it will be also delivered to the bounce VERP address.
+            # Some mailers send auto-responses to the Return-Path address
+            # correctly but fail to include the Auto-Submitted header.
+            # However is too hard to find out if this is the case...
+            return True, route
+        return False, None
 
     @classmethod
     def apply(cls, obj, routes, message, data=None):
         bounce = data
         if bounce:
             if isinstance(bounce, BounceVirtualId):
-                route = cls._get_route(obj, bounce)
+                if is_automatic_response(bounce.message):
+                    if get_automatic_response_type(bounce.message) != DELIVERY_STATUS_NOTIFICATION:
+                        # Not a bounce
+                        route = cls._get_automatic_response_route(obj, bounce)
+                    else:
+                        route = cls._get_bounce_route(obj, bounce)
+                else:
+                    # Some MTAs don't follow the RFC recommendations.  If this
+                    # is the case, it will be considered a bounce.
+                    route = cls._get_bounce_route(obj, bounce)
                 # We assume a bounce should never create anything else.  What's
-                # the point for creating a lead, or task from a
-                # bounce... Specially if the alias is bound to some ids.  This
-                # only could happen if another router is in place and that would
+                # the point for creating a lead, or task from abounce...
+                # Specially if the alias is bound to some ids.  This only
+                # could happen if another router is in place and that would
                 # be a design error.
                 routes[:] = [route]
             else:
@@ -189,52 +199,6 @@ class BouncedMailRouter(object):
             # anything.
             routes[:] = []
         return routes
-
-    @classmethod
-    def _is_auto_responded(cls, obj, message):
-        '''Check if the message seems to be an auto-responded message and not
-        actually a bounce.
-
-        You should review the RFC 3834, for better understanding this method.
-
-        .. warning:: You should only call this method if the `message` is sent
-           to VERP address.
-
-        In the sense of this method "Auto responded" messages include:
-
-        - Any sort of message that is sent automatically in reply to a
-          message.  Example is a "vacation" notification.  RFC 3834.
-
-        - Any sort of message indicating the disposition of another message.
-          Example is a notification of a message being read by any of its
-          recipients.  RFC 3798.
-
-        '''
-        replied = 'In-Reply-To' in message
-        how = message.get('Auto-Submitted', '').lower()
-        if how.startswith('auto-replied'):
-            # Bounces SHOULD NOT have an In-Reply-To, but SHOULD have an
-            # Auto-Submitted.
-            return replied
-        elif how.startswith('auto-generated'):
-            # Some MTAs are using the auto-generated instead of the
-            # auto-replied.  I split this case from the standard so that is
-            # easier to look out and fix if needed.
-            return replied
-        elif message['X-Autoreply'] == 'yes':
-            # Some MTAs also include this, but I will refuse them unless an
-            # In-Reply-To is provided.
-            return replied
-        content_type = message.get('Content-Type', '')
-        if content_type.startswith('message/report'):
-            # Disposition notifications should not be considered bounces.
-            # However they SHOULD be delivered to the Return-Path, so we need
-            # to deal with them.  They are not (strictly speaking) auto
-            # responded replies in the sense of RFC 3834, but since we're
-            # trying to actually determine if this is a bounce, let's not
-            # considered cases are assumed to be bounces.
-            return 'report-type=disposition-notification' in content_type
-        return False
 
     @classmethod
     def is_bouncelike(self, obj, rcpt):
@@ -295,8 +259,12 @@ class BouncedMailRouter(object):
         return False
 
     @classmethod
-    def _get_route(self, obj, bouncedata):
+    def _get_bounce_route(self, obj, bouncedata):
         return (BOUNCE_MODEL, bouncedata, {}, obj._uid, None)
+
+    @classmethod
+    def _get_automatic_response_route(self, obj, bouncedata):
+        return (AUTOMATIC_RESPONSE_MODEL, bouncedata, {}, obj._uid, None)
 
 
 class VariableEnvReturnPathTransport(MailTransportRouter):

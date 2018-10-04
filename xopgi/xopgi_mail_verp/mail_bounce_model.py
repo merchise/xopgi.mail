@@ -19,7 +19,12 @@ from xoutil.symbols import Unset
 from xoeuf import api, models
 from xoeuf.odoo import tools, _
 
-from .common import BOUNCE_MODEL, VOID_EMAIL_ADDRESS
+from .common import (
+    BOUNCE_MODEL,
+    AUTOMATIC_RESPONSE_MODEL,
+    VOID_EMAIL_ADDRESS,
+)
+
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -49,15 +54,15 @@ class BounceVirtualId(object):
         return iter([self, ])
 
 
-class MailBounce(models.TransientModel):
-    _name = BOUNCE_MODEL
+class MailAutomaticResponse(models.TransientModel):
+    _name = AUTOMATIC_RESPONSE_MODEL
 
-    @api.model
+    @api.multi
     def message_new(self, msg_dict, custom_values=None):
         '''Log an exception to see if this case happen.
 
-        This is not expected to happen cause a bounce should never start a new
-        thread.
+        This is not expected to happen cause an automatic response should never
+        start a new thread.
 
         '''
         _logger.error(
@@ -70,19 +75,18 @@ class MailBounce(models.TransientModel):
     @api.multi
     def message_update(self, msg_dict, update_vals=None):
         # Conceptually this is not needed, cause its purpose is to update the
-        # object record from an email data.  Being a bounce we mustn't modify
-        # any record for that sort of thing.  However, this is method is still
-        # needed to keep Odoo from calling `message_new`.
+        # object record from an email data.  Being an automatic response we
+        # mustn't modify any record for that sort of thing.  However, this
+        # method is still needed to keep Odoo from calling `message_new`.
         return True
 
     @api.multi
     def message_post(self, **kwargs):
-        '''Post the bounce to the proper thread.
+        '''Post the automatic response to the proper thread.
 
-        Change the email_from with the email_to of the original message (not
-        the bounce) and add "mail_notify_noemail" magic key to the context
-        before actually posting the message to avoid sending notification
-        mails.
+        Change the email_from and add "mail_notify_noemail" magic key to the
+        context before actually posting the message to avoid sending
+        notification mails.
 
         `ids` must a sequence with a single BounceVirtualId instance.
 
@@ -110,7 +114,9 @@ class MailBounce(models.TransientModel):
             # This means we recognized this message as 'rogue bounce' which
             # could not find the message that bounced.
             message = None
-        self._build_bounce(rfc_message, message, recipient, kwargs)
+        # Rewrite params of outgoing notification
+        kwargs['message_type'] = 'notification'
+        kwargs['email_from'] = VOID_EMAIL_ADDRESS
         if message and message.author_id and any(message.author_id.user_ids):
             # Notify to the author of the original email IF AND ONLY IF it
             # is a 'res_user'. This is to avoid notifying third parties about
@@ -128,6 +134,29 @@ class MailBounce(models.TransientModel):
         )
         return model_pool.browse(thread_id).with_context(context).message_post(**kwargs)
 
+
+class MailBounce(MailAutomaticResponse, models.TransientModel):
+    _name = BOUNCE_MODEL
+
+    @api.multi
+    def message_post(self, **kwargs):
+        '''Post the bounce to the proper thread.
+
+        Format bounce notification before posting.
+
+        '''
+
+        data = self._ids[0]
+        message_id, model, thread_id, recipient, rfc_message = data.args
+        if message_id:
+            message = self.env['mail.message'].browse(int(message_id))
+        else:
+            message = None
+        # Modify params for bounces.
+        self._build_bounce(rfc_message, message, recipient, kwargs)
+
+        return super(MailBounce, self).message_post(**kwargs)
+
     def _build_bounce(self, rfc_message, message, recipient, params):
         '''Rewrites the bounce email.
         '''
@@ -136,10 +165,6 @@ class MailBounce(models.TransientModel):
             params['subject'] = subject + _(' -- Detected as bounce')
         else:
             params['subject'] = _('Mail Returned to Sender')
-        params['type'] = 'notification'
-        params['email_from'] = VOID_EMAIL_ADDRESS
-        context = params.setdefault('context', {})
-        context['auto_submitted'] = 'auto-replied'
         part = find_part(rfc_message)
         if part:
             encoding = part.get_content_charset()  # None if attachment
