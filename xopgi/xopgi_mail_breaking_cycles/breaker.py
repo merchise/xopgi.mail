@@ -18,6 +18,7 @@ from xoeuf.odoo.addons.xopgi_mail_threads import MailRouter, MailTransportRouter
 from xoeuf.odoo.addons.xopgi_mail_threads import TransportRouteData
 from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_from
 from xoeuf.odoo.addons.xopgi_mail_threads.utils import set_message_sender
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import create_ignore_route
 from .common import is_automatic_response
 
 import logging
@@ -144,5 +145,5 @@ class BreakingCyclesRouter(MailRouter):
         # This method is only called when the router match the breaking-cycles
         # alias.  This means we detected a cycle, and NOTHING should be done
         # with this message.
-        routes[:] = []
+        routes[:] = [create_ignore_route(message)]
         return routes
