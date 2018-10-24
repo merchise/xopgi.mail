@@ -154,9 +154,7 @@ class MailBounce(MailAutomaticResponse, models.TransientModel):
             message = self.env['mail.message'].browse(int(message_id))
         else:
             message = None
-        # Modify params for bounces.
         self._build_bounce(rfc_message, message, recipient, kwargs)
-
         return super(MailBounce, self).message_post(**kwargs)
 
     def _build_bounce(self, rfc_message, message, recipient, params):
