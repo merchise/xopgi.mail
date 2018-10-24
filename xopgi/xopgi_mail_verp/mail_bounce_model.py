@@ -150,10 +150,6 @@ class MailBounce(MailAutomaticResponse, models.TransientModel):
 
         data = self._ids[0]
         message_id, model, thread_id, recipient, rfc_message = data.args
-        if message_id:
-            message = self.env['mail.message'].browse(int(message_id))
-        else:
-            message = None
         subject = rfc_message['subject']
         if subject:
             kwargs['subject'] = subject + _(' -- Detected as bounce')
