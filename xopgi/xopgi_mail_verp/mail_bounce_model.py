@@ -154,27 +154,21 @@ class MailBounce(MailAutomaticResponse, models.TransientModel):
             message = self.env['mail.message'].browse(int(message_id))
         else:
             message = None
-        self._build_bounce(rfc_message, message, recipient, kwargs)
-        return super(MailBounce, self).message_post(**kwargs)
-
-    def _build_bounce(self, rfc_message, message, recipient, params):
-        '''Rewrites the bounce email.
-        '''
         subject = rfc_message['subject']
         if subject:
-            params['subject'] = subject + _(' -- Detected as bounce')
+            kwargs['subject'] = subject + _(' -- Detected as bounce')
         else:
-            params['subject'] = _('Mail Returned to Sender')
+            kwargs['subject'] = _('Mail Returned to Sender')
         part = find_part(rfc_message)
         if part:
             encoding = part.get_content_charset()  # None if attachment
-            params['body'] = tools.append_content_to_html(
+            kwargs['body'] = tools.append_content_to_html(
                 '',
                 tools.ustr(part.get_payload(decode=True),
                            encoding, errors='replace'),
                 preserve=True
             )
-        return params
+        return super(MailBounce, self).message_post(**kwargs)
 
 
 class MessageBounceNotification(models.Model):
