@@ -78,6 +78,13 @@ def is_void_return_path(return_path):
 
 
 def has_void_return_path(msg, missing_is_void=True):
+    '''Test if `msg` has a void Return-Path.
+
+    If the message does not have a Return-Path (or it's empty), return the
+    value of `missing_is_void`.  Otherwise, return the result of
+    `is_void_return_path`:func: for the return path.
+
+    '''
     return_path = msg['Return-Path']
     if return_path:
         return is_void_return_path(return_path)
