@@ -145,10 +145,8 @@ def find_part_in_walk(walk, type='text/plain'):
     The `walk` may be further consumed (i.e we don't close it).
 
     '''
-    try:
-        part = next(walk)
-        while part.get_content_type() != type:
-            part = next(walk)
-        return part
-    except StopIteration:
-        return None
+    from itertools import dropwhile
+    return next(
+        dropwhile(walk, lambda part: part.get_content_type() != type),
+        None
+    )
