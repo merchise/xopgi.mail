@@ -23,6 +23,7 @@ from .common import (
     BOUNCE_MODEL,
     AUTOMATIC_RESPONSE_MODEL,
     VOID_EMAIL_ADDRESS,
+    find_part,
 )
 
 
@@ -214,17 +215,3 @@ class Mail(models.Model):
     @classmethod
     def _is_not_empty(cls, content):
         return bool(content and content.strip())
-
-
-def find_part(msg, type='text/plain'):
-    from email.message import Message
-    if msg.get_content_type() == type:
-        return msg
-    if msg.is_multipart:
-        for part in msg.get_payload():
-            if not isinstance(part, Message):
-                continue   # noqa
-            ret = find_part(part)
-            if ret:
-                return ret
-    return None
