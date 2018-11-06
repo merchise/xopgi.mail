@@ -131,6 +131,20 @@ class TestVerpRouter(TransactionCase):
         thread_found = self.env[IGNORE_MESSAGE_ROUTE_MODEL].browse(thread_id)
         self.assertTrue(thread_found)
 
+    def test_rogue_verp_ahabana(self):
+        MailThread = self.env['mail.thread']
+        ahabana_message = self._read_file(
+            'test_xopgi_verp_router',
+            'data',
+            'rogue-ahabana.eml'
+        )
+        ahabana_msg = ahabana_message.format(index=self.reply[0].thread_index)
+        virtual_id = MailThread.message_process(
+            'test_xopgi_verp_router.model',
+            ahabana_msg
+        )
+        self.assertEqual(self.reply[0].id, virtual_id.thread_id)
+
     def _read_file(self, *path_parts):
         path = module.get_module_resource(
             *path_parts
