@@ -120,14 +120,13 @@ def get_message_walk(self):
     which the messages are produced.
 
     '''
-    from collections import deque
     from email.message import Message
-    parts = deque([self])
+    parts = [self]
     while parts:
-        part = parts.popleft()
+        part = parts.pop(0)
         yield part
         if part.is_multipart():
-            parts.extendleft(
+            parts.extend(
                 subpart
                 for subpart in part.get_payload()
                 if isinstance(subpart, Message)
@@ -146,7 +145,5 @@ def find_part_in_walk(walk, type='text/plain'):
 
     '''
     from itertools import dropwhile
-    return next(
-        dropwhile(walk, lambda part: part.get_content_type() != type),
-        None
-    )
+    unmatched = lambda part: part.get_content_type() != type
+    return next(dropwhile(unmatched, walk), None)
