@@ -17,9 +17,12 @@ from __future__ import (division as _py3_division,
 
 import email
 import re
-from xoeuf.odoo.addons.xopgi_mail_threads.utils import get_recipients
-from ...common import get_message_walk, find_part_in_walk
+import logging
 
+from xoeuf.odoo.addons.xopgi_mail_threads.utils import get_recipients
+
+logger = logging.getLogger(__name__)
+del logging
 
 MULTIPLE_SPACES = re.compile(r'[ \t]*:')
 NO_REPLY_ADDRESS = re.compile(r'.*noreply@ahabana\.co\.cu>?$')
@@ -53,18 +56,31 @@ class AHabanaProbe(object):
             return None
         if 'Your message can not be delivered' not in msg['Subject']:
             return None
-        # Get the body of the message, there resides the minimal original
-        # message data. With that info it can be known the recipient that is
-        # failing.
-        walk = get_message_walk(msg)
-        part = find_part_in_walk(walk, 'text/plain')
-        body = part.get_payload(decode=True)
-        failure_parts = body.split('\n\n')
-        failure_email = email.message_from_string(MULTIPLE_SPACES.sub(':', failure_parts[1]))
-        failures = {email
-                    for _, email in get_recipients(failure_email)
-                    if email}
+        # We need to inspect the body of the message, to get the failing
+        # (bouncing) address.  The message is formatted "like" an email with
+        # extra spaces in the headers; see the file rogue-ahabana.eml in the
+        # tests.
+        #
+        # We use a little trick: parse the body as an email (RFC 2822) to the
+        # all the recipients.
+        body = msg.get_payload(decode=True)
+        chunks = body.split('\n\n')
+        failing_email = email.message_from_string(
+            # The 2nd chunk contains the "header-like message".
+            MULTIPLE_SPACES.sub(':', chunks[1])
+        )
+        failures = {
+            email
+            for _, email in get_recipients(failing_email)
+            if email
+        }
         if not failures:
+            logger.error(
+                'Message %s detected as rogue bounce, but unable to detect '
+                'failing addresses',
+                msg['Message-Id'],
+                extra=dict(body=body)
+            )
             return None
         result = {'failures': failures}
         receiver = msg['To']
