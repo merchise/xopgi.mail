@@ -78,6 +78,13 @@ def is_void_return_path(return_path):
 
 
 def has_void_return_path(msg, missing_is_void=True):
+    '''Test if `msg` has a void Return-Path.
+
+    If the message does not have a Return-Path (or it's empty), return the
+    value of `missing_is_void`.  Otherwise, return the result of
+    `is_void_return_path`:func: for the return path.
+
+    '''
     return_path = msg['Return-Path']
     if return_path:
         return is_void_return_path(return_path)
@@ -87,3 +94,56 @@ def has_void_return_path(msg, missing_is_void=True):
 
 def is_dsn(msg):
     return msg.get_content_type() == 'multipart/report'
+
+
+def find_part(msg, type='text/plain'):
+    '''Find the first part that matches the given content type.
+
+    If `msg` itself matches the content type, return it.  Otherwise, if it's a
+    multipart message find the matching part in the payload.  If no part is
+    found, return None.
+
+    '''
+    from email.message import Message
+    return next(
+        (part
+         for part in msg.walk()
+         if isinstance(part, Message) and part.get_content_type() == type),
+        None
+    )
+
+
+def get_message_walk(self):
+    '''Walk over the message tree in breath-first order.
+
+    The difference with `email.message.Message.walk`:meth: if the order in
+    which the messages are produced.
+
+    '''
+    from email.message import Message
+    parts = [self]
+    while parts:
+        part = parts.pop(0)
+        yield part
+        if part.is_multipart():
+            parts.extend(
+                subpart
+                for subpart in part.get_payload()
+                if isinstance(subpart, Message)
+            )
+
+
+def find_part_in_walk(walk, type='text/plain'):
+    '''Find the first part in a walk that matches the given content type.
+
+    The `walk` argument must be a iterator yielding `messages
+    <email.message.Message>`:class:.  Either return value of
+    `~email.message.Message.walk`:meth: and `get_message_walk`:func: are good
+    options.
+
+    The `walk` may be further consumed (i.e we don't close it).
+
+    '''
+    from itertools import dropwhile
+    unmatched = lambda part: part.get_content_type() != type
+    return next(dropwhile(unmatched, walk), None)

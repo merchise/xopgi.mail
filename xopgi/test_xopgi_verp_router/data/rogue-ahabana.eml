@@ -1,0 +1,23 @@
+Return-Path: <prvs=123=noreply@ahabana.co.cu>
+Delivered-To: mailbox+{index}@example.com
+Date: Wed, 24 Oct 2018 11:14:42 -0400
+From: "MDaemon at hermes.ahabana.co.cu" <MDaemon@ahabana.co.cu>
+Reply-To: noreply@ahabana.co.cu
+Subject: Your message can not be delivered
+To: mailbox+{index}@example.com
+X-MDaemon-Deliver-To: mailbox+{index}@lahavane.com
+Message-ID: <MDAEMON2894201810241114.AA1442654@hermes.ahabana.co.cu>
+Mime-Version: 1.0
+X-Actual-From: MDaemon@ahabana.co.cu
+X-Return-Path: <prvs=123=noreply@ahabana.co.cu>
+
+Delivery of the attached message:
+
+From   : mailbox+{index}@example.com
+To     : client@ahabana.co.cu
+Date   : Wed, 24 Oct 2018 15:13:55 -0000
+Subject: Your message can not be delivered
+
+would violate local account restrictions.
+
+This message was not delivered.

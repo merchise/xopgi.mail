@@ -103,13 +103,11 @@ class TestVerpRouter(TransactionCase):
 
     def test_rogue_verp_router(self):
         MailThread = self.env['mail.thread']
-        message_fname = module.get_module_resource(
+        nauta_message = self._read_file(
             'test_xopgi_verp_router',
             'data',
             'rogue-nauta.eml'
         )
-        with open(message_fname, 'rb') as f:
-            nauta_message = f.read()
         nauta_msg = nauta_message.format(
             thread_index=self.reply[0].thread_index
         )
@@ -117,21 +115,39 @@ class TestVerpRouter(TransactionCase):
             'test_xopgi_verp_router.model',
             nauta_msg
         )
-        self.assertEqual(self.reply[0].id,
-                         virtual_id.thread_id)
+        self.assertEqual(self.reply[0].id, virtual_id.thread_id)
 
     def test_ignore_rogue_verp_when_no_thread_found(self):
         MailThread = self.env['mail.thread']
-        message_fname = module.get_module_resource(
+        nauta_message = self._read_file(
             'test_xopgi_verp_router',
             'data',
             'rogue-nauta.eml'
         )
-        with open(message_fname, 'rb') as f:
-            nauta_message = f.read()
         thread_id = MailThread.message_process(
             'test_xopgi_verp_router.model',
             nauta_message
         )
         thread_found = self.env[IGNORE_MESSAGE_ROUTE_MODEL].browse(thread_id)
         self.assertTrue(thread_found)
+
+    def test_rogue_verp_ahabana(self):
+        MailThread = self.env['mail.thread']
+        ahabana_message = self._read_file(
+            'test_xopgi_verp_router',
+            'data',
+            'rogue-ahabana.eml'
+        )
+        ahabana_msg = ahabana_message.format(index=self.reply[0].thread_index)
+        virtual_id = MailThread.message_process(
+            'test_xopgi_verp_router.model',
+            ahabana_msg
+        )
+        self.assertEqual(self.reply[0].id, virtual_id.thread_id)
+
+    def _read_file(self, *path_parts):
+        path = module.get_module_resource(
+            *path_parts
+        )
+        with open(path, 'rb') as f:
+            return f.read()

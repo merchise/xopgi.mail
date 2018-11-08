@@ -23,6 +23,7 @@ from .common import (
     BOUNCE_MODEL,
     AUTOMATIC_RESPONSE_MODEL,
     VOID_EMAIL_ADDRESS,
+    find_part,
 )
 
 
@@ -150,33 +151,21 @@ class MailBounce(MailAutomaticResponse, models.TransientModel):
 
         data = self._ids[0]
         message_id, model, thread_id, recipient, rfc_message = data.args
-        if message_id:
-            message = self.env['mail.message'].browse(int(message_id))
-        else:
-            message = None
-        # Modify params for bounces.
-        self._build_bounce(rfc_message, message, recipient, kwargs)
-
-        return super(MailBounce, self).message_post(**kwargs)
-
-    def _build_bounce(self, rfc_message, message, recipient, params):
-        '''Rewrites the bounce email.
-        '''
         subject = rfc_message['subject']
         if subject:
-            params['subject'] = subject + _(' -- Detected as bounce')
+            kwargs['subject'] = subject + _(' -- Detected as bounce')
         else:
-            params['subject'] = _('Mail Returned to Sender')
+            kwargs['subject'] = _('Mail Returned to Sender')
         part = find_part(rfc_message)
         if part:
             encoding = part.get_content_charset()  # None if attachment
-            params['body'] = tools.append_content_to_html(
+            kwargs['body'] = tools.append_content_to_html(
                 '',
                 tools.ustr(part.get_payload(decode=True),
                            encoding, errors='replace'),
                 preserve=True
             )
-        return params
+        return super(MailBounce, self).message_post(**kwargs)
 
 
 class MessageBounceNotification(models.Model):
@@ -226,17 +215,3 @@ class Mail(models.Model):
     @classmethod
     def _is_not_empty(cls, content):
         return bool(content and content.strip())
-
-
-def find_part(msg, type='text/plain'):
-    from email.message import Message
-    if msg.get_content_type() == type:
-        return msg
-    if msg.is_multipart:
-        for part in msg.get_payload():
-            if not isinstance(part, Message):
-                continue   # noqa
-            ret = find_part(part)
-            if ret:
-                return ret
-    return None

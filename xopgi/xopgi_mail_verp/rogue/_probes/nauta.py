@@ -17,7 +17,12 @@ from __future__ import (division as _py3_division,
 
 
 import re
-from ...common import has_void_return_path, is_dsn
+from ...common import (
+    has_void_return_path,
+    is_dsn,
+    get_message_walk,
+    find_part_in_walk,
+)
 
 
 class NautaProbe(object):
@@ -43,8 +48,8 @@ class NautaProbe(object):
     def __call__(self, msg):
         if not has_void_return_path(msg) or not is_dsn(msg):
             return
-        walk = self.message_walk(msg)
-        report = self.find_part(walk, 'message/delivery-status')
+        walk = get_message_walk(msg)
+        report = find_part_in_walk(walk, 'message/delivery-status')
         if not report:
             return None
         # We require the report to contain a Reporting-MTA in the list of know
@@ -66,7 +71,7 @@ class NautaProbe(object):
         # would not be able to find the bounce address without it.
         # Furthermore Nauta (or nauta-like MTAs) do include this in its
         # bounce, so we leverage this.
-        original = self.find_part(walk, 'message/rfc822')
+        original = find_part_in_walk(walk, 'message/rfc822')
         if not original:
             return None
         contents = original.get_payload()
@@ -82,23 +87,6 @@ class NautaProbe(object):
             # THIS IS THE ONLY code-path that should return non-None.
             return result
         else:
-            return None
-
-    def message_walk(self, msg):
-        parts = [msg]
-        while parts:
-            part = parts.pop(0)
-            res = yield part
-            if res != 'prune' and part.is_multipart():
-                parts.extend(part.get_payload())
-
-    def find_part(self, walk, ctype):
-        try:
-            part = next(walk)
-            while part.get_content_type() != ctype:
-                part = next(walk)
-            return part
-        except StopIteration:
             return None
 
     def match_mtas(self, msg):

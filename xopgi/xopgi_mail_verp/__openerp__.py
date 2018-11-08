@@ -21,7 +21,14 @@ dict(
     summary='Variable Envelop Return Path (VERP)',
     description=('Allows to track email bounces and add them to the '
                  'proper thread.'),
-    depends=['mail', 'xopgi_mail_threads'],
+    depends=[
+        'mail',
+        'xopgi_mail_threads',
+
+        # The rogue bounce detector for Aguas de la Habana assumes the
+        # outgoing messages are being delivered through this Transport.
+        'xopgi_thread_address',
+    ],
     external_dependencies={'python': ['flufl.bounce']},
     data=[
         'data/init.xml',
