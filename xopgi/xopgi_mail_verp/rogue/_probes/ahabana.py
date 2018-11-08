@@ -26,6 +26,7 @@ del logging
 
 MULTIPLE_SPACES = re.compile(r'[ \t]*:')
 NO_REPLY_ADDRESS = re.compile(r'.*noreply@ahabana\.co\.cu>?$')
+THREAD_REGEXP = re.compile(r'\+(?P<index>[a-z0-9]+)@[^@]+$')
 
 
 class AHabanaProbe(object):
@@ -83,10 +84,11 @@ class AHabanaProbe(object):
             )
             return None
         result = {'failures': failures}
-        receiver = msg['To']
-        thread_index = receiver[receiver.find('+') + 1:receiver.find('@')]
-        if thread_index:
-            result['thread_index'] = thread_index
+        thread_match = THREAD_REGEXP.search(msg.get('To', ''))
+        if thread_match:
+            result['thread_index'] = thread_match.groupdict()['index']
             return result
         else:
+            # TODO: Here we should discard the message instead of letting
+            # going throu.  It's a bounce; but we can locate the thread.
             return None
