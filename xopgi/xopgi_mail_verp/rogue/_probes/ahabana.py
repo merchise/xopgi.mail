@@ -20,11 +20,9 @@ import re
 from xoeuf.odoo.addons.xopgi_mail_threads.utils import get_recipients
 from ...common import get_message_walk, find_part_in_walk
 
-MULTIPLE_SPACES = (re.compile(r'[ ]*:'))
 
-NO_REPLY_ADDRESS = (
-    re.compile(r'(.*)(noreply@)((?<=[@])ahabana\.co\.cu>?)$')
-)
+MULTIPLE_SPACES = re.compile(r'[ \t]*:')
+NO_REPLY_ADDRESS = re.compile(r'.*noreply@ahabana\.co\.cu>?$')
 
 
 class AHabanaProbe(object):
