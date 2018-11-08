@@ -50,7 +50,7 @@ class AHabanaProbe(object):
     '''
     def __call__(self, msg):
         if not NO_REPLY_ADDRESS.match(msg.get('Reply-To', '')):
-                return None
+            return None
         if 'MDaemon' not in msg.get('X-Actual-From', ''):
             return None
         if 'Your message can not be delivered' not in msg['Subject']:
