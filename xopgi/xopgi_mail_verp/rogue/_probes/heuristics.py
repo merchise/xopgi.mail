@@ -18,7 +18,6 @@ del logging
 
 class FLUFLProbe(object):
     def __call__(self, msg):
-        # This probe only
         from flufl.bounce import scan_message
         failed_addresses = scan_message(msg)
         if failed_addresses:

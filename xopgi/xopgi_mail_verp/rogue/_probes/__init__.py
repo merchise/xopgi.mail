@@ -23,10 +23,11 @@ from __future__ import (division as _py3_division,
 # probe other another.
 __all__ = [
     'NautaProbe',
-
+    'AHabanaProbe',
     # Keep this at the bottom
     # 'FLUFLProbe',
 ]
 
 from .nauta import NautaProbe
+from .ahabana import AHabanaProbe
 # from .heuristics import FLUFLProbe
