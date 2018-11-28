@@ -103,7 +103,17 @@ class AliasMailRouter(MailRouter):
                                           for rcpt in recipients):
                         result.append(route)
                     else:
-                        logger.warning('Discarding alias %r', alias_mail)
+                        logger.warning(
+                            'Discarding alias %r',
+                            alias_mail,
+                            extra=dict(
+                                route=route,
+                                recipients=recipients,
+                                alias_name=alias.alias_name,
+                                alias_domain=alias.alias_domain,
+                                stack=True,
+                            )
+                        )
                 else:
                     result.append(route)
             else:
