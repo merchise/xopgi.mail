@@ -111,6 +111,11 @@ class AliasMailRouter(MailRouter):
                                 recipients=recipients,
                                 alias_name=alias.alias_name,
                                 alias_domain=alias.alias_domain,
+                                message_headers=dict(
+                                    to=message['To'],
+                                    delivered_to=message['Delivered-To'],
+                                    cc=message['Cc'],
+                                ),
                                 stack=True,
                             )
                         )
