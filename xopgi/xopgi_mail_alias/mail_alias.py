@@ -111,7 +111,7 @@ class AliasMailRouter(MailRouter):
                                     delivered_to=message['Delivered-To'],
                                     cc=message['Cc'],
                                 ),
-                                message=message.as_string(),
+                                message_string=message.as_string(),
                                 stack=True,
                             )
                         )
