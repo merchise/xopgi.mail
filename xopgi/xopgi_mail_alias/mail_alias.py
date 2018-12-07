@@ -78,13 +78,15 @@ class AliasMailRouter(MailRouter):
     @classmethod
     def apply(cls, obj, routes, message, data=None):
         result = []
-        raw_recipients = ', '.join([
-            decode_header(message, 'Delivered-To'),
-            decode_header(message, 'To'),
-            decode_header(message, 'Cc'),
-            decode_header(message, 'Resent-To'),
-            decode_header(message, 'Resent-Cc')
-        ])
+        raw_recipients = ', '.join(
+            header
+            for header in [decode_header(message, 'Delivered-To'),
+                           decode_header(message, 'To'),
+                           decode_header(message, 'Cc'),
+                           decode_header(message, 'Resent-To'),
+                           decode_header(message, 'Resent-Cc')]
+            if header
+        )
         recipients = tools.email_split(raw_recipients)
         for route in routes:
             alias = route[-1] if len(route) == 5 else None
