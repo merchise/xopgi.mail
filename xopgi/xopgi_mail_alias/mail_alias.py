@@ -110,8 +110,14 @@ class AliasMailRouter(MailRouter):
                                     to=message['To'],
                                     delivered_to=message['Delivered-To'],
                                     cc=message['Cc'],
+                                    resent_to=message['Resent-To'],
+                                    resent_cc=message['Resent-Cc'],
+                                    decoded_to=decode_header(message, 'To'),
+                                    decoded_delivered_to=decode_header(message, 'Delivered-To'),
+                                    decoded_cc=decode_header(message, 'Cc'),
+                                    decoded_resent_to=decode_header(message, 'Resent-To'),
+                                    decoded_resent_cc=decode_header(message, 'Resent-Cc'),
                                 ),
-                                message_string=message.as_string(),
                                 stack=True,
                             )
                         )
