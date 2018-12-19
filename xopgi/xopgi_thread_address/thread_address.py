@@ -49,16 +49,19 @@ class UniqueAddressTransport(MailTransportRouter):
     @classmethod
     def query(cls, obj, message):
         msg, _ = cls.get_message_objects(obj, message)
-        if msg and isinstance(msg, list):
-            # XXX: Temporarily record all the indexes:
+        if msg:
             indexes = {m.thread_index for m in msg}
             if len(indexes) > 1:
-                _logger.warn('More than one index retrieved for the same '
-                             'message.  Refusing to dispatch the '
-                             'message using a unique address and hoping for '
-                             'the best.', extra=dict(
-                                 message_id=message['Message-Id'],
-                                 indexes=indexes))
+                _logger.warn(
+                    'More than one index retrieved for the same '
+                    'message.  Refusing to dispatch the '
+                    'message using a unique address and hoping for '
+                    'the best.',
+                    extra=dict(
+                        message_id=message['Message-Id'],
+                        indexes=indexes
+                    )
+                )
                 msg = None
             else:
                 msg = msg[0]
