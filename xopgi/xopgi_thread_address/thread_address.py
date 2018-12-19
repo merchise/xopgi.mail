@@ -147,8 +147,8 @@ class UniqueAddressRouter(MailRouter):
             # provide a route that allow to process the message properly.
             # Also sender will be notified that the address given is no longer
             # valid.
-            return (matches, BOUNCE_ROUTE_MODEL, None)
-        return (res, model, thread_id) if found else None
+            return (BOUNCE_ROUTE_MODEL, None)
+        return (model, thread_id) if found else None
 
     @classmethod
     def apply(cls, obj, routes, message, data=None):
@@ -156,7 +156,7 @@ class UniqueAddressRouter(MailRouter):
             # A valid route is one that does not shadow our Reply-to and does
             # not create a new thread (the classical fallback to crm.lead)
             return route[0] != model and bool(route[1])
-        _, model, thread_id = data
+        model, thread_id = data
         # Must change the current `routes` **in-place**.
         routes[:] = [route for _pos, route in cls.find_route(routes, valid)]
         # TODO: Find the true user_id
