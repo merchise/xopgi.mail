@@ -79,11 +79,11 @@ class AliasMailRouter(MailRouter):
     def apply(cls, obj, routes, message, data=None):
         result = []
         raw_recipients = (
-            decode_header(message, 'Delivered-To'),
-            decode_header(message, 'To'),
-            decode_header(message, 'Cc'),
-            decode_header(message, 'Resent-To'),
-            decode_header(message, 'Resent-Cc')
+            decode_header(message, 'Delivered-To', separator=COMMA),
+            decode_header(message, 'To', separator=COMMA),
+            decode_header(message, 'Cc', separator=COMMA),
+            decode_header(message, 'Resent-To', separator=COMMA),
+            decode_header(message, 'Resent-Cc', separator=COMMA)
         )
         recipients = [
             rcpt
@@ -114,11 +114,15 @@ class AliasMailRouter(MailRouter):
                                     cc=message['Cc'],
                                     resent_to=message['Resent-To'],
                                     resent_cc=message['Resent-Cc'],
-                                    decoded_to=decode_header(message, 'To'),
-                                    decoded_delivered_to=decode_header(message, 'Delivered-To'),
-                                    decoded_cc=decode_header(message, 'Cc'),
-                                    decoded_resent_to=decode_header(message, 'Resent-To'),
-                                    decoded_resent_cc=decode_header(message, 'Resent-Cc'),
+                                    decoded_to=decode_header(message, 'To', separator=COMMA),
+                                    decoded_delivered_to=decode_header(
+                                        message,
+                                        'Delivered-To',
+                                        separator=COMMA
+                                    ),
+                                    decoded_cc=decode_header(message, 'Cc', separator=COMMA),
+                                    decoded_resent_to=decode_header(message, 'Resent-To', separator=COMMA),
+                                    decoded_resent_cc=decode_header(message, 'Resent-Cc', separator=COMMA),
                                 ),
                                 stack=True,
                             )
@@ -129,3 +133,7 @@ class AliasMailRouter(MailRouter):
                 result.append(route)
         routes[:] = result
         return routes
+
+
+# Separator for emails in several headers.
+COMMA = ', '
