@@ -146,14 +146,14 @@ class UniqueAddressRouter(MailRouter):
             # provide a route that allow to process the message properly.
             # Also sender will be notified that the address given is no longer
             # valid.
-            _logger.warning(
-                'I would have sent a bounce here!',
+            _logger.debug(
+                'Bouncing the message',
                 extra=dict(
                     match=match,
                     stack=True,
                 )
             )
-            return None  # (BOUNCE_ROUTE_MODEL, None)
+            return (BOUNCE_ROUTE_MODEL, None)
         return (model, thread_id) if found else None
 
     @classmethod
